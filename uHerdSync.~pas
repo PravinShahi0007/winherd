@@ -423,7 +423,6 @@ type
      procedure AddFarmHealthCode(AHealthCode :THealthCodeObject);
      procedure SetDrugAsInUse(const ADrugId : Integer; const AInUse : Boolean);
 
-
      function EnforceOfficialBreedCode(ABreedCode: string): string;
 
      function GetDrugFromServerListing(AVPANumber : string) : TServerDrug;

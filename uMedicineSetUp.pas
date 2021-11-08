@@ -126,6 +126,8 @@
  11/03/20 [V5.9 R2.8] /MK Change - MedicineGridPrintFilter - Only print the Stock Control if "Print All" is selected - GL/Ivan Allens.
                                                            - Don't print the Cost Per Unit column.
                                  - dxComponentPrinter1Link1 - Changed PrinterPage.Orientation to Landscape.
+
+ 27/09/21 [V6.0 R2.5] /MK Bug Fix - Added check for a new drug being added will update an existing drug even if there is only one instance of this drug -
 }
 
 unit uMedicineSetUp;
@@ -318,6 +320,7 @@ type
     FDisplayReportOnStartup : Boolean;
     FMedicinesUsedArray : PIntegerArray;
     FFocusedMedicine : Integer;
+    FAddedMedicine : Boolean;
     procedure SetModifiedFlag;
     procedure Search(FieldName,FieldValue : string);
     procedure DisplayMultiplier;
@@ -735,6 +738,9 @@ var
    sVPANo : String;
 begin
    sVPANo := '';
+   FAddedMedicine := False;
+   if ( Button = kwnbInsert ) then
+      FAddedMedicine := True;
    if ( Button = kwnbPost ) then
       begin
          EditName.Text := Trim(EditName.Text);
@@ -1080,15 +1086,22 @@ var
    iUnitID : Integer;
    bDuplicateUpdated,
    bWithdrawalConfirmed : Boolean;
+   iMedicineFound : Integer;
+   sLookupName : String;
 begin
-   Item := TfmDrugFinder.Find(WinData.Medicine.FieldByName('Name').AsString);
+   sLookupName := WinData.Medicine.FieldByName('Name').AsString;
+   WinData.Medicine.Cancel;
+   Item := TfmDrugFinder.Find(sLookupName);
    if Item = nil then Exit;
-
    bWithdrawalConfirmed := TfmDrugFinderWithdMsg.WithdrawalConfirmed(Item);
-
+   if ( WinData.Medicine.Locate('VPANo',Item.VPANumber,[loCaseInsensitive]) ) then
+      iMedicineFound := WinData.Medicine.FieldByName('Id').AsInteger;
    try
       if ( not(WinData.Medicine.State in dsEditModes) ) then
-         WinData.Medicine.Edit;
+         if ( FAddedMedicine ) and ( iMedicineFound = 0 ) then
+            WinData.Medicine.Insert
+         else
+            WinData.Medicine.Edit;
       WinData.Medicine.FieldByName('Name').AsString := Item.DrugName;
       bDuplicateUpdated := DuplicateVPAUpdated(Item.VPANumber);
       WinData.Medicine.FieldByName('VPANo').AsString := Item.VPANumber;
@@ -1220,6 +1233,7 @@ begin
    Result := False;
    if ( Length(AVPANo) = 0 ) then Exit;
    iSelectedMedicine := WinData.Medicine.FieldByName('ID').AsInteger;
+   if ( iSelectedMedicine = 0 ) then Exit;
    if ( HerdLookup.DuplicateVPAFound(AVPANo,iSelectedMedicine) ) then
       begin
          if ( MessageDlg(Format('This VPA number, %s, already exists in your database.'+cCRLF+

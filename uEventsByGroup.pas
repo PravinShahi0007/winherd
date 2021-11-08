@@ -506,6 +506,16 @@ Changes to Add a New Mass Update Event
                                     - sbSaveClick - Set FDrugBatchQty_EmptyCheck before UpdateAnimals/CopyDetails so not to check quantity remaining for batch in MultiDrug - George (TGM).
 
    28/10/20 [V5.9 R6.5] /MK Bug Fix - FormCreate - Breeding Data Temp Tables were being created but not being filled. This was separated from BreedingData.Create.
+
+   07/07/21 [V6.0 R1.6] /MK Change - CreateTempTable - Moved the FWeighInfoQuery and FPurchInfoQuery GET to after the TempAnimals table is created.
+                                   - btnLookupBatchQtys - Changed the icon from a magnifying glass to binocular as GL though the magnifying glass didn't represent a lookup. 
+                            Additional Feature - CreateTempTable - If the animal doesn't have a previous weighing weight then use the purchase weight if any - Una Carter.
+
+   10/08/21 [V6.0 R1.8] /MK Additional Feature - Added Result for the BVD Test - Alec (Fletchers) request.
+                                               - sbSaveClick - Only save BVDDate to Animals table if new BVDResult table is inserted/updated.
+                                               - CreateBVDResult - Created a function to get whether the BVDResult table has been inserted/updated with the BVD result.
+
+   13/08/21 [V6.0 R1.8] /MK Additional Feature - Allow the BVDResult to be cleared by the user ticking the animal and then saving the event.
 }
 
 interface
@@ -849,6 +859,7 @@ type
     imgSearchInfo: TcxImage;
     HintStyleController: TcxHintStyleController;
     HintTimer: TTimer;
+    dbluBVDResult: TcxDBLookupComboBox;
     procedure FormActivate(Sender: TObject);
     procedure eAnimalNoChange(Sender: TObject);
     procedure AnimalGridDblClick(Sender: TObject);
@@ -1097,7 +1108,9 @@ type
     sTestDisease : TStringField;
     sVaccDisease : TStringField;
     iJohnesResult : TIntegerField;
+    iBVDResult : TIntegerField;
     sJohnesResult : TStringField;
+    sBVDResult : TStringField;
 
     FLastDrugUsed : Integer; // used to store the drug used for each tempanimals record.
 
@@ -1233,6 +1246,8 @@ type
     procedure SortAnimalGrid(AIndexName : String);
 
     function GetAllAnimalsSelected : Boolean;
+
+    function CreateBVDResult ( AAnimalId, AResult : Integer  ) : Boolean;
 
   public
     { Public declarations }
@@ -1543,7 +1558,9 @@ begin
          begin
             sTestDisease.Free;
             iJohnesResult.Free;
+            iBVDResult.Free;
             sJohnesResult.Free;
+            sBVDResult.Free;
          end;
    end;
   if WinData.qDrugBatchNo.Active then
@@ -2332,6 +2349,9 @@ end;
 procedure TfEventsByGroup.HerdTestSetup;
 begin
    dbluJohnesResult.Properties.ListSource := HerdLookup.dsLookupJohnesResult;
+   dbluBVDResult.Properties.ListSource := HerdLookup.dsHerdTestResultType;
+
+   HerdLookup.qHerdTestResultType.Active := True;
 
    sTestDisease := TStringField.Create(TempAnimals);
    with sTestDisease do
@@ -2361,6 +2381,25 @@ begin
          DataSet := TempAnimals;
       end;
 
+   iBVDResult := TIntegerField.Create(TempAnimals);
+   with iBVDResult do
+      begin
+         FieldName := 'BVDResult';
+         DataSet := TempAnimals;
+      end;
+
+   sBVDResult := TStringField.Create(TempAnimals);
+   with sBVDResult do
+      begin
+         FieldName := 'BVDResultDesc';
+         LookUpDataSet := HerdLookup.qHerdTestResultType;
+         LookUpKeyFields := 'ID';
+         LookUpResultField := 'Description';
+         KeyFields := 'BVDResult';
+         LookUp := TRUE;
+         DataSet := TempAnimals;
+      end;
+
    AnimalGrid.Columns[7].Visible := False;
 
    SetDataSource ( tsHerdTest, dsTempEvents );
@@ -2380,12 +2419,14 @@ begin
          FieldName := 'PlannedBull';
          DataSet := TempAnimals;
       end;
+
    iObservedBy := TIntegerField.Create(TempAnimals);
    with iObServedBy do
       begin
          FieldName := 'ObservedBy';
          DataSet := TempAnimals;
       end;
+
    sBullCode := TStringField.Create(TempAnimals);
    with sBullCode do
       begin
@@ -2398,6 +2439,7 @@ begin
          LookUp := TRUE;
          DataSet := TempAnimals;
       end;
+
    sObservedByName := TStringField.Create(TempAnimals);
    with sObservedByName do
       begin
@@ -2891,6 +2933,7 @@ begin
                          FieldDefs.Add('HerdTestDate',ftDate,0,FALSE);
                          FieldDefs.Add('Disease',ftString,12,FALSE);
                          FieldDefs.Add('JohnesResult',ftInteger,0,FALSE);
+                         FieldDefs.Add('BVDResult',ftInteger,0,FALSE);
                       end;
          TPlannedBull,
          TBulling : begin
@@ -3152,32 +3195,6 @@ begin
                  ceNoStraws.DataBinding.DataField := '';
                  cbSexedSemen.DataSource := nil;
 
-                 if ( WinData.EventType in [THealth, TDryOff, THerdVaccination, TWeight] ) then
-                    if ( not(FWeighInfoQuery.Active) ) then
-                       begin
-                          FWeighInfoQuery.Close;
-                          FWeighInfoQuery.SQL.Clear;
-                          FWeighInfoQuery.SQL.Add('SELECT T.AnimalID, T.DateOfBirth, E.EventDate WeighDate, W.Weight');
-                          FWeighInfoQuery.SQL.Add('FROM '+TempAnimals.TableName+' T');
-                          FWeighInfoQuery.SQL.Add('LEFT JOIN '+FWeighingEvents.TableName+' E ON (E.AnimalID = T.AnimalID)');
-                          FWeighInfoQuery.SQL.Add('LEFT JOIN Weights W On (W.EventID = E.EventID)');
-                          FWeighInfoQuery.SQL.Add('WHERE (E.EventDate >= T.DateOfBirth)');
-                          FWeighInfoQuery.SQL.Add('AND   ( W.Weight IS NOT NULL ) AND ( W.Weight > 0 )');
-                          FWeighInfoQuery.SQL.Add('ORDER BY T.AnimalID, E.EventDate DESC');
-                          FWeighInfoQuery.Open;
-                       end;
-
-                 if ( not(FPurchInfoQuery.Active) ) then
-                    begin
-                       FPurchInfoQuery.Close;
-                       FPurchInfoQuery.SQL.Clear;
-                       FPurchInfoQuery.SQL.Add('SELECT A.AnimalID, E.EventDate, P.Weight');
-                       FPurchInfoQuery.SQL.Add('FROM '+TempAnimals.TableName+' A');
-                       FPurchInfoQuery.SQL.Add('LEFT JOIN '+FPurchaseEvents.TableName+' E ON (E.AnimalID = A.AnimalID)');
-                       FPurchInfoQuery.SQL.Add('LEFT JOIN Purchases P ON (P.EventID = E.EventID)');
-                       FPurchInfoQuery.Open;
-                    end;
-
                  case WinData.EventType of
                     TService    : ServiceSetUp;
                     TPlannedBull,
@@ -3198,9 +3215,9 @@ begin
                  end;
 
                  Open;
+
                  sbMessage.Panels[0].Text := cLoadingAnimals;
 
-                 // MoveSelectedAnimals.Execute;
                  try
                     with GenQuery do
                        begin
@@ -3315,6 +3332,34 @@ begin
                              SQL.Add(Format('WHERE NOT AnimalId IN %s',[HerdLookup.GetAnimalSelectionToArrayWideString(FSelectionType)]));
                           ExecSQL;
 
+                          //   07/07/21 [V6.0 R1.6] /MK Change - Moved this FWeighInfoQuery GET to after the TempAnimals table is created.
+                          if ( WinData.EventType in [THealth, TDryOff, THerdVaccination, TWeight] ) then
+                             if ( not(FWeighInfoQuery.Active) ) then
+                                begin
+                                   FWeighInfoQuery.Close;
+                                   FWeighInfoQuery.SQL.Clear;
+                                   FWeighInfoQuery.SQL.Add('SELECT T.AnimalID, T.DateOfBirth, E.EventDate WeighDate, W.Weight');
+                                   FWeighInfoQuery.SQL.Add('FROM '+TempAnimals.TableName+' T');
+                                   FWeighInfoQuery.SQL.Add('LEFT JOIN '+FWeighingEvents.TableName+' E ON (E.AnimalID = T.AnimalID)');
+                                   FWeighInfoQuery.SQL.Add('LEFT JOIN Weights W On (W.EventID = E.EventID)');
+                                   FWeighInfoQuery.SQL.Add('WHERE (E.EventDate >= T.DateOfBirth)');
+                                   FWeighInfoQuery.SQL.Add('AND   ( W.Weight IS NOT NULL ) AND ( W.Weight > 0 )');
+                                   FWeighInfoQuery.SQL.Add('ORDER BY T.AnimalID, E.EventDate DESC');
+                                   FWeighInfoQuery.Open;
+                                end;
+
+                          //   07/07/21 [V6.0 R1.6] /MK Change - Moved this FPurchInfoQuery GET to after the TempAnimals table is created.
+                          if ( not(FPurchInfoQuery.Active) ) then
+                             begin
+                                FPurchInfoQuery.Close;
+                                FPurchInfoQuery.SQL.Clear;
+                                FPurchInfoQuery.SQL.Add('SELECT A.AnimalID, E.EventDate, P.Weight');
+                                FPurchInfoQuery.SQL.Add('FROM '+TempAnimals.TableName+' A');
+                                FPurchInfoQuery.SQL.Add('LEFT JOIN '+FPurchaseEvents.TableName+' E ON (E.AnimalID = A.AnimalID)');
+                                FPurchInfoQuery.SQL.Add('LEFT JOIN Purchases P ON (P.EventID = E.EventID)');
+                                FPurchInfoQuery.Open;
+                             end;
+
                           FPurchInfoQuery.First;
                           while ( not(FPurchInfoQuery.Eof) ) do
                              begin
@@ -3372,7 +3417,10 @@ begin
                                                begin
                                                   rgUseWeightAsApplicRate.ItemIndex := 0;
                                                   if ( FWeighInfoQuery.Locate('AnimalID',TempAnimals.FieldByName('AnimalID').AsInteger,[]) ) then
-                                                     TempAnimals.FieldByName('LastWeight').Value := FWeighInfoQuery.FieldByName('Weight').AsFloat;
+                                                     TempAnimals.FieldByName('LastWeight').Value := FWeighInfoQuery.FieldByName('Weight').AsFloat
+                                                  //   07/07/21 [V6.0 R1.6] /MK Additional Feature - If the animal doesn't have a previous weighing weight then use the purchase weight if any - Una Carter.
+                                                  else if ( TempAnimals.FieldByName('PWeight').AsFloat > 0 ) then
+                                                     TempAnimals.FieldByName('LastWeight').Value := TempAnimals.FieldByName('PWeight').AsFloat;
                                                end;
                                          end;
 
@@ -3783,7 +3831,9 @@ begin
                            if ( Length(FieldByName('Disease').AsString) <= 0 ) then
                               FieldByName('Disease').AsString := TempEvents.FieldByName('Disease').AsString;
                            if ( FieldByName('JohnesResult').AsInteger <= 0 ) then
-                             FieldByName('JohnesResult').AsInteger := TempEvents.FieldByName('JohnesResult').AsInteger;
+                              FieldByName('JohnesResult').AsInteger := TempEvents.FieldByName('JohnesResult').AsInteger;
+                           if ( FieldByName('BVDResult').AsInteger <= 0 ) then
+                              FieldByName('BVDResult').AsInteger := TempEvents.FieldByName('BVDResult').AsInteger;
                         end;
                   end;
                end
@@ -3939,6 +3989,8 @@ begin
                               FieldByName('Disease').AsString := TempEvents.FieldByName('Disease').AsString;
                            if ( CurrentField = 'JohnesResult' ) then
                               FieldByName('JohnesResult').AsInteger := TempEvents.FieldByName('JohnesResult').AsInteger;
+                           if CurrentField = 'BVDResult' then
+                              FieldByName('BVDResult').AsInteger := TempEvents.FieldByName('BVDResult').AsInteger;
                         end;
                end;
             end;
@@ -4043,6 +4095,7 @@ begin
                   begin
                      FieldByName('Disease').Clear;
                      FieldByName('JohnesResult').AsInteger := 0;
+                     FieldByName('BVDResult').AsInteger := 0;
                   end;
             end;
          end;
@@ -5330,7 +5383,7 @@ begin
                            begin
                               SQL.Clear;
                               SQL.Add('SELECT TA.AnimalID, TA.EventDate, TA.LactNo,');
-                              SQL.Add('       TA.HerdID, TA.JohnesResult');
+                              SQL.Add('       TA.HerdID, TA.JohnesResult, TA.BVDResult');
                               SQL.Add('FROM ' + TempAnimals.TableName + ' TA' );
                               SQL.Add('WHERE (TA.Selected=TRUE)');
                               SQL.Add('AND   (TA.EventDate IS NOT NULL)');
@@ -5362,7 +5415,9 @@ begin
                                                           end
                                                       else if ( FHerdTestType = htBVD ) then
                                                          begin
-                                                            tAnimals.FieldByName('BVDDate').AsDateTime := FieldByName(fn_EventDate).AsDateTime;
+                                                            //   10/08/21 [V6.0 R1.8] /MK Additional Feature - Only save BVDDate to Animals table if new BVDResult table is inserted/updated.
+                                                            if ( CreateBVDResult(FieldByName('AnimalId').AsInteger, FieldByName('BVDResult').AsInteger) ) then
+                                                               tAnimals.FieldByName('BVDDate').AsDateTime := FieldByName(fn_EventDate).AsDateTime;
                                                          end
                                                       else if ( FHerdTestType = htJohnes ) then
                                                          begin
@@ -6664,7 +6719,8 @@ end;
 
 procedure TfEventsByGroup.TempEventsYesNoValidate(Sender: TField);
 begin
-   if NOT ((UPPERCASE((Sender as TField).AsString) = 'YES') or (UPPERCASE((Sender as TField).AsString) = 'NO')) then
+   if ( NOT(((UPPERCASE((Sender as TField).AsString) = 'YES') or (UPPERCASE((Sender as TField).AsString) = 'NO'))) ) and
+      ( NOT(((UPPERCASE((Sender as TField).AsString) = 'POSITIVE') or (UPPERCASE((Sender as TField).AsString) = 'NEGATIVE'))) ) then
       raise ErrorMsg.CreateFmt('%s is not a valid Status - must be %s or %s',[(Sender As TField).AsString,'Yes','No']);
 end;
 
@@ -7427,6 +7483,7 @@ begin
 
    lJohnesResult.Visible := False;
    dbluJohnesResult.Visible := False;
+   dbluBVDResult.Visible := False;
 
    if ( not(HerdLookup.qICBFSexedSemenType.Active) ) then
       HerdLookup.qICBFSexedSemenType.Active := True;
@@ -7588,6 +7645,7 @@ begin
    HerdLookup.qDrugList.Active := False;
    HerdLookup.LookupHealthReportDesc.Active := False;
    HerdLookup.LookupJohnesResult.Active := False;
+   HerdLookup.qHerdTestResultType.Active := False;
 
    if ( HerdLookup.qPlannedBull.Active ) then
       HerdLookup.qPlannedBull.Active := False;
@@ -9466,9 +9524,27 @@ begin
             end;
          lJohnesResult.Visible := True;
          dbluJohnesResult.Visible := True;
+         dbluBVDResult.Visible := False;
+         dbluBVDResult.Left := 300;
+      end
+   else if ( UpperCase(dbcbTestDisease.Text) = 'BVD' ) then
+      begin
+         with AnimalGrid.Columns.Add do
+            begin
+               FieldName := 'BVDResultDesc';
+               Title.Caption := 'Result';
+               Width := AnimalGrid.Font.Size * 20;
+               PickList.Add('Positive');
+               PickList.Add('Negative');
+            end;
+         lJohnesResult.Visible := True;
+         dbluJohnesResult.Visible := False;
+         dbluBVDResult.Visible := True;
+         dbluBVDResult.Left := dbluJohnesResult.Left;
       end
    else if ( UpperCase(dbcbTestDisease.Text) <> '' ) and
-      ( UpperCase(dbcbTestDisease.Text) <> 'JOHNES' ) then
+           ( (UpperCase(dbcbTestDisease.Text) <> 'JOHNES') and
+             (UpperCase(dbcbTestDisease.Text) <> 'BVD') ) then
       begin
          for i := 0 to AnimalGrid.Columns.Count-1 do
             begin
@@ -9477,6 +9553,7 @@ begin
             end;
          lJohnesResult.Visible := False;
          dbluJohnesResult.Visible := False;
+         dbluBVDResult.Visible := False;
       end;
 end;
 
@@ -10678,6 +10755,55 @@ begin
                   MessageDlg('Animal selection could not be made.',mtError,[mbOK],0);
                end;
             end;
+      end;
+end;
+
+function TfEventsByGroup.CreateBVDResult ( AAnimalId, AResult : Integer  ) : Boolean;
+begin
+   Result := False;
+   if ( AAnimalId = 0 ) then Exit;
+
+   with TQuery.Create(nil) do
+      try
+         DatabaseName := AliasName;
+         SQL.Clear;
+         SQL.Add('SELECT *');
+         SQL.Add('FROM AnimalsExt');
+         SQL.Add('WHERE AnimalID = :AID');
+         Params[0].AsInteger := AAnimalId;
+         Open;
+         if ( RecordCount = 0 ) then
+            begin
+               Close;
+               SQL.Clear;
+               SQL.Add('INSERT INTO AnimalsExt (AnimalId, BVDResult)');
+               SQL.Add('VALUES (:AID, :Result)');
+               Params[0].AsInteger := AAnimalId;
+               Params[1].AsInteger := AResult;
+            end
+         else
+            begin
+               Close;
+               SQL.Clear;
+               SQL.Add('UPDATE AnimalsExt');
+               SQL.Add('SET BVDResult = :Result');
+               SQL.Add('WHERE AnimalId = :AId');
+               Params[0].AsInteger := AResult;
+               Params[1].AsInteger := AAnimalId;
+            end;
+         try
+            ExecSQL;
+            Result := True;
+         except
+            on e : Exception do
+               begin
+                  ApplicationLog.LogException(e);
+                  ApplicationLog.LogError('Block Events - CreateBVDResult - '+e.Message);
+                  Result := False;
+               end;
+         end;
+      finally
+         Free;
       end;
 end;
 

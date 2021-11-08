@@ -66,6 +66,11 @@
   14/10/19 [V5.9 R0.9] /MK Additional Feature - Created a new preference under Events/Sales/Deaths for Remove Transponder Number After Sale only for Parlour users - John Wynne.
 
   21/08/20 [V5.9 R5.5] /MK Additional Feature - Added new preference "Use purchase weight as live weight for Kill out".
+
+  08/07/21 [V6.0 R1.6] /MK Additional Feature - Added new Startup Reminder check boxes for ICBFRegReminder and AIMHerdRecReminder.
+                                              - FormCreate - Set new ICBFRegReminder and AIMHerdRecReminder checkboxes by their GlobalSetting variables.
+                                                           - New ICBFRegReminder and AIMHerdRecReminder checkboxes only visible for Irish customers.
+                                              - o - Set new GlobalSetting ICBFRegReminder and AIMHerdRecReminder variables by their checkboxes.             
 }
 
 unit uGlobalSettings;
@@ -212,6 +217,8 @@ type
     cbUpdateMartWeightWithCrushWeight: TcxCheckBox;
     cbRemoveTransponderAfterSale: TcxCheckBox;
     cbUsePurchaseWeightAsLiveWeight: TcxCheckBox;
+    cbICBFRegReminder: TcxCheckBox;
+    cbAIMHerdRecReminder: TcxCheckBox;
     procedure FormCreate(Sender: TObject);
     procedure o(Sender: TObject; var Action: TCloseAction);
     procedure ListBox1Click(Sender: TObject);
@@ -418,6 +425,10 @@ begin
 
          cbRemoveTransponderAfterSale.Checked := RemoveTransponderAfterSale;
 
+         //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Set new ICBFRegReminder and AIMHerdRecReminder checkboxes by their GlobalSetting variables.
+         cbICBFRegReminder.Checked := ICBFRegReminder;
+         cbAIMHerdRecReminder.Checked := AIMHerdRecReminder;
+
          LoadStartupReminders;
       end;
 
@@ -491,6 +502,10 @@ begin
    FFromCalving := False;
 
    cbRemoveTransponderAfterSale.Visible := Def.Definition.dUseParlour;
+
+   //   08/07/21 [V6.0 R1.6] /MK Additional Feature - New ICBFRegReminder and AIMHerdRecReminder checkboxes only visible for Irish customers
+   cbICBFRegReminder.Visible := ( RegCountry = Ireland );
+   cbAIMHerdRecReminder.Visible := ( RegCountry = Ireland );
 end;
 
 procedure TfmGlobalSettings.o(Sender: TObject; var Action: TCloseAction);
@@ -602,6 +617,10 @@ begin
          UpdateMartWeightWithCrushWeight := cbUpdateMartWeightWithCrushWeight.Checked;
 
          RemoveTransponderAfterSale := cbRemoveTransponderAfterSale.Checked;
+
+         //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Set new GlobalSetting ICBFRegReminder and AIMHerdRecReminder variables by their checkboxes. 
+         ICBFRegReminder := cbICBFRegReminder.Checked;
+         AIMHerdRecReminder := cbAIMHerdRecReminder.Checked;
 
          WinData.SavePreferences;
       end;

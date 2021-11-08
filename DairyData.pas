@@ -1013,6 +1013,42 @@ unit DairyData;
  22/01/21 [V5.9 R8.0] /MK Bug Fix - qHerdVaccineReminders & qHerdDosageReminders - Changed SQL to exclude events that don't have a ReportInDays.
 
  09/02/21 [V5.9 R8.3] /MK Change - CheckFiles - Set all vaccination events that have a report in days of a week or more as modified so they up to the server again with the report in days - SP request.
+
+ 30/04/21 [V6.0 R1.0] /MK Bug Fix - GroupsBeforeDelete - Noticed with Ben Charmley that a zero GroupId was added to the DeletedGrps table.
+                          Additional Feature - GetEventLookupData/AnimalFileByIDBeforeOpen - Added PricePerKg to MDGridSaleData so it will appear on main grid.
+
+ 05/05/21 [V6.0 R1.0] /MK Additional Feature - GetEventLookupData/AnimalFileByIDBeforeOpen - Added ColdDeadWt to MDGridSaleData so it will appear on main grid.
+
+ 14/05/21 [V6.0 R1.1] /MK Additional Feature - GetEventLookupData/AnimalFileByIDBeforeOpen - Added SalesGrade and GrossMargin so it will appear on the main grid.
+
+ 18/05/21 [V6.0 R1.1] /MK Change - LoadPreferences - Gerry said to default the NatIdToAnimalNo to True.
+
+ 18/05/21 [V6.0 R1.1] /MK Change - QueryBandonRegistrations - Don't include animals from Animals and AIMAnimalReg table marked as Registered or Queried as per uAimAnimalRegistration
+
+ 05/07/21 [V6.0 R1.6] /MK Change - UpdatePregDiagEvent - Found on some sets of data there were more than one PD event on the same lactation - Tom Craigs data.
+
+ 08/07/21 [V6.0 R1.6] /MK Change - GetEventLookupData - Changed MDGridCurrLactMilkData.SCC to latest recorded SCC from Average SCC of MilkDisk table.
+                          Additional Feature - LoadPreferences - Read new ICBFRegReminder reg value and set GlobalSettings.ICBFRegReminder by this value.
+                                                               - Read new ICBFRegReminder reg value and set GlobalSettings.AIMHerdRecReminder by this value.
+                                                               - Default ICBFRegReminder reg value to true if it doesn't exist.
+                                                               - Default AIMHerdRecReminder reg value to true if it doesn't exist.
+                                             - SavePreferences - Assign GlobalSettings.ICBFRegReminder to new ICBFRegReminder reg entry.
+                                                               - Assign GlobalSettings.AIMHerdRecReminder to new AIMHerdRecReminder reg entry.
+
+ 12/07/21 [V6.0 R1.7] /MK Change - LoadPreferences - Default ShowBlockTempMovements off - GL request.
+
+ 10/08/21 [V6.0 R1.8] /MK Additional Feature - GetEventLookupData - Added MemDataSet and Query to get the BVDResult for the animal.
+
+ 30/08/21 [V6.0 R2.1] /MK Additional Feature - GetEventLookupData - Create and add data to new MemDataSet, MDGridCowExtData, to store the CowExt data.
+                                                                  - Heifers that have been served or are in heat should be marked as dry.
+                                             - Added public variable DueCalvingUpdated to run GetEventLookupData if the Due To Calve Report was ran.
+                                             - Added public variable ShowMainGridGridDueToCalvCalcMsg to allow uCalculateGridColSelect to run Due To Calve Report. 
+
+ 09/09/21 [V6.0 R2.2] /MK Additional Feature - Change MDGridBVDResultData and QGridBVDResultData to MDGridAnimalsExtData and QGridAnimalsExtData as ACI field added to AnimalsExt table.
+                                             - Added ACI field to AnimalFileById.
+                                             - Added ACI field to the AnimalsExt MemDataSet.
+
+ 05/11/21 [V6.0 R2.8] /MK Change - CheckFiles - Look for remedy events from the App with Batch Number that don't have the DrugPurchId updated and set the DrugPurchId.
 }
 
 interface
@@ -2408,7 +2444,7 @@ type
     qDrugBatchNoQtyRemaining: TFloatField;
     MediPurchIsSynchronized: TBooleanField;
     FdStkEventsIsSynchronized: TBooleanField;
-	AnimalFileByIDQANoMovements: TStringField;
+    AnimalFileByIDQANoMovements: TStringField;
     GroupsAdditionalData: TBooleanField;
     GroupsClientId: TStringField;
     GroupsSource: TIntegerField;
@@ -2422,6 +2458,8 @@ type
     EventsExtIsDeleted: TBooleanField;
     EventsExtIsSynchronized: TBooleanField;
     QuerySuppliersBTEHerdNo: TStringField;
+    AnimalFileByIDPenName: TStringField;
+    AnimalsExtBVDResult: TIntegerField;
     procedure HerdBeforePost(DataSet: TDataSet);
     procedure EventsNewRecord(DataSet: TDataSet);
     procedure WinDataDestroy(Sender: TObject);
@@ -3000,6 +3038,8 @@ type
 
     function UpdateVaccinationEvents_AsUpdated_ForSync : Boolean;
 
+    function FixAppRemedysNoDrugPurchId: Boolean;
+
   public
     { Public declarations }
     InsertCalving,          // True if Adding a Calving Record at SetUp
@@ -3142,7 +3182,8 @@ type
     MDGridCalvingDateData, MDGridServiceDateData, MDGridDryOffDateData,
     MDGridPregDiagDateData, MDGridBatchGroupData,
     MDGridJohnesResultData, MDGridStatusData,
-    MDGridCurrLactMilkData, MDGridA1A2ResultData : TdxMemData;
+    MDGridCurrLactMilkData, MDGridA1A2ResultData,
+    MDGridGrossMarginData, MDGridAnimalsExtData, MDGridCowExtData : TdxMemData;
 
     FEventDataHelper : TEventDataHelper;
     FBreedingDataHelper : TBreedingDataHelper;
@@ -3225,6 +3266,10 @@ type
     CancelAutoReIndex : Boolean;
 
     IsNewHeatlhRecord : Boolean;
+
+    DueCalvingUpdated : Boolean;
+
+    ShowMainGridGridDueToCalvCalcMsg : Boolean;
 
     function CheckEventExists(AID, ALact, AEventType : Integer) : Boolean;overload;
     function CheckEventExists(AID, AEventType : Integer; AEventDate : TDateTime): Boolean;overload;
@@ -5886,6 +5931,8 @@ begin
    RefreshOverGainPerDay := False;
 
    CancelAutoReIndex := False;
+
+   DueCalvingUpdated := False;
 end;
 
 procedure TWinData.WinDataDestroy(Sender: TObject);
@@ -11554,6 +11601,10 @@ try
    if ( UpdateOK ) and ( UpdateNo < 5983 ) then
       UpdateOK := UpdateVaccinationEvents_AsUpdated_ForSync;
 
+   //   05/11/21 [V6.0 R2.8] /MK Change - Look for remedy events from the App with Batch Number that don't have the DrugPurchId updated and set the DrugPurchId.
+   if ( UpdateOK ) and ( UpdateNo < 6028 ) then
+      UpdateOK := FixAppRemedysNoDrugPurchId;
+
    if ( UpdateOK ) then
       UpdateDefaults;
 end; // end of 'check files'
@@ -14731,20 +14782,24 @@ begin
 
    //   10/10/17 [V5.7 R3.8] /MK Change - If a group is deleted we need to store it so that it can be deleted from the server.
    //   05/11/18 [V5.8 R4.5] /MK Change - Insert date deleted and IsSynchronized values to newly added fields in DeletedGrps table.
-   GenQuery.SQL.Clear;
-   GenQuery.SQL.Add('INSERT INTO '+DeletedGrps.TableName+' (GroupID, DateDeleted, IsSynchronized)');
-   GenQuery.SQL.Add('VALUES (:GroupID, :DateDeleted, False)');
-   GenQuery.Params[0].AsInteger := DataSet.FieldByName('ID').AsInteger;
-   GenQuery.Params[1].AsDateTime := Date;
-   try
-      GenQuery.ExecSQL;
-   except
-      on e : Exception do
-         begin
-            ApplicationLog.LogException(e);
-            ApplicationLog.LogError(Format('Error deleting GroupID %d',[DataSet.FieldByName('ID').AsInteger]));
+   //   30/04/21 [V6.0 R1.0] /MK Bug Fix - Noticed with Ben Charmley that a zero GroupId was added to the DeletedGrps table.
+   if ( DataSet.FieldByName('ID').AsInteger > 0 ) then
+      begin
+         GenQuery.SQL.Clear;
+         GenQuery.SQL.Add('INSERT INTO '+DeletedGrps.TableName+' (GroupID, DateDeleted, IsSynchronized)');
+         GenQuery.SQL.Add('VALUES (:GroupID, :DateDeleted, False)');
+         GenQuery.Params[0].AsInteger := DataSet.FieldByName('ID').AsInteger;
+         GenQuery.Params[1].AsDateTime := Date;
+         try
+            GenQuery.ExecSQL;
+         except
+            on e : Exception do
+               begin
+                  ApplicationLog.LogException(e);
+                  ApplicationLog.LogError(Format('Error deleting GroupID %d',[DataSet.FieldByName('ID').AsInteger]));
+               end;
          end;
-   end;
+      end;
 end;
 
 procedure TWinData.GroupsNewRecord(DataSet: TDataSet);
@@ -19993,10 +20048,11 @@ begin
 
             Reg.ReadBinaryData(cGSHerdProtection, GlobalSettings.HerdPassword, SizeOf(THerdPassword));
 
+            //   18/05/21 [V6.0 R1.1] /MK Change - Gerry said to default the NatIdToAnimalNo to True.
             if Reg.ValueExists(cGSNatIDToAnimalNo) then
                GlobalSettings.NatIDToAnimalNo := Reg.ReadBool(cGSNatIDToAnimalNo)
             else
-               GlobalSettings.NatIDToAnimalNo := False;
+               GlobalSettings.NatIDToAnimalNo := True;
 
             if Reg.ValueExists(cGSBladeRegistered) then
                GlobalSettings.BladeRegistered := Reg.ReadBool(cGSBladeRegistered)
@@ -20295,7 +20351,8 @@ begin
                GlobalSettings.ShowBlockTempMovements := Reg.ReadBool(cGSShowBlockTempMovements)
             else
                //   19/02/15 [V5.4 R2.6] /MK Change - Default ShowBlockTempMovements on.
-               GlobalSettings.ShowBlockTempMovements := True;
+               //   12/07/21 [V6.0 R1.7] /MK Change - Default ShowBlockTempMovements off - GL request.
+               GlobalSettings.ShowBlockTempMovements := False;
 
             if Reg.ValueExists(cGSMartSaveCommentAsSourceName) then
                GlobalSettings.MartSaveCommentAsSourceName := Reg.ReadBool(cGSMartSaveCommentAsSourceName)
@@ -20374,6 +20431,18 @@ begin
                   GlobalSettings.RemoveTransponderAfterSale := Reg.ReadBool(cGSRemoveTransponderAfterSale)
                else
                   GlobalSettings.RemoveTransponderAfterSale := Def.Definition.dUseParlour;
+
+            //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Read new ICBFRegReminder reg value and set GlobalSettings.ICBFRegReminder by this value.
+            if Reg.ValueExists(cGSICBFRegReminder) then
+               GlobalSettings.ICBFRegReminder := Reg.ReadBool(cGSICBFRegReminder)
+            else
+               GlobalSettings.ICBFRegReminder := True;
+
+            //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Read new ICBFRegReminder reg value and set GlobalSettings.AIMHerdRecReminder by this value.
+            if Reg.ValueExists(cGSAIMHerdRecReminder) then
+               GlobalSettings.AIMHerdRecReminder := Reg.ReadBool(cGSAIMHerdRecReminder)
+            else
+               GlobalSettings.AIMHerdRecReminder := True;
          end
       //   10/04/18 [V5.7 R8.7] /MK Change - Stop loading from settings.def, just create the registry key entries with default values if registry key does not exist - SP.
       else
@@ -20389,7 +20458,8 @@ begin
                   Reg.WriteBool(cGSBackupSpanDisks, FALSE);
                   Reg.WriteBool(cGSBackupArchiveFile, TRUE);
                   Reg.WriteBinaryData(cGSHerdProtection, GlobalSettings.HerdPassword, SizeOf(THerdPassword));
-                  Reg.WriteBool(cGSNatIDToAnimalNo, FALSE);
+                  //   18/05/21 [V6.0 R1.1] /MK Change - Gerry said to default the NatIdToAnimalNo to True.
+                  Reg.WriteBool(cGSNatIDToAnimalNo, True);
                   Reg.WriteBool(cGSBladeRegistered, FALSE);
                   Reg.WriteBool(cGSRenumberAnimalNo, FALSE);
                   Reg.WriteBool(cGSMandatoryBreedingEvents, FALSE);
@@ -20477,6 +20547,12 @@ begin
                   Reg.WriteBool(cGSUseLastRecordWeightAsLiveWeightForKillOut, False);
 
                   Reg.WriteBool(cGSUsePurchaseWeightAsLiveWeightForKillOut, False);
+
+                  //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Default ICBFRegReminder reg value to true if it doesn't exist.
+                  Reg.WriteBool(cGSICBFRegReminder, True);
+
+                  //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Default AIMHerdRecReminder reg value to true if it doesn't exist.
+                  Reg.WriteBool(cGSAIMHerdRecReminder, True);
 
                   LoadPreferences;
                end;
@@ -20707,6 +20783,12 @@ begin
 
             //   14/10/19 [V5.9 R0.9] /MK Additional Feature - Enable RemoveTransponderAfterSale if not found and Parlour user.
             Reg.WriteBool(cGSRemoveTransponderAfterSale, GlobalSettings.RemoveTransponderAfterSale);
+
+            //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Assign GlobalSettings.ICBFRegReminder to new ICBFRegReminder reg entry.
+            Reg.WriteBool(cGSICBFRegReminder, GlobalSettings.ICBFRegReminder);
+
+            //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Assign GlobalSettings.AIMHerdRecReminder to new AIMHerdRecReminder reg entry.
+            Reg.WriteBool(cGSAIMHerdRecReminder, GlobalSettings.AIMHerdRecReminder);
          end;
    finally
       Reg.CloseKey;
@@ -22760,7 +22842,7 @@ begin
                if ( AnimalFileByID.FindField('PurchDate') = nil ) then Exit;
                if ( AnimalFileByID.FieldByName('PurchDate').AsDateTime > 0 ) and ( AnimalFileByID.FieldByName('SaleDate').AsDateTime = 0 ) then
                   begin
-                     PurchDate   := AnimalFileByID.FieldByName('PurchDate').AsDateTime;
+                     PurchDate := AnimalFileByID.FieldByName('PurchDate').AsDateTime;
                      {
                      PurchNoDays := AnimalFileByID.FieldByName('PurchFQASDays').AsInteger;
 
@@ -24193,7 +24275,9 @@ var
    QGridDryOffDateData,
    QGridPregDiagDateData,
    QGridJohnesResultData,
-   QGridA1A2ResultData : TQuery;
+   QGridA1A2ResultData,
+   QGridAnimalsExtData,
+   QGridCowExtData : TQuery;
 
    fCumButterFat,
    fCumBfatWeight,
@@ -24215,7 +24299,6 @@ var
 
    i : Integer;
 begin
-
    if GlobalSettings.DisplayMovementFeedColsInGridView then
       begin
          if AOpen then
@@ -24230,6 +24313,11 @@ begin
                else
                   MDGridSaleData.Close;
 
+               if MDGridGrossMarginData = nil then
+                  MDGridGrossMarginData := TdxMemData.Create(nil)
+               else
+                  MDGridGrossMarginData.Close;
+
                QGridPurchData := TQuery.Create(nil);
                QGridPurchData.DatabaseName := AliasName;
                with QGridPurchData do
@@ -24237,13 +24325,13 @@ begin
                      DatabaseName := AliasName;
                      SQL.Clear;
                      SQL.Add(' SELECT PE.AnimalID AnimalID, PE.EventDate PurchDate, P.Price PurchPrice,');
-                     SQL.Add(' S.Name SupplierName, P.LotNumber PurchLotNumber, P.FQASDays PurchFQASDays, PE.EventDesc PurchComment, ');
-                     SQL.Add(' P.Weight PurchWeight, P.SupplierCosts, P.BuyerCosts, P.Haulage, P.Commission,');
-                     SQL.Add(' S.Commission SupCommission, S.Transport SupTransport ');
+                     SQL.Add('        S.Name SupplierName, P.LotNumber PurchLotNumber, P.FQASDays PurchFQASDays, PE.EventDesc PurchComment, ');
+                     SQL.Add('        P.Weight PurchWeight, P.SupplierCosts, P.BuyerCosts, P.Haulage, P.Commission,');
+                     SQL.Add('        S.Commission SupCommission, S.Transport SupTransport ');
                      SQL.Add(' FROM Events PE');
                      SQL.Add(' LEFT JOIN Purchases P ON (P.EventID=PE.ID)');
                      SQL.Add(' LEFT JOIN SuppliersBreeders S ON (S.ID=P.Supplier)');
-                     SQL.Add(' WHERE (PE.EventType=12)');
+                     SQL.Add(' WHERE PE.EventType = 12');
                      Open;
                      ClearMemDataFieldDefs(MDGridPurchData);
                      CreateMemDataFieldDef(MDGridPurchData, 'AnimalId', ftInteger);
@@ -24310,11 +24398,12 @@ begin
                   try
                      DatabaseName := AliasName;
                      SQL.Clear;
-                     SQL.Add(' SELECT SE.AnimalID AnimalID, SE.EventDate SaleDate, C.Name CustomerName, S.Price SalePrice, S.CustomerCosts, S.TotalDeductions');
+                     SQL.Add(' SELECT SE.AnimalID AnimalID, SE.EventDate SaleDate, C.Name CustomerName, S.Price SalePrice,');
+                     SQL.Add('        S.CustomerCosts, S.TotalDeductions, S.ColdDeadWt, S.Weight, S.Grade');
                      SQL.Add(' FROM Events SE');
-                     SQL.Add(' Left Join SalesDeaths S ON (S.EventID = SE.ID)');
-                     SQL.Add(' Left Join Customers C On (C.ID = S.Customer)');
-                     SQL.Add(' WHERE (SE.EventType=11)');
+                     SQL.Add(' LEFT JOIN SalesDeaths S ON (S.EventID = SE.ID)');
+                     SQL.Add(' LEFT JOIN Customers C On (C.ID = S.Customer)');
+                     SQL.Add(' WHERE SE.EventType = 11');
                      Open;
                      ClearMemDataFieldDefs(MDGridSaleData);
                      CreateMemDataFieldDef(MDGridSaleData, 'AnimalId', ftInteger);
@@ -24322,6 +24411,9 @@ begin
                      CreateMemDataFieldDef(MDGridSaleData, 'CustomerName', ftString, 50);
                      CreateMemDataFieldDef(MDGridSaleData, 'SalePrice', ftFloat);
                      CreateMemDataFieldDef(MDGridSaleData, 'SaleCosts', ftFloat);
+                     CreateMemDataFieldDef(MDGridSaleData, 'PricePerKg', ftFloat);
+                     CreateMemDataFieldDef(MDGridSaleData, 'ColdDeadWt', ftFloat);
+                     CreateMemDataFieldDef(MDGridSaleData, 'SalesGrade', ftString , 15);
                      MDGridSaleData.Active := True;
                      QGridSaleData.First;
                      while ( not(QGridSaleData.Eof) ) do
@@ -24331,7 +24423,13 @@ begin
                            MDGridSaleData.FieldByName('SaleDate').AsDateTime := QGridSaleData.FieldByName('SaleDate').AsDateTime;
                            MDGridSaleData.FieldByName('CustomerName').AsString := QGridSaleData.FieldByName('CustomerName').AsString;
                            MDGridSaleData.FieldByName('SalePrice').AsFloat := QGridSaleData.FieldByName('SalePrice').AsFloat;
-                           MDGridSaleData.FieldByName('SaleCosts').AsFloat := QGridSaleData.FieldByName('CustomerCosts').AsFloat + QGridSaleData.FieldByName('TotalDeductions').AsFloat;
+                           MDGridSaleData.FieldByName('SaleCosts').AsFloat := ( QGridSaleData.FieldByName('CustomerCosts').AsFloat + QGridSaleData.FieldByName('TotalDeductions').AsFloat );
+                           if ( QGridSaleData.FieldByName('SalePrice').AsFloat > 0 ) and ( QGridSaleData.FieldByName('ColdDeadWt').AsFloat > 0 ) then
+                              MDGridSaleData.FieldByName('PricePerKg').AsFloat := ( QGridSaleData.FieldByName('SalePrice').AsFloat / QGridSaleData.FieldByName('ColdDeadWt').AsFloat )
+                           else if ( QGridSaleData.FieldByName('SalePrice').AsFloat > 0 ) and ( QGridSaleData.FieldByName('Weight').AsFloat > 0 ) then
+                              MDGridSaleData.FieldByName('PricePerKg').AsFloat := ( QGridSaleData.FieldByName('SalePrice').AsFloat / QGridSaleData.FieldByName('Weight').AsFloat );
+                           MDGridSaleData.FieldByName('ColdDeadWt').AsFloat := QGridSaleData.FieldByName('ColdDeadWt').AsFloat;
+                           MDGridSaleData.FieldByName('SalesGrade').AsString := QGridSaleData.FieldByName('Grade').AsString;
                            MDGridSaleData.Post;
 
                            QGridSaleData.Next;
@@ -24340,6 +24438,11 @@ begin
                      Close;
                      Free;
                   end;
+
+               ClearMemDataFieldDefs(MDGridGrossMarginData);
+               CreateMemDataFieldDef(MDGridGrossMarginData,'AnimalId',ftInteger);
+               CreateMemDataFieldDef(MDGridGrossMarginData,'GrossMargin',ftFloat);
+               MDGridGrossMarginData.Active := True;
             end
          else
             begin
@@ -24352,6 +24455,11 @@ begin
                   begin
                      MDGridSaleData.Close;
                      FreeAndNil(MDGridSaleData);
+                  end;
+               if ( MDGridGrossMarginData <> nil ) then
+                  begin
+                     MDGridGrossMarginData.Close;
+                     FreeAndNil(MDGridGrossMarginData);
                   end;
             end;
       end;
@@ -24416,6 +24524,17 @@ begin
          else
             MDGridA1A2ResultData.Close;
 
+         if MDGridAnimalsExtData = nil then
+            MDGridAnimalsExtData := TdxMemData.Create(nil)
+         else
+            MDGridAnimalsExtData.Close;
+
+         //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Created new MemDataSet, MDGridCowExtData, to store the CowExt data.
+         if MDGridCowExtData = nil then
+            MDGridCowExtData := TdxMemData.Create(nil)
+         else
+            MDGridCowExtData.Close;
+
          QGridConditionScoreData := TQuery.Create(nil);
          QGridConditionScoreData.DatabaseName := AliasName;
 
@@ -24473,18 +24592,17 @@ begin
             try
                DatabaseName := AliasName;
                SQL.Clear;
-               SQL.Add(' SELECT A.LactNo, E.AnimalID, E.EventDate, E.AnimalLactNo');
-               SQL.Add(' FROM Events E ');
-               SQL.Add(' LEFT JOIN Animals A On (A.ID=E.AnimalID) ');
-               SQL.Add(' WHERE (E.EventType='+IntToStr(cCalvingEvent)+') ');
-               SQL.Add(' AND   (UPPER(A.Sex)= "FEMALE") ');
-               SQL.Add(' GROUP BY E.AnimalId, E.EventDate, A.LactNo, E.AnimalLactNo');
-               SQL.Add(' ORDER BY E.AnimalId, E.EventDate Desc ');
+               SQL.Add('SELECT A.LactNo, E.AnimalID, E.EventDate, E.AnimalLactNo');
+               SQL.Add('FROM Events E ');
+               SQL.Add('LEFT JOIN Animals A On (A.ID=E.AnimalID) ');
+               SQL.Add('WHERE (E.EventType='+IntToStr(cCalvingEvent)+') ');
+               SQL.Add('AND   (UPPER(A.Sex)= "FEMALE") ');
+               SQL.Add('AND   (A.Breeding = True) ');
+               SQL.Add('GROUP BY E.AnimalId, E.EventDate, A.LactNo, E.AnimalLactNo');
+               SQL.Add('ORDER BY E.AnimalId, E.EventDate Desc ');
                Open;
-
                First;
-
-               while not eof do
+               while ( not(Eof) ) do
                   begin
                      if ( not(MDGridCalvingDateData.Locate('AnimalId', FieldByName('AnimalID').AsInteger,[])) ) then
                         begin
@@ -24501,10 +24619,8 @@ begin
                            MDGridCalvingDateData.Post;
                            Inc(CalvingCount);
                         end;
-
                      Next;
                   end;
-
             finally
                Close;
                Free;
@@ -24789,8 +24905,43 @@ begin
                MDGridCalvingDateData.Next;
             end;
 
-         //   23/08/19 [V5.9 R0.1] /MK Change - Create a MemDataSet of each animals current lactation MilkData.
+         //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Heifers that have been served or are in heat should be marked as dry.
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT E.AnimalId');
+               SQL.Add('FROM Events E');
+               SQL.Add('LEFT JOIN Animals A ON (A.Id = E.AnimalId)');
+               SQL.Add('WHERE (A.LactNo = 0)');
+               SQL.Add('AND   (A.Breeding = True)');
+               SQL.Add('AND   (UPPER(A.Sex) = "FEMALE")');
+               SQL.Add('AND   (A.AnimalDeleted = False)');
+               SQL.Add('AND   (A.HerdId IN (SELECT DefaultHerdId FROM Defaults))');
+               SQL.Add('AND   (E.EventType IN (1, 2))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) then
+                     begin
+                        First;
+                        while ( not(Eof) ) do
+                           begin
+                              MDGridStatusData.Append;
+                              MDGridStatusData.FieldByName('AnimalID').Value := FieldByName('AnimalID').Value;
+                              MDGridStatusData.FieldByName('Status').AsString := 'Dry';
+                              MDGridStatusData.Post;
+                              Next;
+                           end;
+                     end;
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
 
+         //   23/08/19 [V5.9 R0.1] /MK Change - Create a MemDataSet of each animals current lactation MilkData.
          ClearMemDataFieldDefs(MDGridCurrLactMilkData);
          CreateMemDataFieldDef(MDGridCurrLactMilkData, 'AnimalID', ftInteger);
          CreateMemDataFieldDef(MDGridCurrLactMilkData, 'SCC', ftFloat);
@@ -24820,7 +24971,6 @@ begin
             begin
                MDGridCurrLactMilkData.Append;
                MDGridCurrLactMilkData.FieldByName('AnimalID').AsInteger := HerdLookup.qMainGridMilkDisk.FieldByName('AnimalID').AsInteger;
-               MDGridCurrLactMilkData.FieldByName('SCC').AsFloat := HerdLookup.qMainGridMilkDisk.FieldByName('SCC').AsFloat;
 
                fCumButterFat := HerdLookup.qMainGridMilkDisk.FieldByName('CumBfatPerc').AsFloat;
                fCumProtein := HerdLookup.qMainGridMilkDisk.FieldByName('CumProtPerc').AsFloat;
@@ -24851,6 +25001,8 @@ begin
                      fDailyTotSolids := fDailyBfatWeight + fDailyProtWeight;
                      MDGridCurrLactMilkData.FieldByName('DailyYield').AsString := FormatFloat('0',fDailyYield);
                      MDGridCurrLactMilkData.FieldByName('LatestSolids').AsFloat := fDailyTotSolids;
+                     //   08/07/21 [V6.0 R1.6] /MK Change - Changed MDGridCurrLactMilkData.SCC to latest recorded SCC from Average SCC of MilkDisk table.
+                     MDGridCurrLactMilkData.FieldByName('SCC').AsFloat := HerdLookup.qMainGridMilkDiskTrans.FieldByName('SCC').AsFloat;
                   end;
 
                MDGridCurrLactMilkData.Post;
@@ -24888,8 +25040,108 @@ begin
             if ( QGridA1A2ResultData <> nil ) then
                FreeAndNil(QGridA1A2ResultData);
          end;
-
          MDGridA1A2ResultData.Open;
+
+         //   10/08/21 [V6.0 R1.8] /MK Additional Feature - Added MemDataSet and Query to get the BVDResult for the animal.
+         //   09/09/21 [V6.0 R2.2] /MK Additional Feature - Added ACI field to the AnimalsExt MemDataSet.
+         ClearMemDataFieldDefs(MDGridAnimalsExtData);
+         CreateMemDataFieldDef(MDGridAnimalsExtData,'AnimalId',ftInteger);
+         CreateMemDataFieldDef(MDGridAnimalsExtData,'BVDResult',ftString,10);
+         CreateMemDataFieldDef(MDGridAnimalsExtData,'ACI',ftFloat);
+         MDGridAnimalsExtData.Open;
+
+         QGridAnimalsExtData := TQuery.Create(nil);
+         try
+            if ( not(HerdLookup.qHerdTestResultType.Active) ) then
+               HerdLookup.qHerdTestResultType.Open;
+
+            QGridAnimalsExtData.DatabaseName := AliasName;
+            QGridAnimalsExtData.SQL.Clear;
+            QGridAnimalsExtData.SQL.Add('SELECT AE.AnimalId, G.Description BVDResult');
+            QGridAnimalsExtData.SQL.Add('FROM AnimalsExt AE');
+            QGridAnimalsExtData.SQL.Add('LEFT JOIN AFilters A ON (A.AId = AE.AnimalId)');
+            QGridAnimalsExtData.SQL.Add('INNER JOIN GenLook G ON (G.Id = AE.BVDResult)');
+            QGridAnimalsExtData.Open;
+            if ( QGridAnimalsExtData.RecordCount > 0 ) then
+                begin
+                   QGridAnimalsExtData.First;
+                   while ( not(QGridAnimalsExtData.Eof) ) do
+                      begin
+                         MDGridAnimalsExtData.Append;
+                         MDGridAnimalsExtData.FieldByName('AnimalId').AsInteger := QGridAnimalsExtData.FieldByName('AnimalId').AsInteger;
+                         MDGridAnimalsExtData.FieldByName('BVDResult').AsString := QGridAnimalsExtData.FieldByName('BVDResult').AsString;
+                         MDGridAnimalsExtData.Post;
+                         QGridAnimalsExtData.Next;
+                      end;
+                end;
+            QGridAnimalsExtData.Close;
+            QGridAnimalsExtData.SQL.Clear;
+            QGridAnimalsExtData.SQL.Add('SELECT AE.AnimalId, AE.ACI');
+            QGridAnimalsExtData.SQL.Add('FROM AnimalsExt AE');
+            QGridAnimalsExtData.SQL.Add('LEFT JOIN AFilters A ON (A.AId = AE.AnimalId)');
+            QGridAnimalsExtData.SQL.Add('WHERE AE.ACI > 0');
+            QGridAnimalsExtData.Open;
+            if ( QGridAnimalsExtData.RecordCount > 0 ) then
+                begin
+                   QGridAnimalsExtData.First;
+                   while ( not(QGridAnimalsExtData.Eof) ) do
+                      begin
+                         MDGridAnimalsExtData.Append;
+                         MDGridAnimalsExtData.FieldByName('AnimalId').AsInteger := QGridAnimalsExtData.FieldByName('AnimalId').AsInteger;
+                         MDGridAnimalsExtData.FieldByName('ACI').AsFloat := QGridAnimalsExtData.FieldByName('ACI').AsFloat;
+                         MDGridAnimalsExtData.Post;
+                         QGridAnimalsExtData.Next;
+                      end;
+                end;
+         finally
+            if ( QGridAnimalsExtData <> nil ) then
+               FreeAndNil(QGridAnimalsExtData);
+         end;
+         MDGridAnimalsExtData.Open;
+
+         //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Add data to new MDGridCowExtData table.
+         ClearMemDataFieldDefs(MDGridCowExtData);
+         CreateMemDataFieldDef(MDGridCowExtData,'AnimalId',ftInteger);
+         CreateMemDataFieldDef(MDGridCowExtData,'DueToCalveDate',ftDate);
+         CreateMemDataFieldDef(MDGridCowExtData,'ExpectedBullCode',ftString,10);
+         MDGridCowExtData.Open;
+
+         QGridCowExtData := TQuery.Create(nil);
+         try
+            QGridCowExtData.DatabaseName := AliasName;
+            QGridCowExtData.SQL.Clear;
+            QGridCowExtData.SQL.Add('SELECT AnimalId, DueToCalveDate, ExpectedBullCode');
+            QGridCowExtData.SQL.Add('FROM CowExt');
+            QGridCowExtData.SQL.Add('WHERE (AnimalId > 0)');
+            QGridCowExtData.SQL.Add('AND   (DueToCalveDate >= "'+FormatDateTime(CUSDateStyle,Now)+'")');
+            try
+               QGridCowExtData.Open;
+               if ( QGridCowExtData.RecordCount > 0 ) then
+                  begin
+                     QGridCowExtData.First;
+                     while ( not(QGridCowExtData.Eof) ) do
+                        begin
+                           try
+                              MDGridCowExtData.Append;
+                              MDGridCowExtData.FieldByName('AnimalId').AsInteger := QGridCowExtData.FieldByName('AnimalId').AsInteger;
+                              MDGridCowExtData.FieldByName('DueToCalveDate').AsDateTime := QGridCowExtData.FieldByName('DueToCalveDate').AsDateTime;
+                              MDGridCowExtData.FieldByName('ExpectedBullCode').AsString := QGridCowExtData.FieldByName('ExpectedBullCode').AsString;
+                              MDGridCowExtData.Post;
+                           except
+                              MDGridCowExtData.Cancel;
+                           end;
+                           QGridCowExtData.Next;
+                        end;
+                  end;
+            except
+               on e : Exception do
+                  ShowDebugMessage(e.Message);
+            end;
+         finally
+            if ( QGridCowExtData <> nil ) then
+               FreeAndNil(QGridCowExtData);
+         end;
+         MDGridCowExtData.Open;
       end
    else
       begin
@@ -24958,6 +25210,18 @@ begin
                MDGridA1A2ResultData.CLose;
                FreeAndNil(MDGridA1A2ResultData);
             end;
+
+         if ( MDGridAnimalsExtData <> nil ) then
+            begin
+               MDGridAnimalsExtData.Close;
+               FreeAndNil(MDGridAnimalsExtData);
+            end;
+
+         if ( MDGridCowExtData <> nil ) then
+            begin
+               MDGridCowExtData.Close;
+               FreeAndNil(MDGridCowExtData);
+            end;
       end;
 
 end;
@@ -24968,12 +25232,13 @@ var
    sLookupKeyField : string;
    sFieldName : string;
 begin
+   GetEventLookupData(True);
+
+  sKeyField := 'ID';
+  sLookupKeyField := 'AnimalID';
+
    if GlobalSettings.DisplayMovementFeedColsInGridView then
       begin
-         GetEventLookupData(True);
-
-         sKeyField := 'ID';
-         sLookupKeyField := 'AnimalID';
          sFieldName      := 'PurchDate';
          if AnimalFileByID.FindField(sFieldName) = nil then
             begin
@@ -25157,7 +25422,7 @@ begin
          sFieldName := 'SalePrice';
          if AnimalFileByID.FindField(sFieldName) = nil then
             begin
-               with TStringField.Create(nil) do
+               with TFloatField.Create(nil) do
                   begin
                      FieldName := sFieldName;
                      FieldKind := fkLookup;
@@ -25172,6 +25437,51 @@ begin
          sFieldName := 'SaleCosts';
          if AnimalFileByID.FindField(sFieldName) = nil then
             begin
+               with TFloatField.Create(nil) do
+                  begin
+                     FieldName := sFieldName;
+                     FieldKind := fkLookup;
+                     LookupDataSet := MDGridSaleData;
+                     KeyFields := sKeyField;
+                     LookupKeyFields := sLookupKeyField;
+                     LookupResultField := sFieldName;
+                     Dataset := AnimalFileByID;
+                  end;
+            end;
+
+         sFieldName := 'PricePerKg';
+         if AnimalFileByID.FindField(sFieldName) = nil then
+            begin
+               with TFloatField.Create(nil) do
+                  begin
+                     FieldName := sFieldName;
+                     FieldKind := fkLookup;
+                     LookupDataSet := MDGridSaleData;
+                     KeyFields := sKeyField;
+                     LookupKeyFields := sLookupKeyField;
+                     LookupResultField := sFieldName;
+                     Dataset := AnimalFileByID;
+                  end;
+            end;
+
+         sFieldName := 'ColdDeadWt';
+         if AnimalFileByID.FindField(sFieldName) = nil then
+            begin
+               with TFloatField.Create(nil) do
+                  begin
+                     FieldName := sFieldName;
+                     FieldKind := fkLookup;
+                     LookupDataSet := MDGridSaleData;
+                     KeyFields := sKeyField;
+                     LookupKeyFields := sLookupKeyField;
+                     LookupResultField := sFieldName;
+                     Dataset := AnimalFileByID;
+                  end;
+            end;
+
+         sFieldName := 'SalesGrade';
+         if AnimalFileByID.FindField(sFieldName) = nil then
+            begin
                with TStringField.Create(nil) do
                   begin
                      FieldName := sFieldName;
@@ -25184,341 +25494,411 @@ begin
                   end;
             end;
 
+         sFieldName := 'GrossMargin';
+         if AnimalFileByID.FindField(sFieldName) = nil then
+            begin
+               with TFloatField.Create(nil) do
+                  begin
+                     FieldName := sFieldName;
+                     FieldKind := fkLookup;
+                     LookupDataSet := MDGridGrossMarginData;
+                     KeyFields := sKeyField;
+                     LookupKeyFields := sLookupKeyField;
+                     LookupResultField := sFieldName;
+                     Dataset := AnimalFileByID;
+                  end;
+            end;
+
       end;
 
-      GetEventLookupData(True);
+  //   05/01/11 [V4.0 R7.3] /MK Additional Feature - Add Condition Score Field.
+  sFieldName := 'CScore';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridConditionScoreData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sKeyField := 'ID';
-      sLookupKeyField := 'AnimalID';
+  //   12/03/11 [V4.0 R8.7] /MK Additional Feature - Add Calving Date Field.
+  sFieldName := 'ThisLactCalvingDate';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCalvingDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      //   05/01/11 [V4.0 R7.3] /MK Additional Feature - Add Condition Score Field.
-      sFieldName := 'CScore';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridConditionScoreData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'LastLactCalvingDate';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCalvingDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      //   12/03/11 [V4.0 R8.7] /MK Additional Feature - Add Calving Date Field.
-      sFieldName := 'ThisLactCalvingDate';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TDateField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCalvingDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  //   12/03/11 [V4.0 R8.7] /MK Additional Feature - Add Service Date Field.
+  //   31/07/12 [V5.0 R8.3] /MK Change - Created new ServiceDateLastLact Field.
+  sFieldName := 'ServiceDateThisLact';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridServiceDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'LastLactCalvingDate';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TDateField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCalvingDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  //   31/07/12 [V5.0 R8.3] /MK Change - Created new ServiceDateLastLact Field.
+  sFieldName := 'ServiceDateLastLact';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridServiceDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      //   12/03/11 [V4.0 R8.7] /MK Additional Feature - Add Service Date Field.
-      //   31/07/12 [V5.0 R8.3] /MK Change - Created new ServiceDateLastLact Field.
-      sFieldName := 'ServiceDateThisLact';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TDateField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridServiceDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'DryOffDate';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridDryOffDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
 
-      //   31/07/12 [V5.0 R8.3] /MK Change - Created new ServiceDateLastLact Field.
-      sFieldName := 'ServiceDateLastLact';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TDateField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridServiceDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'PregDiagDate';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridPregDiagDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'DryOffDate';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TDateField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridDryOffDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  DataSet := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'PDStatus';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TBooleanField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridPregDiagDateData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'PregDiagDate';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TDateField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridPregDiagDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  DataSet := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'DaysToFQAS';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TIntegerField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkCalculated;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'PDStatus';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TBooleanField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridPregDiagDateData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  DataSet := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'PurchFQAS';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TBooleanField.Create(nil) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkCalculated;
+              Dataset := AnimalFileByID;
+              OnGetText := AnimalFileByIDPurchFQASGetText;
+           end;
+     end;
 
-      sFieldName := 'DaysToFQAS';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TIntegerField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkCalculated;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'FeedGrpDesc';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TStringField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridFeedData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'PurchFQAS';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TBooleanField.Create(nil) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkCalculated;
-                  Dataset := AnimalFileByID;
-                  OnGetText := AnimalFileByIDPurchFQASGetText;
-               end;
-         end;
+  sFieldName := 'BatchGrpDesc';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TStringField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridBatchGroupData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'FeedGrpDesc';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TStringField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridFeedData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'JohnesResult';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TIntegerField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridJohnesResultData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'BatchGrpDesc';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TStringField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridBatchGroupData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'Status';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TStringField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridStatusData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'JohnesResult';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TIntegerField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridJohnesResultData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'SCC';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'Status';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TStringField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridStatusData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'LactYield';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'SCC';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'Solids';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'LactYield';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'DailyYield';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'Solids';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'LatestSolids';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'DailyYield';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'BfatWeight';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'LatestSolids';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'ProtWeight';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCurrLactMilkData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'BfatWeight';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'A1A2Result';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TStringField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridA1A2ResultData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'ProtWeight';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TFloatField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridCurrLactMilkData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  Dataset := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'BVDResult';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TStringField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridAnimalsExtData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
 
-      sFieldName := 'A1A2Result';
-      if AnimalFileByID.FindField(sFieldName) = nil then
-         begin
-            with TStringField.Create(AnimalFileByID) do
-               begin
-                  FieldName := sFieldName;
-                  FieldKind := fkLookup;
-                  LookupDataSet := MDGridA1A2ResultData;
-                  KeyFields := sKeyField;
-                  LookupKeyFields := sLookupKeyField;
-                  LookupResultField := sFieldName;
-                  DataSet := AnimalFileByID;
-               end;
-         end;
+  sFieldName := 'DueToCalveDate';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TDateField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCowExtData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
 
+  sFieldName := 'ExpectedBullCode';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TStringField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridCowExtData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              DataSet := AnimalFileByID;
+           end;
+     end;
+
+  //   09/09/21 [V6.0 R2.2] /MK Additional Feature - Added ACI field to AnimalFileById.
+  sFieldName := 'ACI';
+  if AnimalFileByID.FindField(sFieldName) = nil then
+     begin
+        with TFloatField.Create(AnimalFileByID) do
+           begin
+              FieldName := sFieldName;
+              FieldKind := fkLookup;
+              LookupDataSet := MDGridAnimalsExtData;
+              KeyFields := sKeyField;
+              LookupKeyFields := sLookupKeyField;
+              LookupResultField := sFieldName;
+              Dataset := AnimalFileByID;
+           end;
+     end;
 end;
 
 procedure TWinData.AddToEventLookupData(AAnimalID, AEventType: Integer);
@@ -27616,27 +27996,33 @@ end;
 
 procedure TWinData.QueryBandonRegistrations(var AProgramCanClose : Boolean);
 const
+   //   18/05/21 [V6.0 R1.1] /MK Change - Don't include animals from Animals and AIMAnimalReg table marked as Registered or Queried as per uAimAnimalRegistration
    QueryTxt = 'SELECT COUNT(ID) CID '+
               'FROM Animals '+
-              'WHERE (DateOfBirth >= :ADate ) '+
-              'AND (ID IN ( SELECT ID%d FROM Calvings WHERE ID%dNotified=FALSE))';
+              'WHERE (DateOfBirth >= :StartDate ) '+
+              'AND   (AIMRegStatus NOT IN (3,4)) '+
+              'AND   (ID IN (SELECT ID%d FROM Calvings '+
+              '              WHERE ID%dNotified = FALSE '+
+              '              AND (ID%d > 0) '+
+              '              AND NOT ID%d IN (SELECT AnimalID FROM AimAnimalReg WHERE Status IN (3,4))))';
 var
    i, CalfCount : Integer;
    AimAnimalRegistration : TAimAnimalRegistration;
+   qCalvesToRegister : TQuery;
 begin
    AProgramCanClose := True;
 
    if ( not(SystemRegisteredCountry = Ireland) or (Menuform = nil)) then Exit;
 
    CalfCount := 0;
-   with TQuery.create(nil) do
+   qCalvesToRegister := TQuery.Create(nil);
+   with qCalvesToRegister do
       try
          DatabaseName := AliasName;
-
          for i := 1 to cMaxCalves do
             begin
                SQL.Clear;
-               SQL.Add(Format(QueryTxt,[i,i]));
+               SQL.Add(Format(QueryTxt,[i,i,i,i]));
                Params[0].AsDateTime := IncMonth(Date, -3);
                Open;
                try
@@ -29040,44 +29426,54 @@ end;
 procedure TWinData.UpdatePregDiagEvent(AAnimalID, AAnimalLactNo : Integer);
 var
    CurrPregDiagID : Integer;
-   qUpdateExistPregDiag : TQuery;
+   qUpdateExistPregDiag,
+   qUpdatePDEvents : TQuery;
 begin
    qUpdateExistPregDiag := TQuery.Create(nil);
-   with qUpdateExistPregDiag do
+   qUpdatePDEvents := TQuery.Create(nil);
+   try
+      qUpdateExistPregDiag.DatabaseName := AliasName;
+      qUpdatePDEvents.DatabaseName := AliasName;
       try
-         DatabaseName := AliasName;
-         SQL.Clear;
-         SQL.Add('SELECT E.ID');
-         SQL.Add('FROM Events E ');
-         SQL.Add('WHERE (E.AnimalID = '+IntToStr(AAnimalID)+')');
-         SQL.Add('AND   (E.AnimalLactNo = '+IntToStr(AAnimalLactNo)+')');
-         SQL.Add('AND   (E.EventType = '+IntToStr(CPregDiagEvent)+')');
-         Open;
-         try
-            First;
-            CurrPregDiagID := Fields[0].AsInteger;
-         finally
-            Close;
-         end;
-
-         //   30/10/15 [V5.4 R9.7] /MK Change - Set the EventType to a new event type to allow for another PD to go in on the same lactation.
-         if ( CurrPregDiagID > 0 ) then
-            try
-                SQL.Clear;
-                SQL.Add('UPDATE Events');
-                SQL.Add('SET EventType = EventType + 100');
-                SQL.Add('WHERE ID = :CurrPregDiagID');
-                Params[0].AsInteger := CurrPregDiagID;
-                ExecSQL;
-            except
-               on E : Exception do
+         qUpdateExistPregDiag.Close;
+         qUpdateExistPregDiag.SQL.Clear;
+         qUpdateExistPregDiag.SQL.Add('SELECT E.ID');
+         qUpdateExistPregDiag.SQL.Add('FROM Events E ');
+         qUpdateExistPregDiag.SQL.Add('WHERE (E.AnimalID = '+IntToStr(AAnimalID)+')');
+         qUpdateExistPregDiag.SQL.Add('AND   (E.AnimalLactNo = '+IntToStr(AAnimalLactNo)+')');
+         qUpdateExistPregDiag.SQL.Add('AND   (E.EventType = '+IntToStr(CPregDiagEvent)+')');
+         qUpdateExistPregDiag.Open;
+         //   05/07/21 [V6.0 R1.6] /MK Change - Found on some sets of data there were more than one PD event on the same lactation - Tom Craigs data.
+         qUpdateExistPregDiag.First;
+         while ( not(qUpdateExistPregDiag.Eof) ) do
+            begin
+               CurrPregDiagID := qUpdateExistPregDiag.Fields[0].AsInteger;
+               //   30/10/15 [V5.4 R9.7] /MK Change - Set the EventType to a new event type to allow for another PD to go in on the same lactation.
+               if ( CurrPregDiagID > 0 ) then
                   begin
-                     ShowMessage(e.Message);
+                     qUpdatePDEvents.SQL.Clear;
+                     qUpdatePDEvents.SQL.Add('UPDATE Events');
+                     qUpdatePDEvents.SQL.Add('SET EventType = EventType + 100');
+                     qUpdatePDEvents.SQL.Add('WHERE ID = :CurrPregDiagID');
+                     qUpdatePDEvents.Params[0].AsInteger := CurrPregDiagID;
+                     qUpdatePDEvents.ExecSQL;
                   end;
+               qUpdateExistPregDiag.Next;
             end;
-      finally
-         Free;
+      except
+         on e : Exception do
+            begin
+               ApplicationLog.LogException(e);
+               ApplicationLog.LogError(Format('Error updating PD Event for AnimalId %d.',[AAnimalId]));
+               Exit;
+            end;
       end;
+   finally
+      if ( qUpdateExistPregDiag <> nil ) then
+         FreeAndNil(qUpdateExistPregDiag);
+      if ( qUpdatePDEvents <> nil ) then
+         FreeAndNil(qUpdatePDEvents);
+   end;
 end;
 
 procedure TWinData.CheckForRelinkCalvesToDams(ARelinkDateLength : Integer);
@@ -30392,13 +30788,14 @@ begin
             AnimalQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
             AnimalQuery.Params[0].AsInteger := AHerdId;
          end
-      else if (WinData.ActiveFilter) then// using animal filter
+      // using animal filter
+      else if ( not(AActiveFilterType = afShowAllAnimals) ) and ( WinData.ActiveFilter ) then
          begin
             AnimalQuery.SQL.Add('INNER JOIN ' + WinData.FilteredAnimals.TableName + ' FA ON (A.ID=FA.AID)');
             AnimalQuery.SQL.Add('WHERE (A.HerdId =:AHerdId)');
             AnimalQuery.Params[0].AsInteger := AHerdId;
          end
-      else if (AAnimalId>0) then
+      else if ( AAnimalId > 0 ) then
          begin
             AnimalQuery.SQL.Add('WHERE (A.Id =:AAnimalId)');
             AnimalQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
@@ -32919,30 +33316,138 @@ begin
 end;
 
 function TWinData.UpdateVaccinationEvents_AsUpdated_ForSync: Boolean;
+var
+   qGetData,
+   qUpdateData : TQuery;
+   iUpdateCount : Integer;
 begin
    Result := False;
-   with TQuery.Create(nil) do
+   qGetData := TQuery.Create(nil);
+   qUpdateData := TQuery.Create(nil);
+   iUpdateCount := 0;
+   try
+      qGetData.DatabaseName := AliasName;
+      qUpdateData.DatabaseName := AliasName;
+
+      qGetData.SQL.Clear;
+      qGetData.SQL.Add('SELECT E.Id EventId');
+      qGetData.SQL.Add('FROM Events E');
+      qGetData.SQL.Add('LEFT JOIN Health H ON (H.EventId = E.Id)');
+      qGetData.SQL.Add('WHERE E.EventType = 38');
+      qGetData.SQL.Add('AND   H.ReportInDays >= 7');
       try
-         DatabaseName := AliasName;
-         SQL.Clear;
-         SQL.Add('UPDATE Events');
-         SQL.Add('SET Modified = TRUE, IsSynchronized = FALSE');
-         SQL.Add('WHERE EventType = 38');
-         SQL.Add('AND   ID IN (SELECT EventID FROM Health WHERE ReportInDays >= 7)');
-         try
-            ExecSQL;
-            Result := True;
-         except
-            on e : Exception do
-               begin
-                  ApplicationLog.LogException(e);
-                  ApplicationLog.LogError(e.Message);
-                  ApplicationLog.LogError('Error updating Vacciionation Events to sync as modified');
-               end;
-         end;
-      finally
-         Free;
+         qGetData.Open;
+         if ( qGetData.RecordCount = 0 ) then Exit;
+
+         SplashForm.ProgressBar1.Visible := True;
+         SplashForm.ProgressBar1.Min := 1;
+         SplashForm.ProgressBar1.Max := qGetData.RecordCount;
+         SplashForm.ProgressBar1.Position := 0;
+         Application.ProcessMessages;
+
+         qUpdateData.Close;
+         qUpdateData.SQL.Clear;
+         qUpdateData.SQL.Add('UPDATE Events');
+         qUpdateData.SQL.Add('SET Modified = TRUE, IsSynchronized = FALSE');
+         qUpdateData.SQL.Add('WHERE ID = :EId');
+
+         qGetData.First;
+         while ( not(qGetData.Eof) ) do
+            begin
+               qUpdateData.Params[0].AsInteger := qGetData.FieldByName('EventId').AsInteger;
+               qUpdateData.ExecSQL;
+               SplashForm.ProgressBar1.Position := SplashForm.ProgressBar1.Position+1;
+               Application.ProcessMessages;
+               Inc(iUpdateCount);
+               qGetData.Next;
+            end;
+         SplashForm.ProgressBar1.Visible := False;
+         Result := ( iUpdateCount > 0 );
+      except
+         on e : Exception do
+            begin
+               ApplicationLog.LogException(e);
+               ApplicationLog.LogError(e.Message);
+               ApplicationLog.LogError('Error updating Vacciionation Events to sync as modified');
+            end;
       end;
+   finally
+      if ( qGetData <> nil ) then
+         FreeAndNil(qGetData);
+      if ( qUpdateData <> nil ) then
+         FreeAndNil(qUpdateData);
+   end;
+end;
+
+function TWinData.FixAppRemedysNoDrugPurchId : Boolean;
+var
+   qGetData,
+   qUpdateData : TQuery;
+   iDrugId,
+   iUpdateCount : Integer;
+   sBatchNo : String;
+   dEventDate : TDateTime;
+begin
+   Result := False;
+   qGetData := TQuery.Create(nil);
+   qUpdateData := TQuery.Create(nil);
+   try
+      qGetData.DatabaseName := AliasName;
+      qUpdateData.DatabaseName := AliasName;
+
+      qGetData.SQL.Clear;
+      qGetData.SQL.Add('SELECT E.Id EventId, E.EventDate, H.DrugUsed, H.DrugBatchNo');
+      qGetData.SQL.Add('FROM Events E');
+      qGetData.SQL.Add('LEFT JOIN Health H On (H.EventId = E.Id)');
+      qGetData.SQL.Add('WHERE (E.EventSource = 9)');
+      qGetData.SQL.Add('AND   (E.EventType = 6)');
+      qGetData.SQL.Add('AND   (H.DrugUsed > 0)');
+      qGetData.SQL.Add('AND   ((H.DrugPurchId = 0) Or (H.DrugPurchId Is Null))');
+      qGetData.SQL.Add('AND   (H.DrugBatchNo Is Not Null)');
+      try
+         qGetData.Open;
+         Result := ( qGetData.RecordCount = 0 );
+         if ( Result ) then Exit;
+
+         qUpdateData.Close;
+         qUpdateData.SQL.Clear;
+         qUpdateData.SQL.Add('UPDATE Health');
+         qUpdateData.SQL.Add('SET DrugPurchId = :ADrugPurchId');
+         qUpdateData.SQL.Add('WHERE EventID = :EId');
+
+         qGetData.First;
+         while ( not(qGetData.Eof) ) do
+            begin
+               iDrugId := qGetData.FieldByName('DrugUsed').AsInteger;
+               sBatchNo := qGetData.FieldByName('DrugBatchNo').AsString;
+               dEventDate := qGetData.FieldByName('EventDate').AsDateTime;
+               qUpdateData.Params[0].AsInteger := MedicinePurchaseRepository.GetMostRecentPurchaseId(iDrugId,sBatchNo,dEventDate);
+               qUpdateData.Params[1].AsInteger := qGetData.FieldByName('EventId').AsInteger;
+               qUpdateData.ExecSQL;
+               SplashForm.ProgressBar1.Position := SplashForm.ProgressBar1.Position+1;
+               Application.ProcessMessages;
+               Inc(iUpdateCount);
+               qGetData.Next;
+            end;
+         SplashForm.ProgressBar1.Visible := False;
+
+         Result := ( iUpdateCount > 0 );
+
+      except
+         on e : Exception do
+            begin
+               ShowMessage(e.Message);
+               ApplicationLog.LogException(e);
+               ApplicationLog.LogError(e.Message);
+               ApplicationLog.LogError('Error fixing remedy events from the app with no DrugPurchId');
+            end;
+      end;
+   finally
+      if ( qGetData <> nil ) then
+         FreeAndNil(qGetData);
+      if ( qUpdateData <> nil ) then
+         FreeAndNil(qUpdateData);
+   end;
 end;
 
 end.

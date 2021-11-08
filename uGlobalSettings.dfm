@@ -19,542 +19,6 @@ object fmGlobalSettings: TfmGlobalSettings
   OnDestroy = FormDestroy
   PixelsPerInch = 96
   TextHeight = 13
-  object GroupBox4: TGroupBox
-    Tag = 2
-    Left = 160
-    Top = 7
-    Width = 400
-    Height = 330
-    Caption = 'Backup Preferences '
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 6
-    Visible = False
-    object cbBackupTest: TcxCheckBox
-      Left = 16
-      Top = 46
-      Hint = 'Tests the floppy disk backup for disk corruption. '
-      Caption = 'Test backup after completion'
-      ParentFont = False
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 1
-      Width = 193
-    end
-    object cbArchive: TcxCheckBox
-      Left = 16
-      Top = 22
-      Hint = 'Stores the last backup taken to the hard disk (C Drive)'
-      Caption = 'Archive Backup to hard disk'
-      ParentFont = False
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 0
-      Width = 233
-    end
-    object cbSpanDisks: TcxCheckBox
-      Left = 16
-      Top = 70
-      Hint = '(When more than 1 floppy disk is needed for backup)'
-      Caption = 'Use Spanned Disks '
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 2
-      Width = 184
-    end
-    object cbBackupStoreRegFiles: TcxCheckBox
-      Left = 16
-      Top = 94
-      Hint = '(When more than 1 floppy disk is needed for backup)'
-      Caption = 'Store Calf/ICBF Registration Files'
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 3
-      Width = 233
-    end
-    object cbBackupStorePedigreeImages: TcxCheckBox
-      Left = 16
-      Top = 118
-      Hint = '(When more than 1 floppy disk is needed for backup)'
-      Caption = 'Store Pedigree Image Files'
-      ParentFont = False
-      ParentShowHint = False
-      ShowHint = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 4
-      Width = 233
-    end
-  end
-  object GroupBox3: TGroupBox
-    Tag = 100
-    Left = 160
-    Top = 9
-    Width = 400
-    Height = 330
-    Caption = 'PhoneLink Preferences '
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 5
-    Visible = False
-    object Label5: TLabel
-      Left = 16
-      Top = 51
-      Width = 46
-      Height = 13
-      Alignment = taRightJustify
-      Caption = 'COM Port'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object Label6: TLabel
-      Left = 16
-      Top = 79
-      Width = 71
-      Height = 13
-      Alignment = taRightJustify
-      Caption = 'Connection Via'
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-    end
-    object cbPhoneLinkAtStartup: TcxCheckBox
-      Left = 16
-      Top = 22
-      Caption = 'Check PhoneLink on startup'
-      ParentFont = False
-      Properties.ImmediatePost = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 0
-      Width = 225
-    end
-    object ConnectMode: TComboBox
-      Left = 108
-      Top = 74
-      Width = 93
-      Height = 21
-      DropDownCount = 3
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ItemHeight = 13
-      ParentFont = False
-      TabOrder = 1
-      Items.Strings = (
-        'DAU-9P'
-        'DLR-3'
-        'InfraRed')
-    end
-    object COM: TComboBox
-      Left = 108
-      Top = 46
-      Width = 75
-      Height = 21
-      DropDownCount = 5
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ItemHeight = 13
-      ParentFont = False
-      Sorted = True
-      TabOrder = 2
-      Items.Strings = (
-        '1'
-        '2'
-        '3'
-        '4'
-        '5')
-    end
-  end
-  object GroupBox5: TGroupBox
-    Tag = 3
-    Left = 160
-    Top = 7
-    Width = 400
-    Height = 330
-    Caption = 'Security Preferences '
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 7
-    Visible = False
-    object GroupBox6: TGroupBox
-      Left = 44
-      Top = 39
-      Width = 325
-      Height = 245
-      Caption = 'Herd Password '
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clBlack
-      Font.Height = -11
-      Font.Name = 'Tahoma'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 0
-      object Label1: TLabel
-        Left = 32
-        Top = 92
-        Width = 75
-        Height = 13
-        Caption = 'Enter Password'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label2: TLabel
-        Left = 32
-        Top = 125
-        Width = 86
-        Height = 13
-        Caption = 'Confirm Password'
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-      end
-      object Label3: TLabel
-        Left = 32
-        Top = 26
-        Width = 219
-        Height = 43
-        AutoSize = False
-        Caption = 
-          'Enter a password to protect your data from unwanted viewing. Pas' +
-          'sword must be 6-10 characters in length.'
-        WordWrap = True
-      end
-      object Pass: TEdit
-        Left = 150
-        Top = 90
-        Width = 101
-        Height = 21
-        CharCase = ecUpperCase
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        MaxLength = 10
-        ParentFont = False
-        PasswordChar = '*'
-        TabOrder = 0
-        OnChange = ConfirmPassChange
-      end
-      object ConfirmPass: TEdit
-        Left = 150
-        Top = 119
-        Width = 101
-        Height = 21
-        CharCase = ecUpperCase
-        Font.Charset = ANSI_CHARSET
-        Font.Color = clBlack
-        Font.Height = -11
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        MaxLength = 10
-        ParentFont = False
-        PasswordChar = '*'
-        TabOrder = 1
-        OnChange = ConfirmPassChange
-      end
-      object Save: TButton
-        Left = 200
-        Top = 194
-        Width = 75
-        Height = 25
-        Caption = '&Save'
-        Default = True
-        Enabled = False
-        TabOrder = 2
-        OnClick = SaveClick
-      end
-      object Disable: TButton
-        Left = 116
-        Top = 194
-        Width = 75
-        Height = 25
-        Caption = 'Clear'
-        Enabled = False
-        TabOrder = 3
-        OnClick = DisableClick
-      end
-    end
-  end
-  object GroupBox2: TGroupBox
-    Tag = 1
-    Left = 160
-    Top = 7
-    Width = 400
-    Height = 330
-    Caption = 'Startup Reminders'
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clBlack
-    Font.Height = -11
-    Font.Name = 'Tahoma'
-    Font.Style = [fsBold]
-    ParentFont = False
-    TabOrder = 4
-    Visible = False
-    object cbNewVersionReminder: TcxCheckBox
-      Left = 16
-      Top = 46
-      Caption = 'New Version Reminder'
-      ParentFont = False
-      Properties.ImmediatePost = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 0
-      Width = 158
-    end
-    object cbNewVersionFieldsReps: TcxCheckBox
-      Left = 16
-      Top = 265
-      Caption = 'Check latest Fields/REPS version'
-      ParentFont = False
-      Properties.ImmediatePost = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 1
-      Visible = False
-      Width = 233
-    end
-    object cbNewVersionStartup: TcxCheckBox
-      Left = 16
-      Top = 241
-      Caption = 'Check for new version on startup'
-      Enabled = False
-      ParentFont = False
-      Properties.ImmediatePost = True
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.Kind = lfUltraFlat
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.Kind = lfUltraFlat
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.Kind = lfUltraFlat
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.Kind = lfUltraFlat
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 2
-      Visible = False
-      Width = 233
-    end
-    object cbBackup: TcxCheckBox
-      Left = 16
-      Top = 22
-      Hint = 'To show backup reminder when opening Herd program'
-      Caption = 'Backup Reminder'
-      ParentFont = False
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 3
-      Width = 233
-    end
-    object cbProActiveActionList: TcxCheckBox
-      Left = 16
-      Top = 118
-      Hint = 'To show backup reminder when opening Herd program'
-      Caption = 'Pro-Active Action Reminder Reports'
-      ParentFont = False
-      Properties.OnChange = cbProActiveActionListPropertiesChange
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 4
-      Width = 233
-    end
-    object cbActionWarningReminders: TcxCheckBox
-      Left = 16
-      Top = 142
-      Hint = 'To show backup reminder when opening Herd program'
-      Caption = 'Action/Warning/Reminders'
-      ParentFont = False
-      Properties.OnChange = cbActionWarningRemindersPropertiesChange
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 5
-      Width = 233
-    end
-    object cbHerdVaccination: TcxCheckBox
-      Left = 16
-      Top = 70
-      Hint = 'To show backup reminder when opening Herd program'
-      Caption = 'Herd Vaccination Reminder'
-      ParentFont = False
-      Properties.OnChange = cbHerdVaccinationPropertiesChange
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 6
-      Width = 233
-    end
-    object cbGmailEmailDownloadReminder: TcxCheckBox
-      Left = 16
-      Top = 94
-      Hint = 'To show reminder to check Gmail Inbox in Startup Reminders'
-      Caption = 'Gmail Inbox Download Reminder'
-      ParentFont = False
-      Properties.OnChange = cbGmailEmailDownloadReminderPropertiesChange
-      Style.Font.Charset = ANSI_CHARSET
-      Style.Font.Color = clBlack
-      Style.Font.Height = -11
-      Style.Font.Name = 'Tahoma'
-      Style.Font.Style = [fsBold]
-      Style.LookAndFeel.NativeStyle = True
-      Style.TextStyle = []
-      Style.IsFontAssigned = True
-      StyleDisabled.LookAndFeel.NativeStyle = True
-      StyleFocused.LookAndFeel.NativeStyle = True
-      StyleHot.LookAndFeel.NativeStyle = True
-      TabOrder = 7
-      Width = 233
-    end
-  end
   object GroupBox1: TGroupBox
     Left = 160
     Top = 7
@@ -1098,7 +562,7 @@ object fmGlobalSettings: TfmGlobalSettings
       Top = 15
       Width = 396
       Height = 338
-      ActivePage = tsSaleDeaths
+      ActivePage = tsCalving
       Align = alClient
       Font.Charset = ANSI_CHARSET
       Font.Color = clBlack
@@ -1774,6 +1238,584 @@ object fmGlobalSettings: TfmGlobalSettings
           Width = 271
         end
       end
+    end
+  end
+  object GroupBox4: TGroupBox
+    Tag = 2
+    Left = 160
+    Top = 7
+    Width = 400
+    Height = 330
+    Caption = 'Backup Preferences '
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 6
+    Visible = False
+    object cbBackupTest: TcxCheckBox
+      Left = 16
+      Top = 46
+      Hint = 'Tests the floppy disk backup for disk corruption. '
+      Caption = 'Test backup after completion'
+      ParentFont = False
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 1
+      Width = 193
+    end
+    object cbArchive: TcxCheckBox
+      Left = 16
+      Top = 22
+      Hint = 'Stores the last backup taken to the hard disk (C Drive)'
+      Caption = 'Archive Backup to hard disk'
+      ParentFont = False
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 0
+      Width = 233
+    end
+    object cbSpanDisks: TcxCheckBox
+      Left = 16
+      Top = 70
+      Hint = '(When more than 1 floppy disk is needed for backup)'
+      Caption = 'Use Spanned Disks '
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 2
+      Width = 184
+    end
+    object cbBackupStoreRegFiles: TcxCheckBox
+      Left = 16
+      Top = 94
+      Hint = '(When more than 1 floppy disk is needed for backup)'
+      Caption = 'Store Calf/ICBF Registration Files'
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 3
+      Width = 233
+    end
+    object cbBackupStorePedigreeImages: TcxCheckBox
+      Left = 16
+      Top = 118
+      Hint = '(When more than 1 floppy disk is needed for backup)'
+      Caption = 'Store Pedigree Image Files'
+      ParentFont = False
+      ParentShowHint = False
+      ShowHint = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 4
+      Width = 233
+    end
+  end
+  object GroupBox3: TGroupBox
+    Tag = 100
+    Left = 160
+    Top = 9
+    Width = 400
+    Height = 330
+    Caption = 'PhoneLink Preferences '
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 5
+    Visible = False
+    object Label5: TLabel
+      Left = 16
+      Top = 51
+      Width = 46
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'COM Port'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object Label6: TLabel
+      Left = 16
+      Top = 79
+      Width = 71
+      Height = 13
+      Alignment = taRightJustify
+      Caption = 'Connection Via'
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+    end
+    object cbPhoneLinkAtStartup: TcxCheckBox
+      Left = 16
+      Top = 22
+      Caption = 'Check PhoneLink on startup'
+      ParentFont = False
+      Properties.ImmediatePost = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 0
+      Width = 225
+    end
+    object ConnectMode: TComboBox
+      Left = 108
+      Top = 74
+      Width = 93
+      Height = 21
+      DropDownCount = 3
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ItemHeight = 13
+      ParentFont = False
+      TabOrder = 1
+      Items.Strings = (
+        'DAU-9P'
+        'DLR-3'
+        'InfraRed')
+    end
+    object COM: TComboBox
+      Left = 108
+      Top = 46
+      Width = 75
+      Height = 21
+      DropDownCount = 5
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ItemHeight = 13
+      ParentFont = False
+      Sorted = True
+      TabOrder = 2
+      Items.Strings = (
+        '1'
+        '2'
+        '3'
+        '4'
+        '5')
+    end
+  end
+  object GroupBox5: TGroupBox
+    Tag = 3
+    Left = 160
+    Top = 7
+    Width = 400
+    Height = 330
+    Caption = 'Security Preferences '
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 7
+    Visible = False
+    object GroupBox6: TGroupBox
+      Left = 44
+      Top = 39
+      Width = 325
+      Height = 245
+      Caption = 'Herd Password '
+      Font.Charset = ANSI_CHARSET
+      Font.Color = clBlack
+      Font.Height = -11
+      Font.Name = 'Tahoma'
+      Font.Style = []
+      ParentFont = False
+      TabOrder = 0
+      object Label1: TLabel
+        Left = 32
+        Top = 92
+        Width = 75
+        Height = 13
+        Caption = 'Enter Password'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label2: TLabel
+        Left = 32
+        Top = 125
+        Width = 86
+        Height = 13
+        Caption = 'Confirm Password'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        ParentFont = False
+      end
+      object Label3: TLabel
+        Left = 32
+        Top = 26
+        Width = 219
+        Height = 43
+        AutoSize = False
+        Caption = 
+          'Enter a password to protect your data from unwanted viewing. Pas' +
+          'sword must be 6-10 characters in length.'
+        WordWrap = True
+      end
+      object Pass: TEdit
+        Left = 150
+        Top = 90
+        Width = 101
+        Height = 21
+        CharCase = ecUpperCase
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        MaxLength = 10
+        ParentFont = False
+        PasswordChar = '*'
+        TabOrder = 0
+        OnChange = ConfirmPassChange
+      end
+      object ConfirmPass: TEdit
+        Left = 150
+        Top = 119
+        Width = 101
+        Height = 21
+        CharCase = ecUpperCase
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clBlack
+        Font.Height = -11
+        Font.Name = 'Tahoma'
+        Font.Style = []
+        MaxLength = 10
+        ParentFont = False
+        PasswordChar = '*'
+        TabOrder = 1
+        OnChange = ConfirmPassChange
+      end
+      object Save: TButton
+        Left = 200
+        Top = 194
+        Width = 75
+        Height = 25
+        Caption = '&Save'
+        Default = True
+        Enabled = False
+        TabOrder = 2
+        OnClick = SaveClick
+      end
+      object Disable: TButton
+        Left = 116
+        Top = 194
+        Width = 75
+        Height = 25
+        Caption = 'Clear'
+        Enabled = False
+        TabOrder = 3
+        OnClick = DisableClick
+      end
+    end
+  end
+  object GroupBox2: TGroupBox
+    Tag = 1
+    Left = 160
+    Top = 7
+    Width = 400
+    Height = 330
+    Caption = 'Startup Reminders'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clBlack
+    Font.Height = -11
+    Font.Name = 'Tahoma'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 4
+    Visible = False
+    object cbNewVersionReminder: TcxCheckBox
+      Left = 16
+      Top = 46
+      Caption = 'New Version'
+      ParentFont = False
+      Properties.ImmediatePost = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 0
+      Width = 234
+    end
+    object cbNewVersionFieldsReps: TcxCheckBox
+      Left = 16
+      Top = 265
+      Caption = 'Check latest Fields/REPS version'
+      ParentFont = False
+      Properties.ImmediatePost = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 1
+      Visible = False
+      Width = 233
+    end
+    object cbNewVersionStartup: TcxCheckBox
+      Left = 16
+      Top = 241
+      Caption = 'Check for new version on startup'
+      Enabled = False
+      ParentFont = False
+      Properties.ImmediatePost = True
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.Kind = lfUltraFlat
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.Kind = lfUltraFlat
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.Kind = lfUltraFlat
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.Kind = lfUltraFlat
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 2
+      Visible = False
+      Width = 233
+    end
+    object cbBackup: TcxCheckBox
+      Left = 16
+      Top = 22
+      Hint = 'To show backup reminder when opening Herd program'
+      Caption = 'Backup'
+      ParentFont = False
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 3
+      Width = 234
+    end
+    object cbProActiveActionList: TcxCheckBox
+      Left = 16
+      Top = 118
+      Hint = 'To show backup reminder when opening Herd program'
+      Caption = 'Pro-Active Action Reminder Reports'
+      ParentFont = False
+      Properties.OnChange = cbProActiveActionListPropertiesChange
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 4
+      Width = 234
+    end
+    object cbActionWarningReminders: TcxCheckBox
+      Left = 16
+      Top = 142
+      Hint = 'To show backup reminder when opening Herd program'
+      Caption = 'Action/Warning/Reminders'
+      ParentFont = False
+      Properties.OnChange = cbActionWarningRemindersPropertiesChange
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 5
+      Width = 234
+    end
+    object cbHerdVaccination: TcxCheckBox
+      Left = 16
+      Top = 70
+      Hint = 'To show backup reminder when opening Herd program'
+      Caption = 'Herd Vaccination'
+      ParentFont = False
+      Properties.OnChange = cbHerdVaccinationPropertiesChange
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 6
+      Width = 234
+    end
+    object cbGmailEmailDownloadReminder: TcxCheckBox
+      Left = 16
+      Top = 94
+      Hint = 'To show reminder to check Gmail Inbox in Startup Reminders'
+      Caption = 'Gmail Inbox Download'
+      ParentFont = False
+      Properties.OnChange = cbGmailEmailDownloadReminderPropertiesChange
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 7
+      Width = 234
+    end
+    object cbICBFRegReminder: TcxCheckBox
+      Left = 16
+      Top = 166
+      Hint = 'To show backup reminder when opening Herd program'
+      Caption = 'Register Events With ICBF'
+      ParentFont = False
+      Properties.OnChange = cbActionWarningRemindersPropertiesChange
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 8
+      Width = 234
+    end
+    object cbAIMHerdRecReminder: TcxCheckBox
+      Left = 16
+      Top = 190
+      Hint = 'To show backup reminder when opening Herd program'
+      Caption = 'Sync With AIM'
+      ParentFont = False
+      Properties.OnChange = cbActionWarningRemindersPropertiesChange
+      Style.Font.Charset = ANSI_CHARSET
+      Style.Font.Color = clBlack
+      Style.Font.Height = -11
+      Style.Font.Name = 'Tahoma'
+      Style.Font.Style = [fsBold]
+      Style.LookAndFeel.NativeStyle = True
+      Style.TextStyle = []
+      Style.IsFontAssigned = True
+      StyleDisabled.LookAndFeel.NativeStyle = True
+      StyleFocused.LookAndFeel.NativeStyle = True
+      StyleHot.LookAndFeel.NativeStyle = True
+      TabOrder = 9
+      Width = 234
     end
   end
   object Button1: TButton

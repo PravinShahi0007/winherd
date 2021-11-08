@@ -1,6 +1,7 @@
 inherited fmDanRyanImport: TfmDanRyanImport
-  Top = 170
-  Width = 644
+  Left = 331
+  Top = 174
+  Width = 1096
   Height = 566
   Caption = 'Cows365 Data Import'
   OldCreateOrder = True
@@ -9,7 +10,7 @@ inherited fmDanRyanImport: TfmDanRyanImport
   TextHeight = 13
   inherited StatusBar: TdxStatusBar
     Top = 515
-    Width = 636
+    Width = 1088
     Panels = <
       item
         PanelStyleClassName = 'TdxStatusBarTextPanelStyle'
@@ -18,18 +19,18 @@ inherited fmDanRyanImport: TfmDanRyanImport
   object pcEvents: TcxPageControl [1]
     Left = 0
     Top = 49
-    Width = 636
+    Width = 1088
     Height = 466
-    ActivePage = tsPregnant
+    ActivePage = cxDNB
     Align = alClient
     LookAndFeel.Kind = lfStandard
     Style = 9
     TabHeight = 30
     TabOrder = 5
-    TabWidth = 110
+    TabWidth = 120
     OnChange = pcEventsChange
     ClientRectBottom = 466
-    ClientRectRight = 636
+    ClientRectRight = 1088
     ClientRectTop = 31
     object tsFit: TcxTabSheet
       Caption = 'Fit'
@@ -110,6 +111,37 @@ inherited fmDanRyanImport: TfmDanRyanImport
     object tsUnfit: TcxTabSheet
       Caption = 'Unfit'
       ImageIndex = 5
+    end
+    object tsCycling: TcxTabSheet
+      Caption = 'Cycling'
+      ImageIndex = 7
+    end
+    object tsRescanAdvised: TcxTabSheet
+      Caption = 'Rescan Advised'
+      ImageIndex = 8
+    end
+    object cxDNB: TcxTabSheet
+      Caption = 'Do Not Breed'
+      ImageIndex = 9
+    end
+    object tsLog: TcxTabSheet
+      Caption = 'Log'
+      ImageIndex = 6
+      object cxmLog: TcxMemo
+        Left = 0
+        Top = 0
+        Align = alClient
+        Lines.Strings = (
+          '')
+        Properties.ReadOnly = True
+        Style.LookAndFeel.Kind = lfFlat
+        StyleDisabled.LookAndFeel.Kind = lfFlat
+        StyleFocused.LookAndFeel.Kind = lfFlat
+        StyleHot.LookAndFeel.Kind = lfFlat
+        TabOrder = 0
+        Height = 435
+        Width = 1088
+      end
     end
   end
   inherited ActionList: TActionList

@@ -106,6 +106,8 @@ unit uCalfRegFlt;
    07/09/17 [V5.7 R2.3] /MK Bug Fix - Problems found with remove all or single animals since remove all code was added.    
 
    04/02/19 [V5.8 R6.6] /MK Change - RegisterCalf - Change warning to be more up-to-date with AIM registrations - GL request.
+
+   18/05/21 [V6.0 R1.1] /MK Change - BuildTable - Remove animals that are in the Animals and AIMAnimalReg table as Registered or Queried as per uAimAnimalRegistration.
 }
 
 interface
@@ -460,6 +462,24 @@ begin
             SQL.Add('WHERE TempReg.AnimalID NOT In');
             SQL.Add('(SELECT ID FROM Animals)');
             ExecSQL;
+
+            //   18/05/21 [V6.0 R1.1] /MK Change - Remove animals that are in the Animals and AIMAnimalReg table as Registered or Queried as per uAimAnimalRegistration.
+            if ( WhichReg = Ireland ) then
+               begin
+                  MyQuery.SQL.Clear;
+                  MyQuery.SQL.Add('DELETE FROM '+MyTable.TableName);
+                  MyQuery.SQL.Add('WHERE AnimalId IN (SELECT Id FROM Animals WHERE AimRegStatus IN (3,4))');
+                  MyQuery.ExecSQL;
+
+                  MyQuery.SQL.Clear;
+                  MyQuery.SQL.Add('DELETE FROM '+MyTable.TableName);
+                  MyQuery.SQL.Add('WHERE AnimalId IN (SELECT AnimalId FROM AIMAnimalReg WHERE Status IN (3,4))');
+                  MyQuery.ExecSQL;
+               end;
+
+            MyTable.Close;
+            MyTable.Open;
+            
             SQL.Clear;
             SQL.Add('SELECT ID, AnimalNo, NatIDNum, SortNatId, Colour, PrimaryBreed, Sex, DateOfBirth, DamID, SireID, HerdID, Name');
             SQL.Add('FROM Animals A, TempReg T');

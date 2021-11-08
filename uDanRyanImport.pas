@@ -30,6 +30,15 @@
                             Additional Feature - Added uProgressIndicator to show progress of reading the file and saving the events.
 
    16/12/20 [V5.9 R7.9] /MK Change - FilterGridTable - Default the ActivePageIndex to Pregnant as this event should always exist.
+
+   05/07/21 [V6.0 R1.6] /MK Change - Added a check for the recheck code, RCK, in the event code field - Tom Craig.
+
+   18/08/21 [V6.0 R1.9] /MK Additional Feature - Added a new page for Log - James O'Connor/Milo Murphy.
+                                               - If the animal can't be found by animal number or tag number then add this to the log.
+                                               - If the event type is unknown i.e. Cows365 added a new one and didn't tell us, add this with the animal identifier to the log.
+                                               - If the event type is blank then add this with the animal ident to the log.
+
+   19/08/21 [V6.0 R2.0] /MK Additional Feature - Added pages and import of 3 new event types, "Cycling", "RescanAdvised", and "DNB or DoNotBreed" - James O'Connor/Milo Murphy/Kevin Maguire.
 }
 
 unit uDanRyanImport;
@@ -43,7 +52,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, cxGrid,
   GenTypesConst, EventRecording, KRoutines, uSPParser, DairyData,
   uHerdLookup, uFileAttachmentImport, DateUtil, Menus, uApplicationLog,
-  uProgressIndicator;
+  uProgressIndicator, cxContainer, cxEdit, cxTextEdit, cxMemo;
 
 type
   TFileType = (ftDanRyan, ftBillyCurtin);
@@ -72,6 +81,11 @@ type
     pmOptions: TPopupMenu;
     miBillyCurtinFormat: TMenuItem;
     actEnableBillyCurtinFormat: TAction;
+    tsLog: TcxTabSheet;
+    cxmLog: TcxMemo;
+    tsCycling: TcxTabSheet;
+    tsRescanAdvised: TcxTabSheet;
+    cxDNB: TcxTabSheet;
     procedure lbOpenFileClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -90,15 +104,17 @@ type
     FTotalEventsSaved,
     FDaysInCalf : Integer;
     FCalfType : String;
+    FRecheck : Boolean;
     FFileName : String;
     FFileType : TFileType;
     procedure CreateTempTables;
     procedure ReadFile;
     procedure FilterGridTable;
     procedure DecipherEventCode(AEventCode: String);
-    procedure SaveFertilityCheckEvent(AFertEventGroup: Integer);
-    procedure SavePregDiagEvent(APregnant : Boolean);
-    procedure SaveToBeCulledEvent;
+    procedure AddToLog(AAnimalNo, ANatIdNum, AMessage : String);
+    function SaveFertilityCheckEvent(AFertEventGroup: Integer) : Boolean;
+    function SavePregDiagEvent(APregnant : Boolean) : Boolean;
+    function SaveToBeCulledEvent : Boolean;
     function GetAnimalID(AAnimalNo, ANatIDNum : String) : Integer;
     { Private declarations }
   public
@@ -117,12 +133,18 @@ const
   egServed = 4;
   egPregnant = 5;
   egUnfit = 6;
+  egCycling = 7;
+  egRescanAdvised = 8;
+  egDoNotBreed = 9;
   csFit = 'FIT';
   csFreshTime = 'FRESH/TIME';
   csAttention = 'ATTENTION';
   csServed = 'SERVED';
   csPregnant = 'PREGNANT';
   csUnfit = 'UNFIT';
+  csCycling = 'CYCLING';
+  csRescanAdvised = 'RESCAN ADVISED';
+  csDoNotBreed = 'DNB';
 
 implementation
 
@@ -160,6 +182,8 @@ begin
    OnActivate := nil;
    ReadFile;
    FilterGridTable;
+   //   16/12/20 [V5.9 R7.9] /MK Change - Default the ActivePageIndex to Pregnant as this event should always exist.
+   pcEvents.ActivePageIndex := tsPregnant.PageIndex;
 end;
 
 procedure TfmDanRyanImport.CreateTempTables;
@@ -286,6 +310,9 @@ begin
    // 16/06/2017 SP
    try
       Screen.Cursor := crHourglass;
+
+      cxmLog.Lines.Clear;
+
       if not(FileExists(FFileName)) then
          begin
             if OpenDialog.Execute then
@@ -351,6 +378,7 @@ begin
                         FEventTable.FieldByName('NatIDNum').AsString := Copy(sNatIDNum,3,Length(sNatIDNum));
                         FEventTable.FieldByName('EventCode').AsString := Parser.Fields[3];
                         FEventTable.FieldByName('EventDesc').AsString := RemoveQuotationMarks(Parser.Fields[4]);
+
                         sEventGroup := UpperCase(Parser.Fields[5]);
                         if ( sEventGroup = csFit ) then
                            FEventTable.FieldByName('EventGroup').AsInteger := egFit
@@ -363,7 +391,23 @@ begin
                         else if ( sEventGroup = csPregnant ) then
                            FEventTable.FieldByName('EventGroup').AsInteger := egPregnant
                         else if ( sEventGroup = csUnfit ) then
-                           FEventTable.FieldByName('EventGroup').AsInteger := egUnfit;
+                           FEventTable.FieldByName('EventGroup').AsInteger := egUnfit
+                        else if ( sEventGroup = csCycling ) then
+                           FEventTable.FieldByName('EventGroup').AsInteger := egCycling
+                        else if ( sEventGroup = csRescanAdvised ) then
+                           FEventTable.FieldByName('EventGroup').AsInteger := egRescanAdvised
+                        else if ( sEventGroup = csDoNotBreed ) then
+                           begin
+                              FEventTable.FieldByName('EventGroup').AsInteger := egDoNotBreed;
+                              AddToLog(FEventTable.FieldByName('AnimalNo').AsString,
+                                       FEventTable.FieldByName('NatIDNum').AsString,
+                                       'Animal marked as not for breeding.');
+                           end
+                        else
+                           AddToLog(FEventTable.FieldByName('AnimalNo').AsString,
+                                    FEventTable.FieldByName('NatIDNum').AsString,
+                                    'Unknown event type '+sEventGroup+', cannot save this event.');
+
                         FEventTable.FieldByName('EventDate').AsDateTime := dEventDate;
                      end
                   else
@@ -425,7 +469,11 @@ begin
                         FEventTable.FieldByName('AnimalLactNo').AsInteger := FAnimalTable.FieldByName('LactNo').AsInteger;
                      end;
                   FEventTable.Post;
-               end;
+               end
+            else
+               AddToLog(FEventTable.FieldByName('AnimalNo').AsString,
+                        FEventTable.FieldByName('NatIDNum').AsString,
+                        'not found in the current herd');
 
             ProgressIndicator.Position := ProgressIndicator.Position + 1;
             Application.ProcessMessages;
@@ -449,6 +497,12 @@ var
 begin
    inherited;
    try
+      FEventTable.Filtered := False;
+      FEventTable.Filter := '';
+
+      FEventTable.Close;
+      FEventTable.Open;
+
       if ( FEventTable.RecordCount = 0 ) then
          begin
             MessageDlg('No events to save.',mtError,[mbOK],0);
@@ -461,12 +515,6 @@ begin
 
       HerdLookup.QueryFertilityCheckStatus.Close;
       HerdLookup.QueryFertilityCheckStatus.Open;
-
-      FEventTable.Filtered := False;
-      FEventTable.Filter := '';
-
-      FEventTable.Close;
-      FEventTable.Open;
 
       ShowProgressIndicator('Saving Events',0,FEventTable.RecordCount,1);
       ProgressIndicator.Max := FEventTable.RecordCount;
@@ -483,20 +531,21 @@ begin
                          egFit,
                          egFreshTime,
                          egServed,
-                         egAttention : begin
-                                          SaveFertilityCheckEvent(FEventTable.FieldByName('EventGroup').AsInteger);
-                                          SavePregDiagEvent(False);
-                                          Inc(iEventsSaved);
-                                       end;
+                         egAttention,
+                         egCycling,
+                         egRescanAdvised : begin
+                                              if ( SaveFertilityCheckEvent(FEventTable.FieldByName('EventGroup').AsInteger) ) and
+                                                 ( SavePregDiagEvent(False) ) then
+                                                 Inc(iEventsSaved);
+                                           end;
                          egPregnant  : begin
-                                          SavePregDiagEvent(True);
-                                          Inc(iEventsSaved);
+                                          if ( SavePregDiagEvent(True) ) then
+                                             Inc(iEventsSaved);
                                        end;
-                         egUnfit     : begin
-                                          SaveToBeCulledEvent;
-                                          SavePregDiagEvent(False);
-                                          Inc(iEventsSaved);
-                                       end;
+                         egUnfit : begin
+                                      if ( SaveToBeCulledEvent ) and ( SavePregDiagEvent(False) ) then
+                                         Inc(iEventsSaved);
+                                   end;
                      end;
                   end
                else
@@ -531,6 +580,9 @@ begin
                               '%d fertility events not recorded.',[iEventsSaved,FTotalEventsSaved-iEventsSaved]),mtConfirmation,[mbOK],0)
          else if ( iEventsSaved = FTotalEventsSaved ) then
             MessageDlg(Format('%d fertility events saved',[iEventsSaved]),mtConfirmation,[mbOK],0);
+
+         if ( cxmLog.Lines.Count > 0 ) then
+            pcEvents.ActivePageIndex := tsLog.PageIndex;
       end
    else
       MessageDlg(Format('%d pregnancy diagnosis events saved.',[FTotalEventsSaved]),mtConfirmation,[mbOK],0);
@@ -548,14 +600,15 @@ end;
 
 procedure TfmDanRyanImport.FilterGridTable;
 begin
+   StatusBar.Panels[0].Text := '';
+
+   if ( pcEvents.ActivePageIndex = tsLog.PageIndex ) then Exit;
+
    EventGrid.Parent := pcEvents.ActivePage;
 
    EventGridDBTableView.DataController.DataSource := nil;
    FEventTable.Filtered := False;
    FEventTable.Filter := '';
-
-   //   16/12/20 [V5.9 R7.9] /MK Change - Default the ActivePageIndex to Pregnant as this event should always exist.
-   pcEvents.ActivePageIndex := tsPregnant.PageIndex;
 
    if pcEvents.ActivePage <> nil then
       begin
@@ -588,6 +641,21 @@ begin
             begin
                FEventTable.Filtered := True;
                FEventTable.Filter := 'EventGroup = '+IntToStr(egUnfit)+' ';
+            end
+         else if pcEvents.ActivePage = tsCycling then
+            begin
+               FEventTable.Filtered := True;
+               FEventTable.Filter := 'EventGroup = '+IntToStr(egCycling)+' ';
+            end
+         else if pcEvents.ActivePage = tsRescanAdvised then
+            begin
+               FEventTable.Filtered := True;
+               FEventTable.Filter := 'EventGroup = '+IntToStr(egRescanAdvised)+' ';
+            end
+         else if pcEvents.ActivePage = cxDNB then
+            begin
+               FEventTable.Filtered := True;
+               FEventTable.Filter := 'EventGroup = '+IntToStr(egDoNotBreed)+' ';
             end;
 
          if ( Length(FEventTable.Filter) > 0 ) and ( FEventTable.Filtered ) then
@@ -595,14 +663,11 @@ begin
 
          if ( FEventTable.RecordCount > 0 ) then
             StatusBar.Panels[0].Text := 'Total Events:'+IntToStr(FEventTable.RecordCount)
-         else
-            StatusBar.Panels[0].Text := '';
-
       end;
    EventGridDBTableView.DataController.DataSource := dsEventTable;
 end;
 
-procedure TfmDanRyanImport.SavePregDiagEvent(APregnant: Boolean);
+function TfmDanRyanImport.SavePregDiagEvent(APregnant: Boolean) : Boolean;
 var
    PregDiagEvent : TPregDiagEvent;
    iNoCalves : Integer;
@@ -635,6 +700,7 @@ var
                         else if ( FDaysInCalf <= 0 ) then
                            PregDiagEvent.EventComment := 'Not Pregnant';
                      end;
+                  PregDiagEvent.IsRecheck := FRecheck;
                end
             else
                begin
@@ -646,8 +712,10 @@ var
                      PregDiagEvent.EventComment := 'Not Pregnant';
                end;
             PregDiagEvent.Post;
+            Result := True;
          except
             PregDiagEvent.Cancel;
+            Result := False;
          end;
       finally
          FreeAndNil(PregDiagEvent);
@@ -655,6 +723,7 @@ var
    end;
 
 begin
+   Result := False;
    if ( FFileType = ftDanRyan ) then
       begin
          DecipherEventCode(FEventTable.FieldByName('EventCode').AsString);
@@ -685,52 +754,61 @@ begin
       end;
 end;
 
-procedure TfmDanRyanImport.SaveFertilityCheckEvent (AFertEventGroup : Integer);
+function TfmDanRyanImport.SaveFertilityCheckEvent (AFertEventGroup : Integer) : Boolean;
 var
    FertCheckEvent : TFertilityCheckEvent;
 begin
-   if not( FSaveEvents.Locate('AnimalID;AnimalLactNo;EventDate;EventType',
-                               VarArrayOf([FEventTable.FieldByName('AnimalID').AsInteger,
-                                           FEventTable.FieldByName('AnimalLactNo').AsInteger,
-                                           FEventTable.FieldByName('EventDate').AsDateTime,
-                                           CFertilityCheck]),[]) ) then
+   Result := False;
+   if ( FSaveEvents.Locate('AnimalID;AnimalLactNo;EventDate;EventType',
+                           VarArrayOf([FEventTable.FieldByName('AnimalID').AsInteger,
+                                       FEventTable.FieldByName('AnimalLactNo').AsInteger,
+                                       FEventTable.FieldByName('EventDate').AsDateTime,
+                                       CFertilityCheck]),[]) ) then
       begin
-         try
-            FertCheckEvent := TFertilityCheckEvent.Create('FERT');
-            FertCheckEvent.Append;
-            try
-               FertCheckEvent.EventType := TFertilityCheck;
-               FertCheckEvent.AnimalID := FEventTable.FieldByName('AnimalID').AsInteger;
-               FertCheckEvent.AnimalLactNo := FEventTable.FieldByName('AnimalLactNo').AsInteger;
-               FertCheckEvent.EventDate := FEventTable.FieldByName('EventDate').AsDateTime;
-               FertCheckEvent.AnimalHerdID := WinData.UserDefaultHerdID;
-               if ( Length(FEventTable.FieldByName('EventDesc').AsString) > 0 ) then
-                  FertCheckEvent.EventComment := Copy(FEventTable.FieldByName('EventDesc').AsString,0,30);
-               if ( AFertEventGroup in [egFit, egFreshTime, egServed] ) then
-                  begin
-                     if ( HerdLookup.QueryFertilityCheckStatus.Locate('Description','Clean',[]) ) then
-                        FertCheckEvent.Status := HerdLookup.QueryFertilityCheckStatus.FieldByName('ID').AsInteger;
-                  end
-               else if ( AFertEventGroup = egAttention ) then
-                  begin
-                     if ( HerdLookup.QueryFertilityCheckStatus.Locate('Description','Infected',[]) ) then
-                        FertCheckEvent.Status := HerdLookup.QueryFertilityCheckStatus.FieldByName('ID').AsInteger;
-                  end;
-
-               FertCheckEvent.Post;
-            except
-               FertCheckEvent.Cancel;
-            end;
-         finally
-            FreeAndNil(FertCheckEvent);
-         end;
+         AddToLog(FEventTable.FieldByName('AnimalNo').AsString,
+                  FEventTable.FieldByName('NatIDNum').AsString,
+                  'Fertility Check event date already exists in current lactation.');
+         Exit;
       end;
+
+   try
+      FertCheckEvent := TFertilityCheckEvent.Create('FERT');
+      FertCheckEvent.Append;
+      try
+         FertCheckEvent.EventType := TFertilityCheck;
+         FertCheckEvent.AnimalID := FEventTable.FieldByName('AnimalID').AsInteger;
+         FertCheckEvent.AnimalLactNo := FEventTable.FieldByName('AnimalLactNo').AsInteger;
+         FertCheckEvent.EventDate := FEventTable.FieldByName('EventDate').AsDateTime;
+         FertCheckEvent.AnimalHerdID := WinData.UserDefaultHerdID;
+         if ( Length(FEventTable.FieldByName('EventDesc').AsString) > 0 ) then
+            FertCheckEvent.EventComment := Copy(FEventTable.FieldByName('EventDesc').AsString,0,30);
+         if ( AFertEventGroup in [egFit, egFreshTime, egServed, egCycling, egRescanAdvised] ) then
+            begin
+               if ( HerdLookup.QueryFertilityCheckStatus.Locate('Description','Clean',[]) ) then
+                  FertCheckEvent.Status := HerdLookup.QueryFertilityCheckStatus.FieldByName('ID').AsInteger;
+            end
+         else if ( AFertEventGroup = egAttention ) then
+            begin
+               if ( HerdLookup.QueryFertilityCheckStatus.Locate('Description','Infected',[]) ) then
+                  FertCheckEvent.Status := HerdLookup.QueryFertilityCheckStatus.FieldByName('ID').AsInteger;
+            end;
+
+         FertCheckEvent.Post;
+         Result := True;
+      except
+         FertCheckEvent.Cancel;
+         Result := False;
+      end;
+   finally
+      FreeAndNil(FertCheckEvent);
+   end;
 end;
 
 procedure TfmDanRyanImport.DecipherEventCode ( AEventCode : String );
 var
    EParser : TSPParser;
    PDDate : TDateTime;
+   i : Integer;
 
    function GetCalfSex ( ACalfSex : String ) : string;
    begin
@@ -782,6 +860,7 @@ begin
    try
       FDaysInCalf := 0;
       FCalfType := '';
+      FRecheck := False;
 
       EParser := TSPParser.Create(nil);
       EParser.Sepchar := ' ';
@@ -814,6 +893,13 @@ begin
             FCalfType := GetCalfSex(UpperCase(EParser.Fields[2]));
             if ( EParser.Count > 2 ) and ( GetCalfSex(UpperCase(EParser.Fields[3])) <> '' ) then
                FCalfType := FCalfType + '/' + GetCalfSex(UpperCase(EParser.Fields[3]));
+
+            for i := 1 to EParser.Count do
+               if ( EParser.Fields[i] = 'RCK' ) then
+                  begin
+                     FRecheck := True;
+                     Break;
+                  end;
          end;
 
    finally
@@ -821,31 +907,41 @@ begin
    end;
 end;
 
-procedure TfmDanRyanImport.SaveToBeCulledEvent;
+function TfmDanRyanImport.SaveToBeCulledEvent : Boolean;
 var
    ToBeCulledEvent : TToBeCulledEvent;
 begin
-   if not( WinData.CheckEventExists(FEventTable.FieldByName('AnimalID').AsInteger,
-                                    FEventTable.FieldByName('AnimalLactNo').AsInteger,
-                                    CToBeCulledEvent) ) then
-      try
-         ToBeCulledEvent := TToBeCulledEvent.Create('CUL');
-         ToBeCulledEvent.Append;
-         try
-            ToBeCulledEvent.AnimalID := FEventTable.FieldByName('AnimalID').AsInteger;
-            ToBeCulledEvent.AnimalLactNo := FEventTable.FieldByName('AnimalLactNo').AsInteger;
-            ToBeCulledEvent.AnimalHerdID := WinData.UserDefaultHerdID;
-            ToBeCulledEvent.EventDate := FEventTable.FieldByName('EventDate').AsDateTime;
-            if ( Length(FEventTable.FieldByName('EventDesc').AsString) > 0 ) then
-               ToBeCulledEvent.EventComment := Copy(FEventTable.FieldByName('EventDesc').AsString,0,30);
-            ToBeCulledEvent.EventSource := sINTERNAL;
-            ToBeCulledEvent.Post;
-         except
-            ToBeCulledEvent.Cancel;
-         end;
-      finally
-         FreeAndNil(ToBeCulledEvent);
+   Result := False;
+   if ( WinData.CheckEventExists(FEventTable.FieldByName('AnimalID').AsInteger,
+                                 FEventTable.FieldByName('AnimalLactNo').AsInteger,
+                                 CToBeCulledEvent) ) then
+      begin
+         AddToLog(FEventTable.FieldByName('AnimalNo').AsString,
+                  FEventTable.FieldByName('NatIDNum').AsString,
+                  'To Be Culled event date already exists in current lactation.');
+         Exit;
       end;
+
+   try
+      ToBeCulledEvent := TToBeCulledEvent.Create('CUL');
+      ToBeCulledEvent.Append;
+      try
+         ToBeCulledEvent.AnimalID := FEventTable.FieldByName('AnimalID').AsInteger;
+         ToBeCulledEvent.AnimalLactNo := FEventTable.FieldByName('AnimalLactNo').AsInteger;
+         ToBeCulledEvent.AnimalHerdID := WinData.UserDefaultHerdID;
+         ToBeCulledEvent.EventDate := FEventTable.FieldByName('EventDate').AsDateTime;
+         if ( Length(FEventTable.FieldByName('EventDesc').AsString) > 0 ) then
+            ToBeCulledEvent.EventComment := Copy(FEventTable.FieldByName('EventDesc').AsString,0,30);
+         ToBeCulledEvent.EventSource := sINTERNAL;
+         ToBeCulledEvent.Post;
+         Result := True;
+      except
+         ToBeCulledEvent.Cancel;
+         Result := False;
+      end;
+   finally
+      FreeAndNil(ToBeCulledEvent);
+   end;
 end;
 
 procedure TfmDanRyanImport.actEnableBillyCurtinFormatExecute(
@@ -956,6 +1052,25 @@ begin
       finally
          Free;
       end;
+end;
+
+procedure TfmDanRyanImport.AddToLog(AAnimalNo, ANatIdNum, AMessage : String);
+var
+   sAnimalIdent,
+   sAnimalIdentType : String;
+begin
+   if ( (Length(AAnimalNo) = 0) and (Length(ANatIdNum) = 0) ) then Exit;
+   if ( Length(AAnimalNo) > 0 ) then
+      begin
+        sAnimalIdent := AAnimalNo;
+        sAnimalIdentType := 'number (freeze brand/jumbo)';
+      end
+   else if ( Length(ANatIdNum) > 0 ) then
+      begin
+         sAnimalIdent := ANatIdNum;
+         sAnimalIdentType := 'tag number';
+      end;
+   cxmLog.Lines.Add(Format('Animal %s "%s" - %s',[sAnimalIdentType,sAnimalIdent,AMessage]))
 end;
 
 end.

@@ -7,7 +7,7 @@
 
   17/05/12 [V5.0 R5.7] /MK Bug Fix - FormDestroy - Delete And Rebuild Indexes.
 
-  31/03/14 [V5.2 R9.3] /SP Bug Fix - ZipDataExecuteAction - Delete file to stop DynaZip appending to zip file. 
+  31/03/14 [V5.2 R9.3] /SP Bug Fix - ZipDataExecuteAction - Delete file to stop DynaZip appending to zip file.
 
   01/10/14 [V5.3 R7.4] /MK Change - BackupToServer - Copy Farmgate.def into backup file for use with reinstall.
 
@@ -25,7 +25,9 @@
 
   28/11/17 [V5.7 R5.7] /MK Change - CanBackupAccounts - Use WinData.IsBlacklistedIP function here.
 
-  30/04/19 [V5.8 R9.0] /MK Change - Enabled the ExcludeFollowingFlag and added Sires.db, Sires.px, UKSires.db, *.xml and *.txt files to an ExcludeFollowing list.                                   
+  30/04/19 [V5.8 R9.0] /MK Change - Enabled the ExcludeFollowingFlag and added Sires.db, Sires.px, UKSires.db, *.xml and *.txt files to an ExcludeFollowing list.
+
+  04/06/21 [V6.0 R1.3] /MK Bug Fix - RestoreData - Some backup files from the server can come down as 0MB, give error to choose another file.
 }
 
 unit uDataBackup;
@@ -39,7 +41,7 @@ uses
   cxLookAndFeels, FileCtrl, dxBar, dxBarExtItems, LMDWebBase, LMDWebConfig,
   LMDWebHTTPGet, LMDDownload, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, uIndexes, KDBRoutines,
-  uFarmSyncSettings, uApplicationLog;
+  uFarmSyncSettings, uApplicationLog, uFileSize;
 
 type
   TZipDestType = (zdFloppy, zdCDR, zdExternalDevice, zdOnlineServer);
@@ -941,7 +943,15 @@ begin
                               'File : "%s" does not exist',[AFileName]),mtWarning,[mbOK],0);
             Application.ProcessMessages;
          end
-      else if ForceTopMostMessageDlg('This restore will replace all existing data.'+cCRLFx2+'Do you want to continue?',mtWarning,[mbYes,mbNo],0) = mrYes Then
+      //   04/06/21 [V6.0 R1.3] /MK Bug Fix - Some backup files from the server can come down as 0MB, give error to choose another file.
+      else if ( DPGetFileSize(AFileName) = 0 ) then
+         begin
+            UpdateStatus('Unable to restore backup.');
+            MessageDlg(Format('Unable to proceed with data restore.'+#13#10+
+                              'File : "%s" has no contents, try another backup file.',[AFileName]),mtWarning,[mbOK],0);
+            Application.ProcessMessages;
+         end
+      else if ( ForceTopMostMessageDlg('This restore will replace all existing data.'+cCRLFx2+'Do you want to continue?',mtWarning,[mbYes,mbNo],0) = mrYes ) then
          begin
             if ArchiveData then
                begin

@@ -1,5 +1,7 @@
 {
    24/10/17 [V5.7 R4.0] /MK Change - Changed max value of seNoBulls to 100 - GL / Martina Neville request.
+
+   03/08/21 [V6.0 R1.7] /MK Change - Default seNoBulls to 60 - GL/SP/Adrian Thackleberry request.
 }
 
 unit uHerdSyncDataSettings;

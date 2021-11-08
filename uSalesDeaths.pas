@@ -54,6 +54,9 @@
 
   26/03/19 [V5.8 R8.3] /MK Additional Feature - If editing a sale/death event then open then change Customers.LookupSource to new WinData.dsQueryAllCustomers and
                                                 also close/open new WinData.QueryAllCustomers when user clicks the Add button in the Customers drop-down-list - Una Carter.
+
+  09/07/21 [V6.0 R1.6] /MK Change - bDeleteClick - When deleting the sale event check if there is already an animal in the herd
+                                                   with this tag number and don't allow the event to be deleted.
 }
 
 unit uSalesDeaths;
@@ -426,14 +429,13 @@ begin
                            else
                               WinData.FeedManager.EndFeedEventsForAnimal(WinData.AnimalFileByIDID.AsVariant,StrToDateTime(DateOfSaleDeath.EditText));
                         //   06/11/18 [V5.8 R3.5] /MK Bug Fix - Only remove animal from group if its in a feed group. 
-                        WinData.GroupManager.RemoveAnimalFromGrp(WinData.AnimalFileByIDID.AsVariant,iaAnimalExistGroupIDs[i]);
+                        WinData.GroupManager.RemoveAnimalFromGrp(WinData.AnimalFileByIDID.AsVariant,iaAnimalExistGroupIDs[i],True);
                      end;
                end;
 
       end
    else if Button = kwnbCancel then
       Close;
-
 end;
 
 procedure TfSalesDeaths.SearchForAnimalButtonClick(Sender: TObject);
@@ -865,6 +867,35 @@ End;
 
 procedure TfSalesDeaths.bDeleteClick(Sender: TObject);
 begin
+   //   09/07/21 [V6.0 R1.6] /MK Change - When deleting the sale event check if there is already an animal in the herd
+   //                                     with this tag number and don't allow the event to be deleted.
+   with TQuery.Create(nil) do
+      try
+         DatabaseName := AliasName;
+         SQL.Clear;
+         SQL.Add('SELECT *');
+         SQL.Add('FROM Animals');
+         SQL.Add('WHERE NatIDNum = :NatIdNo');
+         SQL.Add('AND (InHerd = True)');
+         SQL.Add('AND (AnimalDeleted = False)');
+         SQL.Add('AND (HerdId In (SELECT DefaultHerdId FROM Defaults))');
+         Params[0].AsString := WinData.AnimalFileByIDNatIDNum.AsString;
+         try
+            Open;
+            if ( RecordCount > 0 ) then
+               begin
+                  MessageDlg('There is already an animal in the herd with this tag number.'+cCRLF+
+                             'The sale event cannot be deleted for this animal.',mtError,[mbOK],0);
+                  Exit;
+               end;
+         except
+            on e : Exception do
+               ShowDebugMessage(e.Message);
+         end;
+      finally
+         Free;
+      end;
+
    // User want to delete the Sales Record for this animal check they are sure
    uSalePurchDelete.ShowSalePurchaseDeleteScreen ( SaleDelete );
    SaleDeathSaved := True;

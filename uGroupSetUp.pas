@@ -907,7 +907,7 @@ begin
                                     WinData.FeedManager.EndFeedEventsForAnimal(qAnimalsNotInGroup.FieldByName('ID').AsInteger,dEndAllocDate);
                                  end
                               else
-                                 //   29/01/18 [V5.7 R6.7] /MK Bug Fix - Passing in wrong group id. 
+                                 //   29/01/18 [V5.7 R6.7] /MK Bug Fix - Passing in wrong group id.
                                  WinData.GroupManager.RemoveAnimalFromGrp(qAnimalsNotInGroup.FieldByName('ID').AsInteger, WinData.Groups.FieldByName('ID').AsInteger);
                            end
                         else

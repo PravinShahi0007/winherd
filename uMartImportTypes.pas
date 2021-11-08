@@ -2,8 +2,8 @@ unit uMartImportTypes;
 
 interface
 type
-  TMartFileKind = (mftMART,mftAHPIS);
-  TLookupType = (lkCustomer, lkSupplier);
+   TMartFileKind = (mftMART,mftAHPIS);
+   TLookupType = (lkCustomer, lkSupplier);
    TMartFileType = (mftNone, mftXML, mftNIMovementIn, mftNIMovementOut );
    TMartImportType = (mitPurchase, mitSale, mitUnknown );
 

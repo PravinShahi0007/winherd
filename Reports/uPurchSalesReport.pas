@@ -2,9 +2,14 @@
    05/09/14 [V5.3 R5.9] /MK Bug Fix - Only get average and sum of PurchWeight, PurchPrice, SalesWeight and SalePrice
                                       where these fields have a value > 0.
 
-   13/07/18 [V5.8 R0.9] /MK Additional Feature - Added sub title to Report Title from Custom Title in uReportOptions - Jackie (Quinn's).  
+   13/07/18 [V5.8 R0.9] /MK Additional Feature - Added sub title to Report Title from Custom Title in uReportOptions - Jackie (Quinn's).
 
-   10/08/20 [V5.9 R5.3] /MK Change - Added the Herd Identity to the top of the report.   
+   10/08/20 [V5.9 R5.3] /MK Change - Added the Herd Identity to the top of the report.
+
+   16/07/21 [V6.0 R1.7] /MK Change - GrossMarginPrint - As in the new Gross Margin column on the main grid, don't show minus values.
+                                   - QRExpr9Print - Only average fields where the value is > 0.
+                                   - QRExpr13Print - Only sum fields where the value is > 0.
+                                   - GetFieldType - Added function to find what the field type is for GetSUMValueBySQL & GetAVGValueBySQL to check for FloatField Value > 0.
 }
 
 unit uPurchSalesReport;
@@ -110,9 +115,13 @@ type
     procedure QRExpr4Print(sender: TObject; var Value: String);
     procedure QRExpr14Print(sender: TObject; var Value: String);
     procedure qrDBWeightPrint(sender: TObject; var Value: String);
+    procedure QRExpr9Print(sender: TObject; var Value: String);
+    procedure QRExpr13Print(sender: TObject; var Value: String);
+    procedure MarginPrint(sender: TObject; var Value: String);
   private
     function GetAVGValueBySQL(AFieldName: String): String;
     function GetSUMValueBySQL(AFieldName: String): String;
+    function GetFieldType (AFieldName : String) : TFieldType;
     { Private declarations }
   public
     { Public declarations }
@@ -189,7 +198,9 @@ begin
          SQL.Clear;
          SQL.Add('SELECT AVG('+AFieldName+')');
          SQL.Add('FROM PurchSales');
-         SQL.Add('WHERE '+AFieldName+' IS NOT NULL');
+         SQL.Add('WHERE ('+AFieldName+' IS NOT NULL)');
+         if ( GetFieldType(AFieldName) = ftFloat ) then
+            SQL.Add('AND   ('+AFieldName+' > 0)');
          try
             Open;
             if ( Fields[0].AsFloat > 0 ) then
@@ -277,7 +288,9 @@ begin
          SQL.Clear;
          SQL.Add('SELECT SUM('+AFieldName+')');
          SQL.Add('FROM PurchSales');
-         SQL.Add('WHERE '+AFieldName+' IS NOT NULL');
+         SQL.Add('WHERE ('+AFieldName+' IS NOT NULL)');
+         if ( GetFieldType(AFieldName) = ftFloat ) then
+            SQL.Add('AND   ('+AFieldName+' > 0)');
          try
             Open;
             if ( Fields[0].AsFloat > 0 ) then
@@ -296,6 +309,95 @@ procedure TfmPurchSalesReport.qrDBWeightPrint(sender: TObject;
 begin
    if ( Value = '.00' ) then
       Value := '';
+end;
+
+function TfmPurchSalesReport.GetFieldType(AFieldName: String): TFieldType;
+var
+   i : Integer;
+   tPurchSales : TTable;
+begin
+   Result := ftUnknown;
+   tPurchSales := TTable.Create(nil);
+   try
+      tPurchSales.DatabaseName := AliasName;
+      tPurchSales.TableName := 'PurchSales';
+      if ( not(tPurchSales.Exists) ) then Exit;
+      tPurchSales.Open;
+      for i := 0 to tPurchSales.FieldDefs.Count-1 do
+         if ( UpperCase(tPurchSales.Fields[i].FieldName) = UpperCase(AFieldName) ) then
+            begin
+               Result := tPurchSales.Fields[i].DataType;
+               Break;
+            end;
+   finally
+      if ( tPurchSales <> nil ) then
+         FreeAndNil(tPurchSales);
+   end;
+end;
+
+//   16/07/21 [V6.0 R1.7] /MK Change - Only average fields where the value is > 0.
+procedure TfmPurchSalesReport.QRExpr9Print(sender: TObject;
+  var Value: String);
+begin
+   Value := '';
+   with GetQuery do
+      try
+         DatabaseName := AliasName;
+         SQL.Clear;
+         SQL.Add('SELECT AVG(PurchPrice), AVG(SalesPrice)');
+         SQL.Add('FROM PurchSales');
+         SQl.Add('WHERE ( PurchPrice > 0 AND SalesPrice > 0 )');
+         try
+            Open;
+            if ( Fields[0].AsFloat > 0 ) and ( Fields[1].AsFloat > 0 ) then
+               Value := FormatFloat('#.00',Fields[1].AsFloat-Fields[0].AsFloat);
+         except
+            on e : Exception do
+               ShowMessage(e.Message);
+         end;
+      finally
+         Free;
+      end;
+end;
+
+//   16/07/21 [V6.0 R1.7] /MK Change - Only sum fields where the value is > 0.
+procedure TfmPurchSalesReport.QRExpr13Print(sender: TObject;
+  var Value: String);
+begin
+   Value := '';
+   with GetQuery do
+      try
+         DatabaseName := AliasName;
+         SQL.Clear;
+         SQL.Add('SELECT SUM(PurchPrice), SUM(SalesPrice)');
+         SQL.Add('FROM PurchSales');
+         SQl.Add('WHERE ( PurchPrice > 0 AND SalesPrice > 0 )');
+         try
+            Open;
+            if ( Fields[0].AsFloat > 0 ) and ( Fields[1].AsFloat > 0 ) then
+               Value := FormatFloat('#.00',Fields[1].AsFloat-Fields[0].AsFloat);
+         except
+            on e : Exception do
+               ShowMessage(e.Message);
+         end;
+      finally
+         Free;
+      end;
+end;
+
+procedure TfmPurchSalesReport.MarginPrint(sender: TObject; var Value: String);
+var
+   fPurchPrice, fSalePrice : Double;
+begin
+   Value := '';
+   //   16/07/21 [V6.0 R1.7] /MK Change - As in the new Gross Margin column on the main grid, don't show minus values.
+   if ( PurchSalesDetail.DataSet.RecNo > 0 ) then
+      begin
+         fPurchPrice := PurchSalesDetail.DataSet.FieldByName('PurchPrice').AsFloat;
+         fSalePrice := PurchSalesDetail.DataSet.FieldByName('SalesPrice').AsFloat;
+         if ( fPurchPrice > 0 ) and ( fSalePrice > 0 ) then
+            Value := FormatFloat('#.00',fSalePrice-fPurchPrice);
+      end;
 end;
 
 end.

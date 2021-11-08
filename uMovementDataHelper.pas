@@ -61,8 +61,8 @@ begin
          end;
 
          SQL.Clear;
-         SQL.Add('INSERT INTO '+TempPurchEvents.TableName+' (EventID, AnimalID, AnimalLactNo, HerdId, EventDate)');
-         SQL.Add('SELECT ID, AnimalID, AnimalLactNo, HerdId, EventDate');
+         SQL.Add('INSERT INTO '+TempPurchEvents.TableName+' (EventID, AnimalID, AnimalLactNo, HerdId, EventDate, EventDesc)');
+         SQL.Add('SELECT ID, AnimalID, AnimalLactNo, HerdId, EventDate, EventDesc');
          SQL.Add('FROM Events');
          SQL.Add('WHERE EventType = '+IntToStr(CPurchEvent)+'');
          try
@@ -82,8 +82,8 @@ begin
          end;
 
          SQL.Clear;
-         SQL.Add('INSERT INTO '+TempSaleEvents.TableName+' (EventID, AnimalID, AnimalLactNo, HerdId, EventDate)');
-         SQL.Add('SELECT ID, AnimalID, AnimalLactNo, HerdId, EventDate');
+         SQL.Add('INSERT INTO '+TempSaleEvents.TableName+' (EventID, AnimalID, AnimalLactNo, HerdId, EventDate, EventDesc)');
+         SQL.Add('SELECT ID, AnimalID, AnimalLactNo, HerdId, EventDate, EventDesc');
          SQL.Add('FROM Events');
          SQL.Add('WHERE EventType = '+IntToStr(CSaleEvent)+'');
          try
@@ -108,6 +108,7 @@ begin
          FieldDefs.Add('AnimalLactNo',ftInteger);
          FieldDefs.Add('HerdID',ftInteger);
          FieldDefs.Add('EventDate',ftDate);
+         FieldDefs.Add('EventDesc',ftString,30);
          IndexDefs.Add('','ID',[ixPrimary]);
          IndexDefs.Add('iEventDate','EventDate',[ixCaseInsensitive]);
          IndexName := 'iEventDate';

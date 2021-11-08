@@ -4,7 +4,7 @@ object MenuForm: TMenuForm
   HorzScrollBar.Visible = False
   AutoScroll = False
   Caption = 'Kingswood Herd Management'
-  ClientHeight = 1000
+  ClientHeight = 999
   ClientWidth = 1912
   Color = clBtnFace
   DefaultMonitor = dmDesktop
@@ -48,7 +48,7 @@ object MenuForm: TMenuForm
     Left = 0
     Top = 264
     Width = 1912
-    Height = 678
+    Height = 677
     Align = alClient
     BevelOuter = bvNone
     Caption = 'THIS IS THE PGRID'
@@ -65,7 +65,7 @@ object MenuForm: TMenuForm
       Left = 0
       Top = 0
       Width = 1912
-      Height = 678
+      Height = 677
       Align = alClient
       BevelOuter = bvNone
       Caption = 'THIS IS THE ANIMAL GRID'
@@ -74,7 +74,7 @@ object MenuForm: TMenuForm
         Left = 1504
         Top = 86
         Width = 8
-        Height = 592
+        Height = 591
         HotZoneClassName = 'TcxSimpleStyle'
         AlignSplitter = salRight
         AutoPosition = False
@@ -142,7 +142,7 @@ object MenuForm: TMenuForm
           Shape = bsTopLine
         end
         object RxSpeedButton5: TRxSpeedButton
-          Left = 336
+          Left = 546
           Top = 1
           Width = 99
           Height = 19
@@ -221,12 +221,11 @@ object MenuForm: TMenuForm
           Shape = bsLeftLine
         end
         object btnModifyGrid: TRxSpeedButton
-          Left = 232
+          Left = 408
           Top = 1
-          Width = 99
+          Width = 113
           Height = 19
           Action = actModifyGrid
-          Caption = 'Change Grid'
           Flat = True
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
@@ -264,8 +263,59 @@ object MenuForm: TMenuForm
           ParentFont = False
           Spacing = 5
         end
+        object btnRefreshAnimals: TRxSpeedButton
+          Left = 285
+          Top = 1
+          Width = 99
+          Height = 19
+          Action = actRefreshAnimals
+          Flat = True
+          Font.Charset = ANSI_CHARSET
+          Font.Color = clWindowText
+          Font.Height = -11
+          Font.Name = 'Verdana'
+          Font.Style = []
+          Glyph.Data = {
+            36040000424D3604000000000000360000002800000010000000100000000100
+            2000000000000004000000000000000000000000000000000000FF00FF00FF00
+            FF00A3684900A3684900A3684900A3684900A3684900A3684900A3684900A368
+            4900A3684900A3684900A3684900A3684900FF00FF00FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300E2BDA300E2BDA300E2BDA300D6A68800D7A68900D7A6
+            8900D29D7E00D0987900CB8F6700C2784C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300F7D6A500BE7B5A00E2BDA300F7D6A500BE7B5A00D7A6
+            890029C65A0000630800CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300FFF7E600F7D6A500E2BDA300FFF7E600F7D6A500D7A6
+            89009CE7B50029C65A00CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300E2BDA300E2BDA300E2BDA300D6A68800D7A68900D7A6
+            8900D29D7E00D0987900CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300F7D6A500BE7B5A00E2BDA300F7D6A500BE7B5A00D7A6
+            8900FF9C0000BA5E0000CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300FFF7E600F7D6A500E2BDA300FFF7E600F7D6A500D7A6
+            8900FFCE7B00FF9C0000CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300E2BDA300E2BDA300E2BDA300D6A68800D7A68900D7A6
+            8900D29D7E00D0987900CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300F7D6A500BE7B5A00E2BDA300F7D6A500BE7B5A00D7A6
+            89001063D6001459A500CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300FFF7E600F7D6A500E2BDA300FFF7E600F7D6A500D7A6
+            890085A6E0001063D600CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700E6C5AB00E2BDA300E2BDA300E2BDA300E2BDA300D6A68800D6A68800D6A6
+            8800D29D7E00D0987900CB8F6700C7825C00A3684900FF00FF00FF00FF00D096
+            7700B3848300CE949400CE949400CE949400CE949400CE949400CE949400CE94
+            9400CE949400CE949400CE949400C7825C00A3684900FF00FF00FF00FF00D096
+            7700B3848300A5D09E00A5D09E009ACC920091C989008AC6820081C27A007BBF
+            730076BD6E0075BD6D00CE949400C7825C00A3684900FF00FF00FF00FF00D096
+            7700B3848300A5D09E00ADDFAD009ED99E0091D4910088D188007ECC7E0076C9
+            76006DC56D0068C46800CE949400C7825C00A3684900FF00FF00FF00FF00D096
+            7700B3848300B3848300B3848300B3848300B3848300B3848300B3848300B384
+            8300B3848300B3848300B3848300C2784C00A3684900FF00FF00FF00FF00FF00
+            FF00D0967700D0967700D0967700D0967700D0967700D0967700D0967700D096
+            7700D0967700D0967700D0967700D0967700FF00FF00FF00FF00}
+          Layout = blGlyphLeft
+          ParentFont = False
+          Spacing = 5
+        end
         object cbAllAnimals: TDBCheckBoxEh
-          Left = 461
+          Left = 710
           Top = 3
           Width = 115
           Height = 15
@@ -289,7 +339,7 @@ object MenuForm: TMenuForm
           OnClick = cbAllAnimalsClick
         end
         object cbSearch: TDBCheckBoxEh
-          Left = 760
+          Left = 881
           Top = 3
           Width = 115
           Height = 15
@@ -1330,7 +1380,7 @@ object MenuForm: TMenuForm
         Left = 0
         Top = 86
         Width = 1504
-        Height = 592
+        Height = 591
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1379,18 +1429,43 @@ object MenuForm: TMenuForm
             end>
           DataController.Summary.FooterSummaryItems = <
             item
-              Kind = skCount
+              OnGetText = cxAnimalGridViewPrintTotalAmountCount
               Column = cxAnimalGridViewSortAnimalNo
             end
             item
-              Format = '0.00'
-              Kind = skAverage
-              OnGetText = cxAnimalGridViewTcxGridDBDataControllerTcxDataSummaryFooterSummaryItems1GetText
+              OnGetText = cxAnimalGridViewPrintAvgOverallGainPerDay
               Column = cxAnimalGridViewOverallGainPerDay
             end
             item
-              Kind = skAverage
               Column = cxAnimalGridViewDaysInMilk
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgDaysOnFarm
+              Column = cxAnimalGridViewDaysOnFarm
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgPricePerKg
+              Column = cxAnimalGridViewPricePerKg
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgPurchPrice
+              Column = cxAnimalGridViewPurchPrice
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgSalePrice
+              Column = cxAnimalGridViewSalePrice
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgPurchWeight
+              Column = cxAnimalGridViewPurchWeight
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgColdDeadWt
+              Column = cxAnimalGridViewColdDeadWt
+            end
+            item
+              OnGetText = cxAnimalGridViewPrintAvgGrossMargin
+              Column = cxAnimalGridViewGrossMargin
             end>
           DataController.Summary.SummaryGroups = <>
           Filtering.MRUItemsList = False
@@ -1410,6 +1485,7 @@ object MenuForm: TMenuForm
           OptionsView.FocusRect = False
           OptionsView.NavigatorOffset = 0
           OptionsView.DataRowHeight = 21
+          OptionsView.FooterAutoHeight = True
           OptionsView.GridLines = glHorizontal
           OptionsView.GroupByBox = False
           OptionsView.HeaderHeight = 32
@@ -1690,12 +1766,14 @@ object MenuForm: TMenuForm
             Visible = False
             HeaderAlignmentVert = vaCenter
             Hidden = True
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewBreeding: TcxGridDBColumn
             DataBinding.FieldName = 'Breeding'
             Visible = False
             HeaderAlignmentVert = vaCenter
             Hidden = True
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewDamNoHidden: TcxGridDBColumn
             DataBinding.FieldName = 'DamNo'
@@ -1740,6 +1818,7 @@ object MenuForm: TMenuForm
             Options.IncSearch = False
             Options.Grouping = False
             Width = 110
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchDate: TcxGridDBColumn
             Caption = 'Purchase Date'
@@ -1749,6 +1828,7 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchPrice: TcxGridDBColumn
             Caption = 'Purchase Price'
@@ -1758,15 +1838,19 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchWeight: TcxGridDBColumn
             Caption = 'Purchase Weight'
             DataBinding.FieldName = 'PurchWeight'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
+            Properties.DisplayFormat = '0.00'
             Visible = False
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
             Width = 80
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchCosts: TcxGridDBColumn
             Caption = 'Purchase Costs'
@@ -1775,6 +1859,7 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewSupplierName: TcxGridDBColumn
             Caption = 'Supplier Name'
@@ -1784,6 +1869,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 110
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewLotNumber: TcxGridDBColumn
             Caption = 'Purchase Lot Number'
@@ -1793,6 +1879,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 90
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchFQAS: TcxGridDBColumn
             Caption = 'FQAS'
@@ -1803,6 +1890,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 65
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchComment: TcxGridDBColumn
             Caption = 'Purchase Comment'
@@ -1812,6 +1900,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 140
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewSaleDate: TcxGridDBColumn
             Caption = 'Sale Date'
@@ -1821,6 +1910,7 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewCustomerName: TcxGridDBColumn
             Caption = 'Customer Name'
@@ -1830,6 +1920,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 110
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewFeedGrpDesc: TcxGridDBColumn
             Caption = 'Feed Group'
@@ -1843,6 +1934,7 @@ object MenuForm: TMenuForm
             Options.IncSearch = False
             Options.Grouping = False
             Width = 110
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchFQASDays: TcxGridDBColumn
             Caption = 'FQAS (Days)'
@@ -1850,12 +1942,14 @@ object MenuForm: TMenuForm
             Visible = False
             HeaderAlignmentVert = vaCenter
             Hidden = True
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewID: TcxGridDBColumn
             DataBinding.FieldName = 'ID'
             Visible = False
             HeaderAlignmentVert = vaCenter
             Hidden = True
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewDaysOnFarm: TcxGridDBColumn
             Caption = 'Days On Farm'
@@ -1866,6 +1960,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 90
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewStatus: TcxGridDBColumn
             DataBinding.FieldName = 'Status'
@@ -1873,6 +1968,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 70
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewDaysInMilk: TcxGridDBColumn
             Caption = 'Days In Milk'
@@ -1882,6 +1978,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 60
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewLactYield: TcxGridDBColumn
             Caption = 'Total Yield'#13#10'(Last Lact)'
@@ -1890,6 +1987,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 85
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewBfatWeight: TcxGridDBColumn
             Caption = 'Total B/Fat'#13#10'(Last Lact)'
@@ -1898,6 +1996,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 97
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewProtWeight: TcxGridDBColumn
             Caption = 'Total Protein'#13#10'(Last Lact)'
@@ -1906,6 +2005,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 111
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewLactSolids: TcxGridDBColumn
             Caption = 'Total Solids'#13#10'(Last Lact)'
@@ -1914,6 +2014,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 100
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewLatestYield: TcxGridDBColumn
             Caption = 'Latest Yield'
@@ -1922,6 +2023,7 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 64
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewLatestSolids: TcxGridDBColumn
             Caption = 'Latest Solids'
@@ -1931,14 +2033,16 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewLactSCC: TcxGridDBColumn
-            Caption = 'Average SCC'
+            Caption = 'Latest SCC'
             DataBinding.FieldName = 'SCC'
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
             Width = 62
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewTransponderNo: TcxGridDBColumn
             Caption = 'Transponder'
@@ -1947,12 +2051,14 @@ object MenuForm: TMenuForm
             Options.Filtering = False
             Options.FilteringMRUItemsList = False
             Width = 115
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewQualityAssured: TcxGridDBColumn
             Caption = 'Q.A'
             DataBinding.FieldName = 'QualityAssured'
             HeaderAlignmentVert = vaCenter
             Width = 50
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewDaysToFQAS: TcxGridDBColumn
             Caption = 'Days To FQAS'
@@ -1961,6 +2067,7 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Hidden = True
             Width = 74
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewCalvingInterval: TcxGridDBColumn
             Caption = 'Calving Interval'
@@ -1969,15 +2076,18 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Width = 70
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewOverallGainPerDay: TcxGridDBColumn
             Caption = 'Lifetime Gain/Day'
             DataBinding.FieldName = 'OverallWeightGain'
             PropertiesClassName = 'TcxCurrencyEditProperties'
             Properties.DisplayFormat = '0.00'
+            OnGetDisplayText = cxAnimalGridViewOverallGainPerDayGetDisplayText
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Width = 83
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewJohnesResult: TcxGridDBColumn
             Caption = 'Johnes '#13#10'Result'
@@ -1991,6 +2101,7 @@ object MenuForm: TMenuForm
             Options.Filtering = False
             Options.FilteringMRUItemsList = False
             Width = 70
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewQANoMovements: TcxGridDBColumn
             Caption = 'No. Movements'
@@ -1998,6 +2109,7 @@ object MenuForm: TMenuForm
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Width = 110
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewA1A2Result: TcxGridDBColumn
             Caption = 'A1A2'
@@ -2006,43 +2118,155 @@ object MenuForm: TMenuForm
             Options.Editing = False
             Options.Filtering = False
             Options.FilteringMRUItemsList = False
+            Options.Focusing = False
+            Options.Grouping = False
             Width = 60
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchCommission: TcxGridDBColumn
             Caption = 'Purchase Commission'
             DataBinding.FieldName = 'SupplierComm'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            Options.Focusing = False
             Options.Grouping = False
             Width = 94
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewPurchTransport: TcxGridDBColumn
             Caption = 'Purchase Transport'
             DataBinding.FieldName = 'SupplierHaul'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
+            Options.Focusing = False
             Options.Grouping = False
             Width = 82
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewSalePrice: TcxGridDBColumn
             Caption = 'Sale Price'
             DataBinding.FieldName = 'SalePrice'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
-            Options.Grouping = False
             Width = 70
+            OnHeaderClick = ColumnHeaderClick
           end
           object cxAnimalGridViewSaleCosts: TcxGridDBColumn
             Caption = 'Sale Costs'
             DataBinding.FieldName = 'SaleCosts'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
+            Properties.DisplayFormat = '#.##'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.Focusing = False
+            Options.Grouping = False
+            Width = 70
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewPricePerKg: TcxGridDBColumn
+            Caption = 'Price Per Kg'
+            DataBinding.FieldName = 'PricePerKg'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
+            Properties.DisplayFormat = '0.00'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.Focusing = False
+            Width = 72
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewColdDeadWt: TcxGridDBColumn
+            Caption = 'Sale Dead Weight'
+            DataBinding.FieldName = 'ColdDeadWt'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
+            Properties.DisplayFormat = '0.00'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.FilteringMRUItemsList = False
+            Width = 80
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewSalesGrade: TcxGridDBColumn
+            Caption = 'Sales Grade'
+            DataBinding.FieldName = 'SalesGrade'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.FilteringMRUItemsList = False
+            Width = 60
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewGrossMargin: TcxGridDBColumn
+            Caption = 'Gross Margin'
+            DataBinding.FieldName = 'GrossMargin'
+            PropertiesClassName = 'TcxCurrencyEditProperties'
+            Properties.UseThousandSeparator = True
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.FilteringMRUItemsList = False
+            Width = 76
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewPenName: TcxGridDBColumn
+            Caption = 'Pen Name'
+            DataBinding.FieldName = 'PenName'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.FilteringMRUItemsList = False
+            Options.Grouping = False
+            Width = 110
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewBVDResult: TcxGridDBColumn
+            Caption = 'BVD Test Result'
+            DataBinding.FieldName = 'BVDResult'
             HeaderAlignmentVert = vaCenter
             Options.Editing = False
             Options.Filtering = False
             Options.Grouping = False
-            Width = 70
+            Width = 84
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewProjectedCalvingDate: TcxGridDBColumn
+            Caption = 'Projected Calving Date'
+            DataBinding.FieldName = 'DueToCalveDate'
+            PropertiesClassName = 'TcxDateEditProperties'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.Grouping = False
+            Width = 96
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewProjectedBullCode: TcxGridDBColumn
+            Caption = 'Projected Bull Code'
+            DataBinding.FieldName = 'ExpectedBullCode'
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.Grouping = False
+            Width = 79
+            OnHeaderClick = ColumnHeaderClick
+          end
+          object cxAnimalGridViewACI: TcxGridDBColumn
+            DataBinding.FieldName = 'ACI'
+            PropertiesClassName = 'TcxMaskEditProperties'
+            Properties.MaskKind = emkRegExpr
+            HeaderAlignmentHorz = taCenter
+            HeaderAlignmentVert = vaCenter
+            Options.Editing = False
+            Options.Filtering = False
+            Options.FilteringMRUItemsList = False
+            OnHeaderClick = ColumnHeaderClick
           end
         end
         object cxAnimalGridLevel: TcxGridLevel
@@ -2053,7 +2277,7 @@ object MenuForm: TMenuForm
         Left = 1512
         Top = 86
         Width = 400
-        Height = 592
+        Height = 591
         Align = alRight
         BevelInner = bvLowered
         BevelOuter = bvNone
@@ -2063,7 +2287,7 @@ object MenuForm: TMenuForm
           Left = 1
           Top = 21
           Width = 398
-          Height = 430
+          Height = 429
           Align = alClient
           Font.Charset = ANSI_CHARSET
           Font.Color = clWindowText
@@ -2333,7 +2557,7 @@ object MenuForm: TMenuForm
         end
         object gbAnimalComments: TcxGroupBox
           Left = 1
-          Top = 459
+          Top = 458
           Align = alBottom
           Caption = 'Animal Comments'
           ParentFont = False
@@ -2414,7 +2638,7 @@ object MenuForm: TMenuForm
         end
         object AnimalCommentsSplitter: TcxSplitter
           Left = 1
-          Top = 451
+          Top = 450
           Width = 398
           Height = 8
           HotZoneClassName = 'TcxSimpleStyle'
@@ -2850,7 +3074,7 @@ object MenuForm: TMenuForm
   end
   object StatusBar: TStatusBar
     Left = 0
-    Top = 980
+    Top = 979
     Width = 1912
     Height = 20
     Panels = <
@@ -2877,7 +3101,7 @@ object MenuForm: TMenuForm
   end
   object pFilter: TPanel
     Left = 0
-    Top = 942
+    Top = 941
     Width = 1912
     Height = 38
     Align = alBottom
@@ -3969,54 +4193,6 @@ object MenuForm: TMenuForm
       Layout = blGlyphTop
       LookAndFeel.Kind = lfOffice11
     end
-    object btnRefreshAnimals: TcxButton
-      Left = 268
-      Top = 0
-      Width = 90
-      Height = 38
-      Action = actRefreshAnimals
-      Font.Charset = ANSI_CHARSET
-      Font.Color = clWindowText
-      Font.Height = -11
-      Font.Name = 'Verdana'
-      Font.Style = []
-      ParentFont = False
-      TabOrder = 10
-      Colors.Default = 6933756
-      Colors.Normal = 6933756
-      Colors.Hot = 6933756
-      Colors.Pressed = 6933756
-      Colors.Disabled = 6933756
-      Glyph.Data = {
-        36030000424D3603000000000000360000002800000010000000100000000100
-        18000000000000030000520B0000520B00000000000000000000FF00FFFF00FF
-        AEAEAE999C9E999C9E999C9E999C9E999C9E999C9E999C9E999C9E999C9E999C
-        9E999C9E999C9EFF00FFFF00FFFF00FFAEAEAEF7F7F7F4F4F4F2F2F2EFEFEFED
-        EDEDEAEAEAE8E8E8E2E2E2DDDDDDD7D7D7D2D2D29C9FA1FF00FFFF00FFFF00FF
-        AEAEAEF9F9F9F7F7F7189C34F2F2F2189C34189C34C8F0D9E8E8E8E2E2E2DDDD
-        DDD7D7D79C9FA1FF00FFFF00FFFF00FFAEAEAEFCFCFCF9F9F91CB93B189C3418
-        9C341CB93B189C34C8F0D9E8E8E8E2E2E2DDDDDD9C9FA1FF00FFFF00FFFF00FF
-        AEAEAEFEFEFEFCFCFC1CB93B4CCC85189C34F2F2F2C8F0D9189C34C8F0D9E8E8
-        E8E2E2E29C9FA1FF00FFFF00FFFF00FFAEAEAEFFFFFFFEFEFE1CB93B1CB93B1C
-        B93B189C34F2F2F2C8F0D9189C34EAEAEAE8E8E89C9FA1FF00FFFF00FFFF00FF
-        AEAEAEFFFFFFFFFFFFFEFEFEFCFCFCF9F9F9F7F7F7F4F4F4F2F2F2EFEFEFEDED
-        EDEAEAEA9C9FA1FF00FFFF00FFFF00FFAEAEAEFFFFFF189C34C8F0D9FFFFFF1C
-        B93B189C34189C34189C34F3F3F3F0F0F0EDEDED9C9FA1FF00FFFF00FFFF00FF
-        AEAEAEFFFFFFC8F0D9189C34C8F0D9FFFFFF1CB93B4CCC85189C34F5F5F5F3F3
-        F3F0F0F09C9FA1FF00FFFF00FFFF00FFAEAEAEFFFFFFFFFFFFC8F0D9189C3418
-        9C34189C341CB93B189C34F8F8F8F5F5F5EAEAEA9C9FA1FF00FFFF00FFFF00FF
-        AEAEAEFFFFFFFFFFFFFFFFFFC8F0D91CB93B1CB93BFFFFFF1CB93BEAEAEAE2E2
-        E2DDDDDD9C9FA1FF00FFFF00FFFF00FFAEAEAEFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFA8A9AA9C9FA19C9FA19C9FA1FF00FFFF00FFFF00FF
-        AEAEAEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA8A9AAFFFF
-        FFE6E6E69C9FA1FF00FFFF00FFFF00FFAEAEAEFFFFFFFFFFFFFFFFFFFFFFFFFF
-        FFFFFFFFFFFFFFFFFFFFFFA8A9AAE6E6E69B9D9DFF00FFFF00FFFF00FFFF00FF
-        AEAEAEFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA8A9AA9B9D
-        9DFF00FFFF00FFFF00FFFF00FFFF00FFAEAEAE9B9B9C9B9B9C9B9B9C9B9B9C9B
-        9B9C9B9B9C9B9B9C9B9B9C9C9FA1FF00FFFF00FFFF00FFFF00FF}
-      Layout = blGlyphTop
-      LookAndFeel.Kind = lfOffice11
-    end
     object btnImport: TcxButton
       Left = 870
       Top = 0
@@ -4029,7 +4205,7 @@ object MenuForm: TMenuForm
       Font.Name = 'Verdana'
       Font.Style = []
       ParentFont = False
-      TabOrder = 11
+      TabOrder = 10
       OnClick = btnImportClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -4073,7 +4249,7 @@ object MenuForm: TMenuForm
       Font.Name = 'Verdana'
       Font.Style = []
       ParentFont = False
-      TabOrder = 12
+      TabOrder = 11
       OnClick = btnExportClick
       Glyph.Data = {
         36030000424D3603000000000000360000002800000010000000100000000100
@@ -11877,7 +12053,7 @@ object MenuForm: TMenuForm
     Left = 1163
     Top = 183
     object actPrintGrid: TAction
-      Caption = 'Print Grid'
+      Caption = 'Grid Print'
       ImageIndex = 19
       OnExecute = actPrintGridExecute
     end
@@ -12062,8 +12238,8 @@ object MenuForm: TMenuForm
       OnExecute = actGroupSetupFromFilterExecute
     end
     object actRefreshAnimals: TAction
-      Caption = 'Calc Gain/Day'
-      ImageIndex = 36
+      Caption = 'Grid Calcs'
+      ImageIndex = 42
       OnExecute = actRefreshAnimalsExecute
     end
     object actStopSyncingOnThisMachine: TAction
@@ -12104,7 +12280,7 @@ object MenuForm: TMenuForm
       OnExecute = actAddA1A2ResultExecute
     end
     object actModifyGrid: TAction
-      Caption = 'Modify Grid'
+      Caption = 'Grid Columns'
       ImageIndex = 41
       OnExecute = actModifyGridExecute
     end
@@ -12138,7 +12314,7 @@ object MenuForm: TMenuForm
       PrinterPage.PageSize.Y = 297000
       PrinterPage._dxMeasurementUnits_ = 0
       PrinterPage._dxLastMU_ = 2
-      ReportDocument.CreationDate = 44287.718255463
+      ReportDocument.CreationDate = 44497.4363778704
       OptionsOnEveryPage.Footers = False
       OptionsOnEveryPage.FilterBar = False
       OptionsPreview.Visible = False
@@ -12910,7 +13086,7 @@ object MenuForm: TMenuForm
     Left = 1100
     Top = 216
     object pmiAHDBFile: TMenuItem
-      Caption = 'AHDB SCI Data'
+      Caption = 'AHDB SCI/ACI Data'
       OnClick = pmiAHDBFileClick
     end
     object pmiA1A2ResultFile: TMenuItem

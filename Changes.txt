@@ -1,3 +1,188 @@
+Version V6.0 R2.8
+
+05/11/21 /MK Additional Feature - uHerdSync - CreateHealthEvents - Set the comment to be the medicine name and application rate similar to treatments done on PC.
+             Change - DairyData - CheckFiles - Look for remedy events from the App with Batch Number that don't have the DrugPurchId updated and set the DrugPurchId.
+                    - uMedicinePurchaseRepository - GetMostRecentPurchaseId - Added consts for ATreatDate and APurchDate for
+                                                    - If ATreatDate and not APurchDate then get purchases less than or equal to ATreatDate.
+                                                    - If APurchDate and not ATreatDate then get purchases on the APurchDate.
+08/11/21 /MK Additional Feature - uICBFEventExport - If the user has the App then only allow BDP Welfare Events to be emailed and tell the user this in uMessageScr.
+             Bug Fix - uHealth - Fixed the tab order - Kathleen Porter.
+
+Version V6.0 R2.7
+
+28/10/21 /MK Additional Feature - GenTypesConst - Added a new ActiveFilterType for ShowAllAnimals so as not to upset WinData.GoToAimAnimalDetails from the main screen.
+                                - MenuUnit - actQueryAimAnimalDetailsExecute - Pass in the ShowAllAnimals ActiveFilterType if Show All Animals is on to show AIM Details for selected animal - GL request.
+
+Version V6.0 R2.6
+
+05/10/21 /MK Change - uHerdSync - CreateHerdSyncData - Sync all breeding events regardless of lactation matching current lactation.
+
+Version V6.0 R2.5
+
+27/09/21 /MK Bug Fix - uHerdSync - CreateHerdSyncData - Don't sync the event again if its already synced from ICBFDelete table - Eoin Godwin/SP.
+                     - uAddSire - btnSaveClick - No need to add the IE or 372 if its already in the FormattedNatId - Florrie McCarthy.
+                     - uMedicineSetup - Added check for a new drug being added will update an existing drug even if there is only one instance of this drug -
+
+Version V6.0 R2.4
+
+17/09/21 /MK Change - ActionReminderFilt - Added Application.ProcessMessages and Update after pbCount.Position change - Scott (Fletchers).
+
+Version V6.0 R2.3
+
+09/09/21 /MK Bug Fix - ActionReminderFilt - BuildDueToCalve - If the LastBirth is something else then set field column in report to this - TGM reported.
+                     - MenuUnit - If EBI column is hidden the user has no way of getting it back.
+                                - New ACI column was showing for all herd types and countries, should only be showing for Dairy/Suckler and AHDB countries.
+
+Version V6.0 R2.2
+
+06/09/21 /MK Additional Feature - uUpdateTables - UpdateAnimalsExt - Added the ACI field to the AnimalsExt table.
+07/09/21 /MK Change - MenuUnit - pmiAHDBFile - Changed caption to AHDB SCI/ACI Data as the AHDB import now includes the ACI data.
+09/09/21 /MK Additional Feature - GetEventLookupData - Change MDGridBVDResultData and QGridBVDResultData to MDGridAnimalsExtData and QGridAnimalsExtData as ACI field added to AnimalsExt table.
+                                                     - Added ACI field to AnimalFileById.
+                                                     - Added ACI field to the AnimalsExt MemDataSet.
+                                - MenuUnit - Added ACI column to grid that is vis
+             Change - MenuUnit - ColumnHeaderClick - Added procedure to reset the font on the column like other previous columns.
+                               - Added ColumnHeaderClick as the OnHeaderClick for new columns that I add recently where this procedure was never added.
+
+Version V6.0 R2.1
+
+30/08/21 /MK Additional Feature - uUpdateTables - Added DueToCalveDate and ExpectedBullCode to CowExt table.
+                                - DairyData - GetEventLookupData - Create and add data to new MemDataSet, MDGridCowExtData, to store the CowExt data.
+                                            - Added public variable DueCalvingUpdated to run GetEventLookupData if the Due To Calve Report was ran.
+                                            - Added public variable ShowMainGridGridDueToCalvCalcMsg to allow uCalculateGridColSelect to run Due To Calve Report.
+                                - ActionReminderFilt - If IncludeAnimal then add DueToCalveDate and ExpectedBullCode(if any) data to CowExt table for main grid.
+                                                     - Update WinData.DueCalvingUpdated variable once DueToCalve data has been added to CowExt table.
+                                                     - FormActivate - If WinData.ShowMainGridGridDueToCalvCalcMsg then show message to explain to the user to run this report for the grid data.
+                                - MenuUnit - Added Expected Calving Date and Expected Bull Code - Pat Ryan (Captal).
+                                           - actRefreshAnimalsExecute - If Expected Calving Date in selected then show Due To Calve Report with message.
+                                - GenTypesConst - Added Expected Calving Date const to CalcGridColumns screen.
+                                - uCalculateGridColSelect - Added Expected Calving Date.
+06/09/21 /MK Change - MenuUnit - Changed Expected Calving and Bull Code to Projected Calving and Bull Code - GL request.
+                    - ActionReminderFilt - FormActivate - Changed Expected to Projected - GL request.
+                    - uCalculateGridColSelect - Changed Expected Calving and Bull Code to Projected - GL Request.
+
+Version V6.0 R2.0
+
+19/08/21 /MK Additional Feature - uDanRyanImport - Added pages and import of 3 new event types, "Cycling", "RescanAdvised", and "DNB or DoNotBreed" - James O'Connor/Milo Murphy/Kevin Maguire.
+
+Version V6.0 R1.9
+
+18/08/21 /MK Additional Feature - uDanRyanImport - Added a new page for Log - James O'Connor/Milo Murphy.
+                                                 - If the animal can't be found by animal number or tag number then add this to the log.
+                                                 - If the event type is unknown i.e. Cows365 added a new one and didn't tell us, add this with the animal identifier to the log.
+                                                 - If the event type is blank then add this with the animal ident to the log.
+
+Version V6.0 R1.8
+
+09/08/21 /MK Additional Feature - uUpdateTables - CreateBVDResultTable - Created the BVDResult table which stores the result of the BVD test with the AnimalId.
+10/08/21 /MK Additional Feature - uEventsByGroup - Added Result for the BVD Test - Alec (Fletchers) request.
+                                                 - sbSaveClick - Only save BVDDate to Animals table if new BVDResult table is inserted/updated.
+                                                 - CreateBVDResult - Created a function to get whether the BVDResult table has been inserted/updated with the BVD result.
+                                - DairyData - GetEventLookupData - Added MemDataSet and Query to get the BVDResult for the animal.
+                                - MenuUnit - Added BVD Result column - Alec (Flecthers) request.
+13/08/21 /MK Additional Feature - uEventsByGroup - Allow the BVDResult to be cleared by the user ticking the animal and then saving the event.
+
+Version V6.0 R1.7
+
+12/07/21 /MK Change - DairyData - LoadPreferences - Default ShowBlockTempMovements off - GL request.
+16/07/21 /MK Change - uPurchSaleReport - GrossMarginPrint - As in the new Gross Margin column on the main grid, don't show minus values.
+                                       - QRExpr9Print - Only average fields where the value is > 0.
+                                       - QRExpr13Print - Only sum fields where the value is > 0.
+                                       - GetFieldType - Added function to find what the field type is for GetSUMValueBySQL & GetAVGValueBySQL to check for FloatField Value > 0.
+                    - uSalesReport - Seperated the Cattle Costings report into its own unit to speed up the report.
+                                   - Seperated the No Farm Costs report into its own unit to speed up the report.
+                                   - Seperated the No Feed Costs report into its own unit to speed up the report.
+04/08/21 /MK Change - uSalesReport - Created public functions to return TQRExpr values where the field of the expression has a value > 0.
+                                   - Created public functions to return the KillOut and DaysOnFarm where the fields in the expression have a value > 0.
+                                   - Use these new public functions in the new seperated report forms.
+                    - uHerdSyncDataSettings / GenTypesConst - Default MaxInUseBullCount to 60 - GL/SP/Adrian Thackleberry request.
+                    - uUpdateTables - UpdateSyncDefaults - Add MaxInUseBullCount if the field doesn't exist and default count to 60.
+                                                         - If MaxInUseBullCount field exists and count is currently 20 then change to 60 - GL/SP/Adrian Thackleberry request.
+             Additional Feature - uUpdateTables - UpdateGenlook - Added Botulism to list of diseases - TGM request.
+             Bug Fix - uReportFilters - LoadGrid - Report Generators report type was not loading data into the grid.
+
+Version V6.0 R1.6
+
+05/07/21 /MK Change - DairyData - UpdatePregDiagEvent - Found on some sets of data there were more than one PD event on the same lactation - Tom Craigs data.
+                    - uDanRyanImport - Added a check for the recheck code, RCK, in the event code field - Tom Craig.   
+06/07/21 /MK Change - uCustomers/uSuppliers - Removed search from eSearch.OnKeyPress.
+                                            - Added search using GridView.DataController.Filter to eSearch.OnChange to allow for partial search - Geraldine Murray.
+             Additional Feature - ElectronicRemittanceConverter - Added Total Dead Weight to summary items before Remittance End - Una Carter request.
+07/07/21 /MK Change - uCustomers/uSuppliers - Allow the user to search by either column on the grid by checking to see which column is sorted.
+                    - uEventsByGroups - CreateTempTable - Moved the FWeighInfoQuery and FPurchInfoQuery GET to after the TempAnimals table is created.
+                                      - btnLookupBatchQtys - Changed the icon from a magnifying glass to binocular as GL though the magnifying glass didn't represent a lookup. 
+             Additional Feature - uEventsByGroups -  CreateTempTable - If the animal doesn't have a previous weighing weight then use the purchase weight if any - Una Carter.
+                                - uHerdLookup - Added binoculars icon to the ImageList16x16.
+                                - DueForDryingOff - Added (>200 K) under the High SCC column, I had to move the column headings up to add this new text in.
+08/07/21 /MK Change - SetupAnimals - CreateFooter - Created a ftNone FooterType that allows the Footer.Text to be set to nothing.
+                                                  - Remove averaging SCC columns in individual recording section of Animal Record screen - GL request.
+                      - DairyData - GetEventLookupData - Changed MDGridCurrLactMilkData.SCC to latest recorded SCC from Average SCC of MilkDisk table.
+                      - MenuUnit - Changed Average SCC back to Latest SCC from last individual recording - GL/Tom Manning request.
+                      - HealthFilterU - ViewBtnClick - I created a query like WinData.qDrugBatchNo that looks for all purchased drugs with batch numbers.
+                                                     - Changed all references of WinData.qDrugBatchNo to new query.
+                                                     - If the program can only find the BatchNumber in qDrugBatchNo then get the Supplier name from there also - Chris Throne.
+             Additional Feature - uPreferences - Added const for ICBFRegReminder for Startup Reminders.
+                                - GenTypesConst - Added GlobalSettings for ICBFRegReminder and AIMHerdRecReminder for Startup Reminders.
+                                - uGlobalSettings - Added new Startup Reminder check boxes for ICBFRegReminder and AIMHerdRecReminder.
+                                                  - FormCreate - Set new ICBFRegReminder and AIMHerdRecReminder checkboxes by their GlobalSetting variables.
+                                                               - New ICBFRegReminder and AIMHerdRecReminder checkboxes only visible for Irish customers.
+                                                  - o - Set new GlobalSetting ICBFRegReminder and AIMHerdRecReminder variables by their checkboxes.
+                                - DairyData - LoadPreferences - Read new ICBFRegReminder reg value and set GlobalSettings.ICBFRegReminder by this value.
+                                                              - Read new ICBFRegReminder reg value and set GlobalSettings.AIMHerdRecReminder by this value.
+                                                              - Default ICBFRegReminder reg value to true if it doesn't exist.
+                                                              - Default AIMHerdRecReminder reg value to true if it doesn't exist.
+                                            - SavePreferences - Assign GlobalSettings.ICBFRegReminder to new ICBFRegReminder reg entry.
+                                                              - Assign GlobalSettings.AIMHerdRecReminder to new AIMHerdRecReminder reg entry.
+                                - uStartupReminder - Allow ICBF Reg Reminder and AIM Herd Sync reminders to be removed - John Joe Murphy.
+09/07/21 /MK Change - uPurchases - Changed DateOfPurchase TDBDateEdit to dePurchaseDate TcxDBDateTime so that user can enter 4 date year - Geraldine Carroll.    
+                    - uSalesDeaths - bDeleteClick - When deleting the sale event check if there is already an animal in the herd
+                                                    with this tag number and don't allow the event to be deleted.
+
+Version V6.0 R1.5
+
+01/07/21 /MK Additional Feature - uUpdateTables - UpdateAnimals - Added PenName field to store the Feed Group name even after the animal is sold - Kepak.
+                                                                - Added sub procedure that will add the Feed Group name to the PenName for animals in the herd
+                                                                  after the field PenName is added to the table.
+02/07/21 /MK Change - MenuUnit - Added Pen Name column to grid from animals table - Kepak.
+                    - uHerdSync - CreateHerdSyncData - Use LEFT JOIN instead of INNER JOIN when calvings table wasn't updated with calf recorded - Create Calving Utility required to fix.
+                    - Groups - AddToGroup/RemoveAnimalFromGrp - Update the Pen Name field in the animals table - only remove Pen Name if animal is removed from a group but not after sale.
+05/07/21 /MK Change - MenuUnit - Only show the Pen Name column for beef herds.
+                    - uMediPurch - CalcMediPurchQtyRemaining - Show the prompt to the user to only include batches marked in use - Alec (Fletchers).
+
+Version V6.0 R1.4
+
+09/06/21 /MK Change - uHerdSync - ReadHerdSyncData - When bring in an animal number with a length > 10 then move on but log problem.
+17/06/21 /MK Bug Fix - uSireAnalysis - ProcessCalfTable - When filtering the qWeighInfo query clear the filter after using the data.
+             Change - MenuUnit - cxAnimalGridViewOverallGainPerDayGetDisplayText - If the OverAllGainPerDay is 0.00 then display text should be blank - GL request.
+
+Version V6.0 R1.3
+
+04/06/21 /MK Bug Fix - uDataBackup - RestoreData - Some backup files from the server can come down as 0MB, give error to choose another file.
+
+Version V6.0 R1.2
+
+21/05/21 /MK Bug Fix - MenuUnit - I found that moving across the grid was very slow with Simon McDermots data which has 11,000 animals and 27,000 events.
+                                  I created a new private variable FPrintGrid that is set to False on FormCreate, its set to True on PrintGrid and then False after PrintGrid.
+                                  This will stop the new DBTableSummaryItem.GetText from running until the user clicks print which is the only time the footer is showing.
+
+Version V6.0 R1.1
+
+12/05/21 /MK Change - MenuUnit - SetUpForm - Moved btnRefreshAnimals button above the grid of animals - no need to disable it as all herds will use it eventually.
+14/05/21 /MK Additional Feature - MenuUnit - actRefreshAnimals - Added calculation of Gross Margin from WinData.MDGridPurchData and WinData.MDGridSaleData.
+                                - DairyData - GetEventLookupData/AnimalFileByIDBeforeOpen - Added SalesGrade and GrossMargin so it will appear on the main grid.
+18/05/21 /MK Change - DairyData - LoadPreferences - Gerry said to default the NatIdToAnimalNo to True.
+                                - QueryBandonRegistrations - Don't include animals from Animals and AIMAnimalReg table marked as Registered or Queried as per uAimAnimalRegistration
+                    - uCalfRegFlt - BuildTable - Remove animals that are in the Animals and AIMAnimalReg table as Registered or Queried as per uAimAnimalRegistration.
+
+Version V6.0 R1.0
+
+30/04/21 /MK Bug Fix - DairyData - GroupsBeforeDelete - Noticed with Ben Charmley that a zero GroupId was added to the DeletedGrps table.
+             Additional Feature - DairyData - GetEventLookupData/AnimalFileByIDBeforeOpen - Added PricePerKg to MDGridSaleData so it will appear on main grid.
+05/05/21 /MK Additional Feature - DairyData - GetEventLookupData/AnimalFileByIDBeforeOpen - Added ColdDeadWt to MDGridSaleData so it will appear on main grid.
+                                - MenuUnit - Added the Sale Dead Weight column.
+                                           - Added summary for new Sale Price, Sale Dead Weight, Purchase Weight, Purchase Price,
+                                             Days on Farm and Price Per Kg.
+
 Version V6.0 R0.3
 
 29/04/21 /MK Change - uHerdLookup - CreateMDPureBredBreedData - Changed this table to include all pure bred breeds regardless if they are in use or not - GL/Alan McCormick.

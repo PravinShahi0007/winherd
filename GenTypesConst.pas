@@ -52,6 +52,12 @@
   04/11/20 [V5.9 R7.2] /MK Change - Added a const string array for KeyReports.
 
   15/12/20 [V5.9 R7.8] /MK Change - Changed cUnitedDairiesURL URL as requested by George (TGM).
+
+  08/07/21 [V6.0 R1.6] /MK Additional Feature - Added GlobalSettings for ICBFRegReminder and AIMHerdRecReminder for Startup Reminders.
+
+  30/08/21 [V6.0 R2.1] /MK Additional Feature - Added Expected Calving Date const to CalcGridColumns screen.
+
+  28/10/21 [V6.0 R2.7] /MK Additional Feature - Added a new ActiveFilterType for ShowAllAnimals so as not to upset WinData.GoToAimAnimalDetails from the main screen.
 }
 
 unit GenTypesConst;
@@ -62,8 +68,8 @@ uses
    SysUtils, Messages, Graphics, Windows, FileCtrl;
 
 const
-   HerdVerNo = 'KHM V6.0 R0.3';
-   iHerdVerNo = 6003;
+   HerdVerNo = 'KHM V6.0 R2.8';
+   iHerdVerNo = 6028;
 
    //*** All Herd Version Changes moved to Changes unit.***//
 
@@ -228,6 +234,8 @@ const
    LTreatmentUsed = 36;
 
    LMediDiposalReasons = 37;
+
+   LHerdTestResult = 38;
 
    { Phone Link / Create Events Constants }
    { TEventFileSource = (esNoLink, esNokiaLink, esSiemensLink, esParlourLink ); }
@@ -986,7 +994,8 @@ const
    cReportGenerators = 'Report Generators';
    // ************* Report Filter Consts End *************
 
-   cSync_MaxInUseBullCount = 20;
+   //   03/08/21 [V6.0 R1.7] /MK Change - Default MaxInUseBullCount to 60 - GL/SP/Adrian Thackleberry request.
+   cSync_MaxInUseBullCount = 60;
 
    cCrushPurchaseXMLFileName = 'PurchaseXMLFile.xml';
    cCrushSaleXMLFileName = 'SaleXMLFile.xml';
@@ -1059,6 +1068,8 @@ const
    cHighestSCC = 200;
    // Highest SCC Per Milk Rec End
 
+   //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Added Expected Calving Date const to CalcGridColumns screen.
+   cDefaultMainGridCalcColumns : array [0..2] of String = ('Lifetime Gain/Day', 'Gross Margin', 'Projected Calving Date');
 type
    ValidTimeDOBRange  = 7..21;
    ValidRetensionDays = 2..3;
@@ -1116,7 +1127,7 @@ type
                       THealthReportDesc, TMedicineGroup );
 
    { Set Up Types to control the Events - Used in conjunction with the above constants }
-   TCountry = ( Ireland, NIreland, Scotland, England, Poland, NewZeland, UAE, Other );
+   TCountry = ( Ireland, NIreland, Scotland, England, Wales, Poland, NewZeland, UAE, Other );
 
    TRemark = ( NatID, DOB, Colour, Breed, SaleDate, SalePlace,
                PurchDate, PurchPlace, Sex, Deletion, General,
@@ -1339,6 +1350,10 @@ type
       ShowVetLinkFeature : Boolean;
 
       RemoveTransponderAfterSale : Boolean;
+
+      //   08/07/21 [V6.0 R1.6] /MK Additional Feature - Added GlobalSettings for ICBFRegReminder and AIMHerdRecReminder for Startup Reminders.
+      ICBFRegReminder : Boolean;
+      AIMHerdRecReminder : Boolean;
    end;
 
    TActionReminderReport = (arDueService, arDuePD, arDueDryOff, arDueCalve);
@@ -1465,7 +1480,8 @@ type
 
    TAimComplianceCertType = (CC31A, CC31B);
 
-   TActiveFilterType = (afNone, afCart, afCustom, afCrush);
+   //   28/10/21 [V6.0 R2.7] /MK Additional Feature - Added a new ActiveFilterType for ShowAllAnimals so as not to upset WinData.GoToAimAnimalDetails from the main screen.
+   TActiveFilterType = (afNone, afCart, afCustom, afCrush, afShowAllAnimals);
 
    TEventFileSource = (esNoLink, esNokiaLink, esSiemensLink, esParlourLink, esPDA, esSmartPhone );
 

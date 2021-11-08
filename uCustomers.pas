@@ -24,6 +24,11 @@
    27/03/19 [V5.8 R8.3] /MK Bug Fix - Tab Order was wrong.    
 
    19/09/19 [V5.9 R0.5] /MK Bug Fix - ComponentPrinterLink had lost its Component so I have hard coded it, Print Customers not showing data - Adrian Walsh.
+
+   06/07/21 [V6.0 R1.6] /MK Change - Removed search from eSearch.OnKeyPress.
+                                   - Added search using GridView.DataController.Filter to eSearch.OnChange to allow for partial search - Geraldine Murray.
+
+   07/07/21 [V6.0 R1.6] /MK Change - Allow the user to search by either column on the grid by checking to see which column is sorted.
 }
 
 unit uCustomers;
@@ -38,7 +43,7 @@ uses
   KRoutines, cxGridCustomTableView, cxGridTableView, cxGridDBTableView,
   cxGridLevel, cxClasses, cxGridCustomView, cxGrid, cxButtons, dxPSCore,
   dxPScxCommon, dxPScxGridLnk, uHerdLookup, cxCheckBox, cxLabel, cxDBLabel,
-  Menus, uMartEmailRequest;
+  Menus, uMartEmailRequest, cxFilter;
 
 type
   TfCustomers = class(TForm)
@@ -101,6 +106,7 @@ type
     pmOptions: TPopupMenu;
     pmiLookupMart: TMenuItem;
     ComponentPrinterLink: TdxGridReportLink;
+    lSearchNote: TLabel;
     procedure ExitButtonClick(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure DBNavigatorClick(Sender: TObject; Button: TKNavigateBtn);
@@ -254,9 +260,28 @@ begin
 end;
 
 procedure TfCustomers.eSearchChange(Sender: TObject);
+var
+   SortedColumn : TObject;
+   i : Integer;
 begin
    if ( eSearch.Text = '' ) then
       CustomerGridDBTableView.DataController.FocusedRecordIndex := 0;
+
+   for i := 0 to CustomerGridDBTableView.ColumnCount-1 do
+      if ( CustomerGridDBTableView.Columns[i].SortIndex > -1 ) then
+         begin
+            SortedColumn := CustomerGridDBTableView.Columns[i];
+            Break;
+         end;
+
+   CustomerGridDBTableView.DataController.Filter.Clear;
+   CustomerGridDBTableView.DataController.Filter.Active := False;
+   if ( Length(eSearch.Text) > 0 ) then
+      begin
+         CustomerGridDBTableView.DataController.Filter.Options := [fcoCaseInsensitive];
+         CustomerGridDBTableView.DataController.Filter.AddItem(nil, SortedColumn, foLike, '%'+eSearch.Text+'%', '%'+eSearch.Text+'%');
+         CustomerGridDBTableView.DataController.Filter.Active := True;
+      end;
 end;
 
 procedure TfCustomers.eSearchKeyPress(Sender: TObject; var Key: Char);
@@ -269,6 +294,7 @@ var
 begin
    //   27/11/15 [V5.5 R1.4] /MK Change - Added partial search i.e. the program will search for text in whole of name not
    //                                     just the start of the name.
+   {
    if ( key in iCharSearchSet ) then
       with CustomerGridDBTableView do
          begin
@@ -307,6 +333,7 @@ begin
                Screen.Cursor := crDefault;
             end;
          end;
+   }
 end;
 
 procedure TfCustomers.FormCreate(Sender: TObject);

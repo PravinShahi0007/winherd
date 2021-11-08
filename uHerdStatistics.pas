@@ -63,12 +63,13 @@ uses
   Mask, ToolEdit, KDBRoutines, uHerdLookup, dxPSCore, dxPSContainerLnk,
   cxGridLevel, cxClasses, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGridDBTableView, cxGrid, cxStyles, cxCheckBox, DateUtil,
-  cxSpinEdit, RXCtrls, uApplicationLog, uProjectedCalvingData;
+  cxSpinEdit, RXCtrls, uApplicationLog, uProjectedCalvingData,
+  dxPScxCommon, dxPScxGridLnk;
 
 type
   TIntArray = array of Integer;
 
-  TDefaultView = (dvDairyHerdStats, dvBreedingStats, dvBeefHerdStats, dvCSHerdSummary);
+  TDefaultView = (dvDairyHerdStats, dvBreedingStats, dvBeefHerdStats, dvCSHerdSummary, dvA1A2Results);
 
   TBeefHerdStatsRecord = record
     DaysOnFarm : Integer;
@@ -86,148 +87,12 @@ type
   end;
 
    TfmHerdStatistics = class(TfmBaseForm)
-    qrStats: TQuickRep;
-    QRBand1: TQRBand;
-    QRLabel12: TQRLabel;
-    QRSysData2: TQRSysData;
-    QRLabel13: TQRLabel;
-    lHerd: TQRLabel;
-    QRBand2: TQRBand;
-    Label12: TLabel;
-    QRLabel15: TQRLabel;
-    QRLabel16: TQRLabel;
-    QRLabel17: TQRLabel;
-    QRLabel18: TQRLabel;
-    QRLabel19: TQRLabel;
-    QRLabel29: TQRLabel;
-    QRLabel31: TQRLabel;
-    QRLabel32: TQRLabel;
-    QRLabel33: TQRLabel;
-    QRTotCows: TQRLabel;
-    QRTotNotServed: TQRLabel;
-    QRTotServedNotPD: TQRLabel;
-    QRTotPdCon: TQRLabel;
-    QRTotMilk: TQRLabel;
-    QRTotDry: TQRLabel;
-    QRPerCows: TQRLabel;
-    QRPerNotServed: TQRLabel;
-    QRPerServedNotPD: TQRLabel;
-    QRPerPdCon: TQRLabel;
-    QRPerMilk: TQRLabel;
-    QRPerDry: TQRLabel;
-    QRLabel47: TQRLabel;
-    QRLabel48: TQRLabel;
-    QRLabel49: TQRLabel;
-    QRLabel50: TQRLabel;
-    QRLabel51: TQRLabel;
-    QRLabel52: TQRLabel;
-    QRTotDHeifers: TQRLabel;
-    QRTotBHeifers: TQRLabel;
-    QRTotDBulls: TQRLabel;
-    QRTotSteers: TQRLabel;
-    QRTotBBulls: TQRLabel;
-    QRPerDHeifers: TQRLabel;
-    QRPerBHeifers: TQRLabel;
-    QRPerDBulls: TQRLabel;
-    QRPerBBulls: TQRLabel;
-    QRPerSteers: TQRLabel;
     Timer1: TTimer;
     dxBarControlContainerItem1: TdxBarControlContainerItem;
-    qrExtended: TQuickRep;
-    QRBand3: TQRBand;
-    QRLabel1: TQRLabel;
-    Services: TQRLabel;
-    QRLabel11: TQRLabel;
-    QRLabel20: TQRLabel;
-    QRLabel21: TQRLabel;
-    QRLabel22: TQRLabel;
-    QRLabel30: TQRLabel;
-    QRLabel43: TQRLabel;
-    QRLabel42: TQRLabel;
-    QRLabel2: TQRLabel;
-    QRLabel46: TQRLabel;
-    QRLabel45: TQRLabel;
-    QRLabel3: TQRLabel;
-    QRLabel4: TQRLabel;
-    QRLabel5: TQRLabel;
-    QRLabel6: TQRLabel;
-    QRLabel44: TQRLabel;
-    QRTotBullCalves: TQRLabel;
-    QRTotHeiferCalves: TQRLabel;
-    QRTotDeadCalves: TQRLabel;
-    QRTotLiveCalves: TQRLabel;
-    QRTotAllCalves: TQRLabel;
-    QRTotTwinBirths: TQRLabel;
-    QRTotSingleBirths: TQRLabel;
-    QRTotStillBirth: TQRLabel;
-    QRTotAllCalvings: TQRLabel;
-    QRTotFourthServ: TQRLabel;
-    QRTotThirdServ: TQRLabel;
-    QRTotSecondServ: TQRLabel;
-    QRTotFirstServ: TQRLabel;
-    QRTotAllServ: TQRLabel;
-    QRPercAllServ: TQRLabel;
-    QRPercFirstServ: TQRLabel;
-    QRPerSecondServ: TQRLabel;
-    QRPerThirdServ: TQRLabel;
-    QRPercFourthServ: TQRLabel;
-    QRPercAllCalvings: TQRLabel;
-    QRPercStillBirth: TQRLabel;
-    QRPercSingleBirths: TQRLabel;
-    QRPercTwinBirths: TQRLabel;
-    QRPercAllCalves: TQRLabel;
-    QRPercLiveCalves: TQRLabel;
-    QRPercDeadCalves: TQRLabel;
-    QRPercHeiferCalves: TQRLabel;
-    QRPercBullCalves: TQRLabel;
-    QRLabel7: TQRLabel;
-    QRLabel8: TQRLabel;
-    QRSysData1: TQRSysData;
-    QRLabel9: TQRLabel;
-    QRLabel10: TQRLabel;
     dxBarLargeButton1: TdxBarLargeButton;
     actPrint: TAction;
     GenQuery: TQuery;
     Query1: TQuery;
-    qrBeefStats: TQuickRep;
-    QRBand4: TQRBand;
-    QRLabel14: TQRLabel;
-    QRSysData3: TQRSysData;
-    QRLabel23: TQRLabel;
-    lHerd3: TQRLabel;
-    QRBand5: TQRBand;
-    Label42: TLabel;
-    QRLabel25: TQRLabel;
-    QRLabel26: TQRLabel;
-    QRLabel27: TQRLabel;
-    QRLabel63: TQRLabel;
-    QRLabel64: TQRLabel;
-    QRLabel65: TQRLabel;
-    lAllBeefCattle: TQRLabel;
-    lBeefHeiferNo: TQRLabel;
-    lBeefBullNo: TQRLabel;
-    LSteerNo: TQRLabel;
-    lAllBeefCalttleNos: TQRLabel;
-    lBeefHeiferNoPerc: TQRLabel;
-    lBeefBullNoPerc: TQRLabel;
-    LSteerNoPerc: TQRLabel;
-    lAllBeefCalttleNoPerc: TQRLabel;
-    QRLabel28: TQRLabel;
-    lFromDateValue: TQRLabel;
-    lToDate: TQRLabel;
-    lToDateValue: TQRLabel;
-    QRLabel34: TQRLabel;
-    lSexValue: TQRLabel;
-    QRLabel35: TQRLabel;
-    QRLabel36: TQRLabel;
-    lTotalAnimalDaysValue: TQRLabel;
-    QRLabel38: TQRLabel;
-    QRLabel39: TQRLabel;
-    lTotalAnimalsValue: TQRLabel;
-    QRLabel37: TQRLabel;
-    lAverageDaysValue: TQRLabel;
-    QRLabel40: TQRLabel;
-    lAverageDLWGValue: TQRLabel;
     PageControl: TcxPageControl;
     tsHerdStats: TcxTabSheet;
     gbDairy: TcxGroupBox;
@@ -392,18 +257,6 @@ type
     cxLabel9: TcxLabel;
     cbUseActiveFilter: TcxCheckBox;
     Label46: TLabel;
-    QRLabel24: TQRLabel;
-    QRPercNonReturnCows: TQRLabel;
-    QRLabel53: TQRLabel;
-    QRLabel54: TQRLabel;
-    QRLabel55: TQRLabel;
-    QRPercNonReturnAll: TQRLabel;
-    QRPercNonReturnHeifs: TQRLabel;
-    QRNonReturnBased: TQRLabel;
-    QRLabel41: TQRLabel;
-    QRNoCowsServed: TQRLabel;
-    QRLabel56: TQRLabel;
-    QRAvgServed: TQRLabel;
     Label55: TLabel;
     Label56: TLabel;
     cxGroupBox8: TcxGroupBox;
@@ -430,21 +283,26 @@ type
     dxBarControlContainerItem2: TdxBarControlContainerItem;
     pRunStats: TPanel;
     btnRunStats: TRxSpeedButton;
-    QRLabel57: TQRLabel;
-    QRLabel58: TQRLabel;
-    qrlInseminator1: TQRLabel;
-    qrlInseminator2: TQRLabel;
-    qrlInseminator3: TQRLabel;
-    qrlInseminatorRate1: TQRLabel;
-    qrlInseminatorRate2: TQRLabel;
-    qrlInseminatorRate3: TQRLabel;
-    qrlhHerdCalvingIndices: TQRLabel;
-    qrlCurrentCalvingIndex: TQRLabel;
-    qrlProjectedCalvingIndex: TQRLabel;
-    QRCurrentCalvingIndex: TQRLabel;
-    QRProjectedCalvingIndex: TQRLabel;
     lHAvgServPerCowSexedSemen: TLabel;
     lAveServeCowSexSemen: TLabel;
+    tsA1A2Results: TcxTabSheet;
+    gbA1A2HerdSummary: TcxGroupBox;
+    A1A2ResultGrid: TcxGrid;
+    A1A2ResultGridTableView: TcxGridTableView;
+    A1A2ResultGridTableViewCategory: TcxGridColumn;
+    A1A2ResultGridTableViewCategoryTotal: TcxGridColumn;
+    A1A2ResultGridTableViewA1A1Perc: TcxGridColumn;
+    A1A2ResultGridLevel: TcxGridLevel;
+    A1A2ResultGridTableViewA1A2Perc: TcxGridColumn;
+    A1A2ResultGridTableViewA2A2Perc: TcxGridColumn;
+    A1A2ResultGridTableViewBlanksPerc: TcxGridColumn;
+    A1A2ResultGridTableViewA2A2Total: TcxGridColumn;
+    A1A2ResultGridTableViewA1A2Total: TcxGridColumn;
+    A1A2ResultGridTableViewA1A1Total: TcxGridColumn;
+    A1A2ResultGridTableViewBlanksTotal: TcxGridColumn;
+    HeaderStyle: TcxStyle;
+    GridPrinter: TdxComponentPrinter;
+    A1A2ResultGridPrinterLink: TdxGridReportLink;
     procedure FormShow(Sender: TObject);
     procedure HerdComboCloseUp(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -528,6 +386,8 @@ type
 
     procedure DisplayConditionScores;
     procedure CalcNonReturnRates;
+
+    procedure DisplayA1A2ResultStats;
   public
     { Public declarations }
 //     NoOfCows : Integer;
@@ -587,7 +447,8 @@ uses
    DairyData,
    GenTypesConst,
    uHerdStatsExtended,
-   MenuUnit, KRoutines;
+   MenuUnit, KRoutines, uHerdStatsBreedingRep, uHerdStatsGenReport,
+  uHerdStatsBeefGenRep;
 
 {$R *.DFM}
 
@@ -595,29 +456,35 @@ uses
 
 procedure TfmHerdStatistics.AssignHerdStatCaptions;
 begin
-   lHerd.Caption := HerdCombo.Text;
-   QRTotCows.Caption          := lTotCowsInHerd.Caption;
-   QRTotNotServed.Caption     := LTotNotServ.Caption;
-   QRTotServedNotPD.Caption   := LTotServNotPd.Caption;
-   QRTotPdCon.Caption         := LTotPdCon.Caption;
-   QRTotMilk.Caption          := LTotInMilk.Caption;
-   QRTotDry.Caption           := LTotDry.Caption;
-   QRPerCows.Caption          := LPercCowsInHerd.Caption;
-   QRPerNotServed.Caption     := LPercNotServ.Caption;
-   QRPerServedNotPD.Caption   := LPercServNotPd.Caption;
-   QRPerPdCon.Caption         := LPercPdCon.Caption;
-   QRPerMilk.Caption          := LPercInMilk.Caption;
-   QRPerDry.Caption           := LPercDry.Caption;
-   QRTotDHeifers.Caption      := LTotDairyHeif.Caption;
-   QRTotBHeifers.Caption      := LTotBeefHeif.Caption;
-   QRTotDBulls.Caption        := LTotDairyBull.Caption;
-   QRTotBBulls.Caption        := LTotBeefBull.Caption;
-   QRTotSteers.Caption        := LTotSteers.Caption;
-   QRPerDHeifers.Caption      := LPercDairyHeif.Caption;
-   QRPerBHeifers.Caption      := LPercBeefHeif.Caption;
-   QRPerDBulls.Caption        := LPercDairyBull.Caption;
-   QRPerBBulls.Caption        := LPercBeefBull.Caption;
-   QRPerSteers.Caption        := LPercSteers.Caption;
+   with fmHerdStatsGenReport.Create(nil) do
+      try
+         lHerd.Caption := HerdCombo.Text;
+         QRTotCows.Caption          := lTotCowsInHerd.Caption;
+         QRTotNotServed.Caption     := LTotNotServ.Caption;
+         QRTotServedNotPD.Caption   := LTotServNotPd.Caption;
+         QRTotPdCon.Caption         := LTotPdCon.Caption;
+         QRTotMilk.Caption          := LTotInMilk.Caption;
+         QRTotDry.Caption           := LTotDry.Caption;
+         QRPerCows.Caption          := LPercCowsInHerd.Caption;
+         QRPerNotServed.Caption     := LPercNotServ.Caption;
+         QRPerServedNotPD.Caption   := LPercServNotPd.Caption;
+         QRPerPdCon.Caption         := LPercPdCon.Caption;
+         QRPerMilk.Caption          := LPercInMilk.Caption;
+         QRPerDry.Caption           := LPercDry.Caption;
+         QRTotDHeifers.Caption      := LTotDairyHeif.Caption;
+         QRTotBHeifers.Caption      := LTotBeefHeif.Caption;
+         QRTotDBulls.Caption        := LTotDairyBull.Caption;
+         QRTotBBulls.Caption        := LTotBeefBull.Caption;
+         QRTotSteers.Caption        := LTotSteers.Caption;
+         QRPerDHeifers.Caption      := LPercDairyHeif.Caption;
+         QRPerBHeifers.Caption      := LPercBeefHeif.Caption;
+         QRPerDBulls.Caption        := LPercDairyBull.Caption;
+         QRPerBBulls.Caption        := LPercBeefBull.Caption;
+         QRPerSteers.Caption        := LPercSteers.Caption;
+         qrStats.Print;
+      finally
+         Free;
+      end;
 end;
 
 procedure TfmHerdStatistics.ResetHerdStats;
@@ -759,9 +626,6 @@ begin
    FormShowing := False;
 
    HerdCombo.KeyValue := WinData.UserDefaultHerdID;
-   qrStats.Hide;
-   qrExtended.Hide;
-   qrBeefStats.Hide;
 
    if ( WinData.OwnerFile.Locate('ID', HerdCombo.KeyValue,[]) ) then
       if ( WinData.OwnerFileAutumnCalving.AsBoolean ) then
@@ -780,38 +644,26 @@ begin
    lByInseminator.Visible := False;
    lInseminator1.Visible := False;
    lInseminatorRate1.Visible := False;
-   qrlInseminator1.Enabled := False;
-   qrlInseminatorRate1.Enabled := False;
    lInseminator2.Visible := False;
    lInseminatorRate2.Visible := False;
-   qrlInseminator2.Enabled := False;
-   qrlInseminatorRate2.Enabled := False;
    lInseminator3.Visible := False;
    lInseminatorRate3.Visible := False;
-   qrlInseminator3.Enabled := False;
-   qrlInseminatorRate3.Enabled := False;
 end;
 
 procedure TfmHerdStatistics.Timer1Timer(Sender: TObject);
 begin
-  inherited;
-  Timer1.Enabled := False;
-  if PageControl.ActivePage = tsHerdStats then
-     begin
-        DisplayHerdStatResults;
-     end
-  else if PageControl.ActivePage = tsBreedingStats then
-     begin
-        DisplayBreedingHerdStatResults;
-     end
-  else if PageControl.ActivePage = tsBeefHerdStats then
-     begin
-        DisplayBeefHerdStats;
-     end
-  else if PageControl.ActivePage = tsCSHerdSummary then
-     begin
-        DisplayConditionScores;
-     end
+   inherited;
+   Timer1.Enabled := False;
+   if ( PageControl.ActivePageIndex = tsHerdStats.PageIndex ) then
+      DisplayHerdStatResults
+   else if ( PageControl.ActivePageIndex = tsBreedingStats.PageIndex ) then
+      DisplayBreedingHerdStatResults
+   else if ( PageControl.ActivePageIndex = tsBeefHerdStats.PageIndex ) then
+      DisplayBeefHerdStats
+   else if ( PageControl.ActivePageIndex = tsCSHerdSummary.PageIndex ) then
+      DisplayConditionScores
+   else if ( PageControl.ActivePageIndex = tsA1A2Results.PageIndex ) then
+      DisplayA1A2ResultStats;
 end;
 
 function TfmHerdStatistics.GetCowsDry: Integer;
@@ -1265,51 +1117,63 @@ end;
 
 procedure TfmHerdStatistics.AssignBreedingCaptions;
 begin
-   lHerd.Caption := HerdCombo.Text;
-   QRTotAllServ.Caption         := LTotAllServ.Caption;
-   QRNoCowsServed.Caption       := lNoAnimalsServiced.Caption;
-   QRTotFirstServ.Caption       := LTotFirstServ.Caption;
-   QRTotSecondServ.Caption      := LTotSecondServ.Caption;
-   QRTotThirdServ.Caption       := LTotThirdServ.Caption;
-   QRTotFourthServ.Caption      := LTotFourthServ.Caption;
-   QRAvgServed.Caption          := lAvgServe.Caption;
-   QRTotAllCalvings.Caption     := LTotAllCalvings.Caption;
-   QRTotStillBirth.Caption      := LTotStillBirth.Caption;
-   QRTotAllCalves.Caption       := LTotAllCalves.Caption;
-   QRTotSingleBirths.Caption    := LTotSingleBirths.Caption;
-   QRTotTwinBirths.Caption      := LTotTwinBirths.Caption;
-   QRTotLiveCalves.Caption      := LTotLiveCalves.Caption;
-   QRTotDeadCalves.Caption      := LTotDeadCalves.Caption;
-   QRTotHeiferCalves.Caption    := LTotHeiferCalves.Caption;
-   QRTotBullCalves.Caption      := LTotBullCalves.Caption;
-   QRPercAllServ.Caption        := LPercAllServ.Caption;
-   QRPercFirstServ.Caption      := LPercFirstServ.Caption;
-   QRPerSecondServ.Caption      := LPercSecondServ.Caption;
-   QRPerThirdServ.Caption       := LPercThirdServ.Caption;
-   QRPercFourthServ.Caption     := LPercFourthServ.Caption;
-   QRPercAllCalvings.Caption    := lPercAllCalvings.Caption;
-   QRPercStillBirth.Caption     := LPercStillBirth.Caption;
-   QRPercSingleBirths.Caption   := lPercSingleBirths.Caption;
-   QRPercTwinBirths.Caption     := lPercTwinBirths.Caption;
-   QRPercAllCalves.Caption      := LPercAllCalves.Caption;
-   QRPercLiveCalves.Caption     := LPercLiveCalves.Caption;
-   QRPercDeadCalves.Caption     := LPercDeadCalves.Caption;
-   QRPercHeiferCalves.Caption   := LPercHeiferCalves.Caption;
-   QRPercBullCalves.Caption     := LPercBullCalves.Caption;
-   QRPercNonReturnCows.Caption  := LPercNonReturnRateCows.Caption;
-   QRPercNonReturnHeifs.Caption := LPercNonReturnRateHeifs.Caption;
-   QRPercNonReturnAll.Caption   := LPercNonReturnRateAll.Caption;
-   QRNonReturnBased.Caption := 'Based on '+seNonReturnDays.EditText+' day non return';
-   qrlhHerdCalvingIndices.Enabled := gbCalvingIntervals.Visible;
-   qrlCurrentCalvingIndex.Enabled := qrlhHerdCalvingIndices.Enabled;
-   QRCurrentCalvingIndex.Enabled := qrlCurrentCalvingIndex.Enabled;
-   qrlProjectedCalvingIndex.Enabled := qrlCurrentCalvingIndex.Enabled;
-   QRProjectedCalvingIndex.Enabled := QRCurrentCalvingIndex.Enabled;
-   if ( QRCurrentCalvingIndex.Enabled ) then
-      QRCurrentCalvingIndex.Caption := lActCalfInterval.Caption;
-   if ( QRProjectedCalvingIndex.Enabled ) then
-      QRProjectedCalvingIndex.Caption := lProjCalfInterval.Caption;
-   QRLabel8.Caption := HerdCombo.Text;
+   with fmHerdStatsBreedingRep.Create(nil) do
+      try
+         lHerd2.Caption := HerdCombo.Text;
+         qrlInseminator1.Enabled := lByInseminator.Enabled;
+         qrlInseminatorRate1.Enabled := qrlInseminator1.Enabled;
+         qrlInseminator2.Enabled := qrlInseminator1.Enabled;
+         qrlInseminatorRate2.Enabled := qrlInseminator1.Enabled;
+         qrlInseminator3.Enabled := qrlInseminator1.Enabled;
+         qrlInseminatorRate3.Enabled := qrlInseminator1.Enabled;
+
+         QRTotAllServ.Caption         := LTotAllServ.Caption;
+         QRNoCowsServed.Caption       := lNoAnimalsServiced.Caption;
+         QRTotFirstServ.Caption       := LTotFirstServ.Caption;
+         QRTotSecondServ.Caption      := LTotSecondServ.Caption;
+         QRTotThirdServ.Caption       := LTotThirdServ.Caption;
+         QRTotFourthServ.Caption      := LTotFourthServ.Caption;
+         QRAvgServed.Caption          := lAvgServe.Caption;
+         QRTotAllCalvings.Caption     := LTotAllCalvings.Caption;
+         QRTotStillBirth.Caption      := LTotStillBirth.Caption;
+         QRTotAllCalves.Caption       := LTotAllCalves.Caption;
+         QRTotSingleBirths.Caption    := LTotSingleBirths.Caption;
+         QRTotTwinBirths.Caption      := LTotTwinBirths.Caption;
+         QRTotLiveCalves.Caption      := LTotLiveCalves.Caption;
+         QRTotDeadCalves.Caption      := LTotDeadCalves.Caption;
+         QRTotHeiferCalves.Caption    := LTotHeiferCalves.Caption;
+         QRTotBullCalves.Caption      := LTotBullCalves.Caption;
+         QRPercAllServ.Caption        := LPercAllServ.Caption;
+         QRPercFirstServ.Caption      := LPercFirstServ.Caption;
+         QRPerSecondServ.Caption      := LPercSecondServ.Caption;
+         QRPerThirdServ.Caption       := LPercThirdServ.Caption;
+         QRPercFourthServ.Caption     := LPercFourthServ.Caption;
+         QRPercAllCalvings.Caption    := lPercAllCalvings.Caption;
+         QRPercStillBirth.Caption     := LPercStillBirth.Caption;
+         QRPercSingleBirths.Caption   := lPercSingleBirths.Caption;
+         QRPercTwinBirths.Caption     := lPercTwinBirths.Caption;
+         QRPercAllCalves.Caption      := LPercAllCalves.Caption;
+         QRPercLiveCalves.Caption     := LPercLiveCalves.Caption;
+         QRPercDeadCalves.Caption     := LPercDeadCalves.Caption;
+         QRPercHeiferCalves.Caption   := LPercHeiferCalves.Caption;
+         QRPercBullCalves.Caption     := LPercBullCalves.Caption;
+         QRPercNonReturnCows.Caption  := LPercNonReturnRateCows.Caption;
+         QRPercNonReturnHeifs.Caption := LPercNonReturnRateHeifs.Caption;
+         QRPercNonReturnAll.Caption   := LPercNonReturnRateAll.Caption;
+         QRNonReturnBased.Caption := 'Based on '+seNonReturnDays.EditText+' day non return';
+         qrlhHerdCalvingIndices.Enabled := gbCalvingIntervals.Visible;
+         qrlCurrentCalvingIndex.Enabled := qrlhHerdCalvingIndices.Enabled;
+         QRCurrentCalvingIndex.Enabled := qrlCurrentCalvingIndex.Enabled;
+         qrlProjectedCalvingIndex.Enabled := qrlCurrentCalvingIndex.Enabled;
+         QRProjectedCalvingIndex.Enabled := QRCurrentCalvingIndex.Enabled;
+         if ( QRCurrentCalvingIndex.Enabled ) then
+            QRCurrentCalvingIndex.Caption := lActCalfInterval.Caption;
+         if ( QRProjectedCalvingIndex.Enabled ) then
+            QRProjectedCalvingIndex.Caption := lProjCalfInterval.Caption;
+         qrExtended.Preview;
+      finally
+         Free;
+      end;
 end;
 
 procedure TfmHerdStatistics.ResetBreedingStats;
@@ -1351,16 +1215,10 @@ begin
    lByInseminator.Visible := False;
    lInseminator1.Visible := False;
    lInseminatorRate1.Visible := False;
-   qrlInseminator1.Enabled := False;
-   qrlInseminatorRate1.Enabled := False;
    lInseminator2.Visible := False;
    lInseminatorRate2.Visible := False;
-   qrlInseminator2.Enabled := False;
-   qrlInseminatorRate2.Enabled := False;
    lInseminator3.Visible := False;
    lInseminatorRate3.Visible := False;
-   qrlInseminator3.Enabled := False;
-   qrlInseminatorRate3.Enabled := False;
 end;
 
 procedure TfmHerdStatistics.DoBreedingSQLs;
@@ -2309,22 +2167,23 @@ end;
 
 procedure TfmHerdStatistics.actPrintExecute(Sender: TObject);
 begin
-  inherited;
-  if PageControl.ActivePage = tsHerdStats then
-     begin
-        AssignHerdStatCaptions;
-        qrStats.Print;
-     end
-  else if PageControl.ActivePage = tsBreedingStats then
-     begin
-        AssignBreedingCaptions;
-        qrExtended.Preview;
-     end
-  else if PageControl.ActivePage = tsBeefHerdStats then
-     begin
-        AssignBeefStatCaptions;
-        qrBeefStats.Preview;
-     end;
+   inherited;
+   if ( PageControl.ActivePage = tsHerdStats ) then
+      AssignHerdStatCaptions
+   else if ( PageControl.ActivePage = tsBreedingStats ) then
+      AssignBreedingCaptions
+   else if ( PageControl.ActivePage = tsBeefHerdStats ) then
+      AssignBeefStatCaptions
+   else if ( PageControl.ActivePage = tsA1A2Results ) then
+      begin
+         if ( A1A2ResultGridTableView.DataController.RecordCount = 0 ) then
+            begin
+               MessageDlg('There is no data on the grid to print. Click Run to gather the data for the grid.',mtError,[mbOK],0);
+               Exit;
+            end;
+         A1A2ResultGridPrinterLink.ReportTitle.Text := HerdCombo.Text+' A1A2 Results';
+         A1A2ResultGridPrinterLink.Preview;
+      end;
 end;
 
 procedure TfmHerdStatistics.PageControlPageChanging(Sender: TObject;
@@ -2334,9 +2193,13 @@ begin
    if ( NewPage = tsHerdStats ) or ( NewPage = tsBeefHerdStats ) then
       cxProgressBar.Parent := NewPage;
    if ( NewPage = tsBreedingStats ) then
-     Height := 562
+      Height := 562
    else
-     Height := 474;
+      Height := 474;
+   if ( NewPage <> tsA1A2Results ) then
+      Width := 562
+   else
+      Width := 676;
 end;
 
 procedure TfmHerdStatistics.DisplayBreedingHerdStatResults;
@@ -2549,27 +2412,33 @@ end;
 
 procedure TfmHerdStatistics.AssignBeefStatCaptions;
 begin
-   lBeefHeiferNo.Caption := lBeefFemales.Caption;
-   lBeefHeiferNoPerc.Caption := lBeefFemalesPerc.Caption;
+   with fmHerdStatsBeefGenRep.Create(nil) do
+      try
+         lHerd3.Caption := HerdCombo.Text;
+         lBeefHeiferNo.Caption := lBeefFemales.Caption;
+         lBeefHeiferNoPerc.Caption := lBeefFemalesPerc.Caption;
 
-   lBeefBullNo.Caption := lBeefBulls.Caption;
-   lBeefBullNoPerc.Caption := lBeefBullsPerc.Caption;
+         lBeefBullNo.Caption := lBeefBulls.Caption;
+         lBeefBullNoPerc.Caption := lBeefBullsPerc.Caption;
 
-   LSteerNo.Caption := lBeefSteers.Caption;
-   LSteerNoPerc.Caption := lBeefSteersPerc.Caption;
+         LSteerNo.Caption := lBeefSteers.Caption;
+         LSteerNoPerc.Caption := lBeefSteersPerc.Caption;
 
-   lAllBeefCalttleNos.Caption := lAllCattle.Caption;
-   lAllBeefCalttleNoPerc.Caption := lAllCattlePerc.Caption;
+         lAllBeefCalttleNos.Caption := lAllCattle.Caption;
+         lAllBeefCalttleNoPerc.Caption := lAllCattlePerc.Caption;
 
-   lFromDateValue.Caption := deFromDate.Text;
-   lToDateValue.Caption := deToDate.Text;
-   lSexValue.Caption :=  cmboSex.Text;
+         lFromDateValue.Caption := deFromDate.Text;
+         lToDateValue.Caption := deToDate.Text;
+         lSexValue.Caption :=  cmboSex.Text;
 
-   lTotalAnimalDaysValue.Caption := teTotalAnimalDays.Text;
-   lTotalAnimalsValue.Caption := teTotalAnimals.Text;
-   lAverageDaysValue.Caption := teAvgDays.Text;
-   lAverageDLWGValue.Caption := teAvgDLWG.Text;
-   lHerd3.Caption := HerdCombo.Text;
+         lTotalAnimalDaysValue.Caption := teTotalAnimalDays.Text;
+         lTotalAnimalsValue.Caption := teTotalAnimals.Text;
+         lAverageDaysValue.Caption := teAvgDays.Text;
+         lAverageDLWGValue.Caption := teAvgDLWG.Text;
+         qrBeefStats.Preview;
+      finally
+         Free;
+      end;
 end;
 
 procedure TfmHerdStatistics.DisplayConditionScores;
@@ -2882,16 +2751,10 @@ var
                      lByInseminator.Visible := False;
                      lInseminator1.Visible := False;
                      lInseminatorRate1.Visible := False;
-                     qrlInseminator1.Enabled := False;
-                     qrlInseminatorRate1.Enabled := False;
                      lInseminator2.Visible := False;
                      lInseminatorRate2.Visible := False;
-                     qrlInseminator2.Enabled := False;
-                     qrlInseminatorRate2.Enabled := False;
                      lInseminator3.Visible := False;
                      lInseminatorRate3.Visible := False;
-                     qrlInseminator3.Enabled := False;
-                     qrlInseminatorRate3.Enabled := False;
 
                      if ( AnimalsString <> '()' ) and
                         ( (LPercNonReturnRateCows.Caption <> 'n/a') or (LPercNonReturnRateHeifs.Caption <> 'n/a') ) then
@@ -2961,38 +2824,26 @@ var
                                                 begin
                                                    lByInseminator.Visible := True;
                                                    lInseminator1.Visible := True;
-                                                   qrlInseminator1.Enabled := True;
                                                    lInseminator1.Caption := TempTechnicians.FieldByName('Name').AsString;
-                                                   qrlInseminator1.Caption := lInseminator1.Caption;
                                                    lInseminatorRate1.Visible := True;
-                                                   qrlInseminatorRate1.Enabled := True;
                                                    lInseminatorRate1.Caption := FloatToStrF( MakePercentage(TempTechnicians.FieldByName('ServiceCount').AsInteger,NoServedInLastBreedPrdDays),
                                                                                                             ffFixed, 8, 1);
-                                                   qrlInseminatorRate1.Caption := lInseminatorRate1.Caption;
                                                 end
                                              else if ( TempTechnicians.FieldByName('ID').AsInteger = 2 ) then
                                                 begin
                                                    lInseminator2.Visible := True;
-                                                   qrlInseminator2.Enabled := True;
                                                    lInseminator2.Caption := TempTechnicians.FieldByName('Name').AsString;
-                                                   qrlInseminator2.Caption := lInseminator2.Caption;
                                                    lInseminatorRate2.Visible := True;
-                                                   qrlInseminatorRate2.Enabled := True;
                                                    lInseminatorRate2.Caption := FloatToStrF( MakePercentage(TempTechnicians.FieldByName('ServiceCount').AsInteger,NoServedInLastBreedPrdDays),
                                                                                                             ffFixed, 8, 1);
-                                                   qrlInseminatorRate2.Caption := lInseminatorRate2.Caption;
                                                 end
                                              else if ( TempTechnicians.FieldByName('ID').AsInteger = 3 ) then
                                                 begin
                                                    lInseminator3.Visible := True;
-                                                   qrlInseminator3.Enabled := True;
                                                    lInseminator3.Caption := TempTechnicians.FieldByName('Name').AsString;
-                                                   qrlInseminator3.Caption := lInseminator3.Caption;
                                                    lInseminatorRate3.Visible := True;
-                                                   qrlInseminatorRate3.Enabled := True;
                                                    lInseminatorRate3.Caption := FloatToStrF( MakePercentage(TempTechnicians.FieldByName('ServiceCount').AsInteger,NoServedInLastBreedPrdDays),
                                                                                                             ffFixed, 8, 1);
-                                                   qrlInseminatorRate3.Caption := lInseminatorRate3.Caption;
                                                 end;
                                              TempTechnicians.Next;
                                           end;
@@ -3160,6 +3011,259 @@ procedure TfmHerdStatistics.btnRunStatsClick(Sender: TObject);
 begin
    inherited;
    Timer1.Enabled := True;
+end;
+
+procedure TfmHerdStatistics.DisplayA1A2ResultStats;
+var
+   tAnimals : TTable;
+   qAnimals : TQuery;
+   i, iAnimalCount, iRecordIndex : Integer;
+   dA1Perc, dA1A2Perc, dA2Perc, dNoResultPerc : Double;
+   sCategoryName : String;
+   iSumAnimalCount, iSumA1A1Total, iSumA1A2Total, iSumA2A2Total, iSumBlanksTotal : Integer;
+   fAvgA1A1Perc, fAvgA1A2Perc, fAvgA2A2Perc, fAvgBlanksPerc : Double;
+type
+   AnimalCategoryType = (atCows, atOneYearOld, atTwoYearOld, atBulls);
+const
+   A1A2FilterCategories : array [0..3] of string = ('Cows', 'Two Year Old', 'One Year Old', 'Bulls');
+   ResultType : array [0..3] of String = ('A1/A1', 'A1/A2', 'A2/A2', 'Blanks');
+
+   procedure ClearTempAnimalsTable;
+   begin
+      i := 0;
+      iAnimalCount := 0;
+      dA1Perc := 0;
+      dA1A2Perc := 0;
+      dA2Perc := 0;
+      dNoResultPerc := 0;
+      with TQuery.Create(nil) do
+         try
+            tAnimals.Close;
+            DatabaseName := AliasName;
+            SQL.Clear;
+            SQL.Add('DELETE FROM '+tAnimals.TableName);
+            ExecSQL;
+         finally
+            Free;
+         end;
+   end;
+
+   procedure AddDataToGrid( ACategoryName : String;
+                            const ACategoryTotal : Integer = 0;
+                            const AA2A2Total : Integer = 0; const AA2A2Perc : Double = 0;
+                            const AA1A2Total : Integer = 0; const AA1A2Perc : Double = 0;
+                            const AA1A1Total : Integer = 0; const AA1A1Perc : Double = 0;
+                            const ABlanksTotal : Integer = 0; const ABlanksPerc : Double = 0);
+   begin
+      if ( ACategoryName = 'One Year Old' ) then
+         ACategoryName := IntToStr(ExtractYear(Now))+' Born (R1)'
+      else if ( ACategoryName = 'Two Year Old' ) then
+         ACategoryName := IntToStr(ExtractYear(IncYear(Now,-1)))+' Born (R2)';
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewCategory.Index] := ACategoryName;
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewCategoryTotal.Index] := ACategoryTotal;
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewA2A2Total.Index] := AA2A2Total;
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewA2A2Perc.Index] := FormatFloat('#.00',AA2A2Perc);
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewA1A2Total.Index] := AA1A2Total;
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewA1A2Perc.Index] := FormatFloat('#.00',AA1A2Perc);
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewA1A1Total.Index] := AA1A1Total;
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewA1A1Perc.Index] := FormatFloat('#.00',AA1A1Perc);
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewBlanksTotal.Index] := ABlanksTotal;
+      A1A2ResultGridTableView.DataController.Values[iRecordIndex,A1A2ResultGridTableViewBlanksPerc.Index] := FormatFloat('#.00',ABlanksPerc);
+   end;
+
+   procedure GetAnimals (ACategory : AnimalCategoryType);
+   begin
+      if ( Length(sCategoryName) = 0 ) then Exit;
+      ClearTempAnimalsTable;
+      AddDataToGrid(sCategoryName,iRecordIndex);
+      qAnimals.SQL.Clear;
+      qAnimals.SQL.Add('INSERT INTO '+tAnimals.TableName+' (AnimalId)');
+      qAnimals.SQL.Add('SELECT Id');
+      qAnimals.SQL.Add('FROM Animals');
+      qAnimals.SQL.Add('WHERE (InHerd = True)');
+      qAnimals.SQL.Add('AND   (AnimalDeleted = False)');
+      qAnimals.SQL.Add('AND   (HerdId IN (SELECT DefaultHerdId FROM Defaults))');
+      if ( ACategory in [atCows, atOneYearOld, atTwoYearOld] ) then
+         qAnimals.SQL.Add('AND   (UPPER(Sex) = "FEMALE")');
+      if ( ACategory = atCows ) then
+         qAnimals.SQL.Add('AND   (LactNo > 0)')
+      else if ( ACategory = atOneYearOld ) then
+         qAnimals.SQL.Add('AND   (DateOfBirth BETWEEN "01/01/'+IntToStr(ExtractYear(Now))+'" AND "12/31/'+IntToStr(ExtractYear(Now))+'")')
+      else if ( ACategory = atTwoYearOld ) then
+         qAnimals.SQL.Add('AND   (DateOfBirth BETWEEN "01/01/'+IntToStr(ExtractYear(IncYear(Now,-1)))+'" AND "12/31/'+IntToStr(ExtractYear(IncYear(Now,-1)))+'")')
+      else if ( ACategory = atBulls ) then
+         qAnimals.SQL.Add('AND   (UPPER(Sex) = "BULL")');
+      qAnimals.ExecSQL;
+      tAnimals.Close;
+      tAnimals.Open;
+      iAnimalCount := tAnimals.RecordCount;
+      iSumAnimalCount := iSumAnimalCount + iAnimalCount;
+      if ( iAnimalCount = 0 ) then Exit;
+   end;
+
+   procedure GetA1A2ResultsForAnimals;
+   var
+      i : Integer;
+      sResultType : String;
+      iA1A1Count, iA1A2Count, iA2A2Count, iBlanksCount : Integer;
+      fA1A1Perc, fA1A2Perc, fA2A2Perc, fBlanksPerc : Double;
+   begin
+      try
+         if ( iAnimalCount = 0 ) then Exit;
+         iA1A1Count := 0;
+         iA1A2Count := 0;
+         iA2A2Count := 0;
+         iBlanksCount := 0;
+         fA1A1Perc := 0;
+         fA1A2Perc := 0;
+         fA2A2Perc := 0;
+         fBlanksPerc := 0;
+         for i := 0 to Length(ResultType)-1 do
+            begin
+               sResultType := ResultType[i];
+               qAnimals.Close;
+               qAnimals.SQL.Clear;
+               if ( sResultType <> 'Blanks' ) then
+                  begin
+                     qAnimals.SQL.Add('SELECT Count(AnimalId)');
+                     qAnimals.SQL.Add('FROM DNAResults');
+                     qAnimals.SQL.Add('WHERE AnimalId IN (SELECT AnimalId FROM '+tAnimals.TableName+')');
+                     qAnimals.SQL.Add('AND A1A2 = "'+sResultType+'"');
+                  end
+               else
+                  begin
+                     qAnimals.SQL.Add('SELECT Count(AnimalId)');
+                     qAnimals.SQL.Add('FROM '+tAnimals.TableName);
+                     qAnimals.SQL.Add('WHERE AnimalId NOT IN (SELECT AnimalId FROM DNAResults)');
+                  end;
+               qAnimals.Open;
+               if ( sResultType = 'A2/A2' ) then
+                  begin
+                     iA2A2Count := qAnimals.Fields[0].AsInteger;
+                     fA2A2Perc := MakePercentage(iA2A2Count,iAnimalCount);
+                  end
+               else if ( sResultType = 'A1/A2' ) then
+                  begin
+                     iA1A2Count := qAnimals.Fields[0].AsInteger;
+                     fA1A2Perc := MakePercentage(iA1A2Count,iAnimalCount);
+                  end
+               else if ( sResultType = 'A1/A1' ) then
+                  begin
+                     iA1A1Count := qAnimals.Fields[0].AsInteger;
+                     fA1A1Perc := MakePercentage(iA1A1Count,iAnimalCount);
+                  end
+               else if ( sResultType = 'Blanks' ) then
+                  begin
+                     iBlanksCount := qAnimals.Fields[0].AsInteger;
+                     fBlanksPerc := MakePercentage(iBlanksCount,iAnimalCount);
+                  end;
+            end;
+      finally
+         AddDataToGrid(sCategoryName,iAnimalCount,iA2A2Count,fA2A2Perc,iA1A2Count,fA1A2Perc,iA1A1Count,fA1A1Perc,iBlanksCount,fBlanksPerc);
+         iSumA1A1Total := iSumA1A1Total + iA1A1Count;
+         iSumA1A2Total := iSumA1A2Total + iA1A2Count;
+         iSumA2A2Total := iSumA2A2Total + iA2A2Count;
+         iSumBlanksTotal := iSumBlanksTotal + iBlanksCount;
+         fAvgA1A1Perc := fAvgA1A1Perc + fA1A1Perc;
+         fAvgA1A2Perc := fAvgA1A2Perc + fA1A2Perc;
+         fAvgA2A2Perc := fAvgA2A2Perc + fA2A2Perc;
+         fAvgBlanksPerc := fAvgBlanksPerc + fBlanksPerc;
+      end;
+   end;
+
+begin
+   qAnimals := TQuery.Create(nil);
+   tAnimals := TTable.Create(nil);
+
+   try
+      qAnimals.DatabaseName := AliasName;
+      qAnimals.SQL.Clear;
+      qAnimals.SQL.Add('SELECT *');
+      qAnimals.SQL.Add('FROM DNAResults');
+      try
+         qAnimals.Open;
+         if ( qAnimals.RecordCount = 0 ) then
+            begin
+               MessageDlg('No A1A2 Result data found in the database.'+cCRLF+
+                          'You may need to import an A1A2 Results file.',mtInformation,[mbOK],0);
+               Exit;
+            end;
+
+         tAnimals.DatabaseName := AliasName;
+         tAnimals.TableName := 'tmpA1A2Animals';
+         tAnimals.FieldDefs.Clear;
+         tAnimals.FieldDefs.Add('Id',ftAutoInc);
+         tAnimals.FieldDefs.Add('AnimalId',ftInteger);
+         tAnimals.IndexDefs.Clear;
+         tAnimals.IndexDefs.Add('iId','Id',[ixPrimary, ixUnique]);
+         tAnimals.IndexDefs.Add('iAnimalID','AnimalID',[ixUnique, ixCaseInsensitive]);
+         tAnimals.CreateTable;
+
+         iSumA1A1Total := 0;
+         iSumA1A2Total := 0;
+         iSumA2A2Total := 0;
+         iSumBlanksTotal := 0;
+         iSumAnimalCount := 0;
+
+         fAvgA1A1Perc := 0;
+         fAvgA1A2Perc := 0;
+         fAvgA2A2Perc := 0;
+         fAvgBlanksPerc := 0;
+
+         A1A2ResultGridTableView.DataController.RecordCount := Length(A1A2FilterCategories);
+         for i := 0 to A1A2ResultGridTableView.DataController.RecordCount-1 do
+            begin
+               sCategoryName := A1A2FilterCategories[i];
+               if ( sCategoryName = 'Cows' ) then
+                  begin
+                     iRecordIndex := 0;
+                     GetAnimals(atCows);
+                  end
+               else if ( sCategoryName = 'Two Year Old' ) then
+                  begin
+                     iRecordIndex := 1;
+                     GetAnimals(atTwoYearOld);
+                  end
+               else if (sCategoryName = 'One Year Old' ) then
+                  begin
+                     iRecordIndex := 2;
+                     GetAnimals(atOneYearOld);
+                  end
+               else if ( sCategoryName = 'Bulls' ) then
+                  begin
+                     iRecordIndex := 3;
+                     GetAnimals(atBulls);
+                  end;
+               GetA1A2ResultsForAnimals;
+            end;
+
+         fAvgA2A2Perc := MakePercentage(iSumA2A2Total,iSumAnimalCount);
+         fAvgA1A2Perc := MakePercentage(iSumA1A2Total,iSumAnimalCount);
+         fAvgA1A1Perc := MakePercentage(iSumA1A1Total,iSumAnimalCount);
+         fAvgBlanksPerc := MakePercentage(iSumBlanksTotal,iSumAnimalCount);
+
+         A1A2ResultGridTableView.DataController.RecordCount := A1A2ResultGridTableView.DataController.RecordCount+1;
+         iRecordIndex := A1A2ResultGridTableView.DataController.RecordCount-1;
+         AddDataToGrid('Overall',iSumAnimalCount,iSumA2A2Total,fAvgA2A2Perc,iSumA1A2Total,fAvgA1A2Perc,iSumA1A1Total,fAvgA1A1Perc,iSumBlanksTotal,fAvgBlanksPerc);
+      except
+         on e : Exception do
+            begin
+               ApplicationLog.LogError('Herd Stats - A1A2Result - '+e.Message);
+               ApplicationLog.LogException(e);
+            end;
+      end;
+   finally
+      if ( qAnimals <> nil ) then
+         FreeAndNil(qAnimals);
+      if ( tAnimals <> nil ) then
+         begin
+            if ( tAnimals.Active ) then
+               tAnimals.Close;
+            if ( tAnimals.Exists ) then
+               tAnimals.DeleteTable;
+            FreeAndNil(tAnimals);
+         end;
+   end;
 end;
 
 end.

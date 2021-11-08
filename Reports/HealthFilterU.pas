@@ -178,6 +178,10 @@
 
    19/06/19 [V5.8 R9.4] /MK Additional Feature - Show new mastitis and lameness events in the treatment report.
                                                - Changed Treatment Type radio group to drop-down-list to select between the 5 different types.   
+
+   08/07/21 [V6.0 R1.6] /MK Change - ViewBtnClick - I created a query like WinData.qDrugBatchNo that looks for all purchased drugs with batch numbers.
+                                                  - Changed all references of WinData.qDrugBatchNo to new query.
+                                                  - If the program can only find the BatchNumber in qDrugBatchNo then get the Supplier name from there also - Chris Throne.
 }
 
 unit HealthFilterU;
@@ -675,6 +679,7 @@ var
    GroupDetailsArray : TVarArray;
    iaAnimalGroupArray : PIntegerArray;
    sMsgText : String;
+   qDrugBatchNo : TQuery;
 
 const
    cGroup_NonAnitibioic_TreatsSQL = 'SELECT COUNT(HealthEventID) EventCount ,EventDate, DrugID, DrugName, RateApplic, '+cCRLF+
@@ -867,7 +872,18 @@ begin
    sbView.Enabled := False;
    sbPrint.Enabled := False;
 
+   //   08/07/21 [V6.0 R1.6] /MK Change - I created a query like WinData.qDrugBatchNo that looks for all purchased drugs with batch numbers.
+   qDrugBatchNo := TQuery.Create(nil);
    try
+      qDrugBatchNo.DatabaseName := AliasName;
+      qDrugBatchNo.SQL.Clear;
+      qDrugBatchNo.SQL.Add('SELECT MP.ID, MP.DrugID, MP.BatchNo, MP.ExpiryDate, M.Name, MP.QtyRemaining, MP.SuppId');
+      qDrugBatchNo.SQL.Add('FROM MediPur MP');
+      qDrugBatchNo.SQL.Add('LEFT JOIN Medicine M ON (M.ID=MP.DrugID)');
+      qDrugBatchNo.SQL.Add('WHERE TRIM(MP.BatchNo) <> ""');
+      qDrugBatchNo.SQL.Add('ORDER BY MP.ID DESC');
+      qDrugBatchNo.Open;
+
       //   16/10/13 [V5.2 R3.5] /MK Bug Fix - No need to check for HerdID if viewing purchase reports.
       if ( ReportType = rtMediTreat ) then
          if HerdCombo.Value = '0' then
@@ -1141,9 +1157,6 @@ begin
             TempQuery.SQL.Add('UPDATE ' + WinData.TempTable.TableName + ' TT SET TT.PrescribedBy=(SELECT AdminCode FROM MedAdMin WHERE (MedAdmin.ID=TT.PrescribedByID))');
             TempQuery.ExecSQL;
 
-            if ( not(WinData.qDrugBatchNo.Active) ) then
-               WinData.qDrugBatchNo.Active := True;
-
             pbVetRegisterData.Visible := ( WinData.TempTable.RecordCount > 0 );
             if ( pbVetRegisterData.Visible ) then
                begin
@@ -1184,16 +1197,29 @@ begin
                               //   20/01/15 [V5.4 R0.8] /MK Bug Fix - If user deletes a DrugPurchID from the MediPur table the deleted ID still exists in the
                               //                                      health table. If the user then enters in a new record for this batchno in the MediPur table
                               //                                      the program should be able to allocate this new purchase to the existing batchno in the Health table.
-                              else if ( WinData.qDrugBatchNo.Lookup('BatchNo',FieldByName('BatchNo').AsString,'ExpiryDate') > 0 ) or
-                                      ( WinData.qDrugBatchNo.Lookup('BatchNo',FieldByName('BatchNo').AsString,'ExpiryDate') <> Null )then
-                                 FieldByName('ExpiryDate').AsDateTime := WinData.qDrugBatchNo.Lookup('BatchNo',FieldByName('BatchNo').AsString,'ExpiryDate');
+                              else if ( qDrugBatchNo.Locate('BatchNo',FieldByName('BatchNo').AsString,[loCaseInsensitive]) ) then
+                                 begin
+                                    if ( qDrugBatchNo.FieldByName('ExpiryDate').AsDateTime > 0 ) then
+                                       FieldByName('ExpiryDate').AsDateTime := qDrugBatchNo.FieldByName('ExpiryDate').AsDateTime;
+                                    //   08/07/21 [V6.0 R1.6] /MK Change - If the program can only find the BatchNumber in qDrugBatchNo then get the Supplier name from there also - Chris Throne.
+                                    if ( WinData.Suppliers.Locate('ID', qDrugBatchNo.FieldByName('SuppID').AsInteger, []) ) then
+                                       if ( Length(WinData.Suppliers.FieldByName('Name').AsString) > 0 ) then
+                                       FieldByName('MedPurchSupplier').AsString := WinData.Suppliers.FieldByName('Name').AsString;
+                                 end;
                            end
                         //   20/01/15 [V5.4 R0.7] /MK Bug Fix - If user entered in BatchNo manually but BatchNo was purchased in the database already
                         //                                      search for this BatchNo and allocate the ExpiryDate for this BatchNo.
                         else if ( ((FieldByName('DrugPurchID').AsInteger = 0) or (FieldByName('DrugPurchID').AsVariant = Null)) and (FieldByName('BatchNo').AsString <> '') ) then
-                           ///   22/01/15 [V5.4 R1.0] /MK Bug Fix - Make sure that ExpiryDate is not Null. Null ExpiryDate caused "Invalid Variant Type" error. 
-                           if ( WinData.qDrugBatchNo.Lookup('BatchNo',FieldByName('BatchNo').AsString,'ExpiryDate') <> Null ) then
-                              FieldByName('ExpiryDate').AsDateTime := WinData.qDrugBatchNo.Lookup('BatchNo',FieldByName('BatchNo').AsString,'ExpiryDate');
+                           ///   22/01/15 [V5.4 R1.0] /MK Bug Fix - Make sure that ExpiryDate is not Null. Null ExpiryDate caused "Invalid Variant Type" error.
+                           if ( qDrugBatchNo.Locate('BatchNo',FieldByName('BatchNo').AsString,[loCaseInsensitive]) ) then
+                              begin
+                                 if ( qDrugBatchNo.FieldByName('ExpiryDate').AsDateTime > 0 ) then
+                                    FieldByName('ExpiryDate').AsDateTime := qDrugBatchNo.FieldByName('ExpiryDate').AsDateTime;
+                                 //   08/07/21 [V6.0 R1.6] /MK Change - If the program can only find the BatchNumber in qDrugBatchNo then get the Supplier name from there also - Chris Throne.
+                                 if ( WinData.Suppliers.Locate('ID', qDrugBatchNo.FieldByName('SuppID').AsInteger, []) ) then
+                                    if ( Length(WinData.Suppliers.FieldByName('Name').AsString) > 0 ) then
+                                       FieldByName('MedPurchSupplier').AsString := WinData.Suppliers.FieldByName('Name').AsString;
+                              end;
 
                         if FieldByName('MeatDays').AsInteger > 0 then
                            if FieldByName('NoDays').AsInteger > 0 then
@@ -1710,8 +1736,6 @@ begin
                             else
                                MedicalTreatmentsScr.Free;
 
-                            if ( WinData.qDrugBatchNo.Active ) then
-                               WinData.qDrugBatchNo.Active := False;
                          end;
                   end;
 
@@ -1730,6 +1754,9 @@ begin
             ReportTable.DeleteTable;
             FreeAndNil(ReportTable);
          end;
+
+      if ( qDrugBatchNo <> nil ) then
+         FreeAndNil(qDrugBatchNo);
 
       sbView.Enabled := True;
       sbPrint.Enabled := True;

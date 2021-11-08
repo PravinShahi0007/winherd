@@ -70,6 +70,8 @@
   08/06/20 [V5.9 R4.8] /MK Change - I moved CalcMediPurchQtyRemaining from OnActivate to its own button on the Toolbar - UCD.
 
   17/08/20 [V5.9 R5.4] /MK Change - QueryBatchTreatments - Pass in the DrugId to get the exact treatments of this purchase record.
+
+  05/07/21 [V6.0 R1.5] /MK Change - CalcMediPurchQtyRemaining - Show the prompt to the user to only include batches marked in use - Alec (Fletchers).
 }
 
 unit uMediPurch;
@@ -806,6 +808,7 @@ var
    vCurrQtyRemaining : Variant;
    qMediPurch,
    qUpdate : TQuery;
+   bIncludeInUse : Boolean;
 
    function DrugPurchIdQtyTreated : Double;
    var
@@ -887,6 +890,10 @@ var
    end;
 
 begin
+   //   05/07/21 [V6.0 R1.5] /MK Change - Show the prompt to the user to only include batches marked in use.
+   bIncludeInUse := ( MessageDlg('Do you want to ONLY include batches that are marked in use?'+cCRLF+
+                                 'NOTE: Click No if you want to include all drugs.',mtConfirmation,[mbYes,mbNo],0) = mrYes );
+
    Screen.Cursor := crHourGlass;
    cxGridMediPurchDBTableView.DataController.BeginFullUpdate;
 
@@ -897,6 +904,9 @@ begin
       qMediPurch.SQL.Clear;
       qMediPurch.SQL.Add('SELECT *');
       qMediPurch.SQL.Add('FROM MediPur');
+      if ( bIncludeInUse ) then
+         qMediPurch.SQL.Add('WHERE InUse = True');
+
       qMediPurch.Open;
 
       if ( qMediPurch.RecordCount = 0 ) then Exit;

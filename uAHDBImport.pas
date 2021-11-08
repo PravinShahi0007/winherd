@@ -20,21 +20,24 @@ type
     gbStep2: TcxGroupBox;
     lStep2: TcxLabel;
     rgFileType: TcxRadioGroup;
-    gbStep3: TcxGroupBox;
-    lStep3: TcxLabel;
+    gbStep4: TcxGroupBox;
+    lStep4: TcxLabel;
     lSelectedFileName: TcxLabel;
     btnBrowse: TcxButton;
     lSelectedFile: TcxLabel;
     FileProgressIndicator: TcxProgressBar;
     tsSummary: TcxTabSheet;
-    btnExit: TcxButton;
     btnBack: TcxButton;
     mSummary: TcxMemo;
-    gbStep4: TcxGroupBox;
+    gbStep5: TcxGroupBox;
     btnImportFile: TcxButton;
-    lStep4: TcxLabel;
+    lStep5: TcxLabel;
     hlAHDBWebsite: TcxHyperLinkEdit;
     imgAHDB: TcxImage;
+    btnExit: TcxButton;
+    gbStep3: TcxGroupBox;
+    lStep3: TcxLabel;
+    rgImportType: TcxRadioGroup;
     procedure btnExitClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -44,11 +47,14 @@ type
     procedure btnBackClick(Sender: TObject);
     procedure imgAHDBClick(Sender: TObject);
     procedure hlAHDBWebsiteClick(Sender: TObject);
+    procedure FormActivate(Sender: TObject);
+    procedure rgImportTypePropertiesChange(Sender: TObject);
   private
     { Private declarations }
     FCallProgram : TCallPrograms;
     FSelectedFile : String;
     FAnimals : TTable;
+    FImportType : String;
     procedure DisableControls;
     procedure ImportMilking_Youngstock;
     procedure ImportSireList;
@@ -70,7 +76,7 @@ procedure TfmAHDBImport.FormCreate(Sender: TObject);
 begin
    FCallProgram := TCallPrograms.Create;
    DisableControls;
-   pcAHDBImport.ActivePageIndex := tsImportFile.PageIndex; 
+   pcAHDBImport.ActivePageIndex := tsImportFile.PageIndex;
    FAnimals := TTable.Create(nil);
    FAnimals.DatabaseName := AliasName;
    FAnimals.TableName := 'tmpAnimals';
@@ -121,10 +127,12 @@ procedure TfmAHDBImport.rgFileTypePropertiesChange(Sender: TObject);
 begin
    btnBrowse.Enabled := ( rgFileType.ItemIndex > -1 );
    lStep3.Enabled := btnBrowse.Enabled;
+   rgImportType.Enabled := btnBrowse.Enabled;
+   lStep4.Enabled := btnBrowse.Enabled;
    case rgFileType.ItemIndex of
-      0 : lStep3.Caption := 'Browse to select downloaded Sire List SCI file.';
-      1 : lStep3.Caption := 'Browse to select downloaded Youngstock SCI file.';
-      2 : lStep3.Caption := 'Browse to select downloaded Milking Herd SCI file.';
+      0 : lStep4.Caption := 'Browse to select downloaded Sire List '+FImportType+' file.';
+      1 : lStep4.Caption := 'Browse to select downloaded Youngstock '+FImportType+' file.';
+      2 : lStep4.Caption := 'Browse to select downloaded Milking Herd '+FImportType+' file.';
    end;
 end;
 
@@ -132,12 +140,14 @@ procedure TfmAHDBImport.DisableControls;
 begin
    rgFileType.Enabled := False;
    lStep2.Enabled := False;
-   btnBrowse.Enabled := False;
    lStep3.Enabled := False;
+   rgImportType.Enabled := False;
+   lStep4.Enabled := False;
    lSelectedFileName.Visible := False;
    lSelectedFile.Visible := False;
+   lStep5.Enabled := False;
    btnImportFile.Enabled := False;
-   lStep4.Enabled := False;
+   btnBrowse.Enabled := False;
    FileProgressIndicator.Visible := False;
    rgFileType.ItemIndex := -1;
 end;
@@ -146,12 +156,14 @@ procedure TfmAHDBImport.PartialDisableControls;
 begin
    rgFileType.Enabled := True;
    lStep2.Enabled := True;
-   btnBrowse.Enabled := True;
    lStep3.Enabled := True;
+   rgImportType.Enabled := True;
+   lStep4.Enabled := True;
+   btnImportFile.Enabled := True;
    lSelectedFileName.Visible := False;
    lSelectedFile.Visible := False;
-   btnImportFile.Enabled := False;
-   lStep4.Enabled := False;
+   lStep5.Enabled := False;
+   btnBrowse.Enabled := True;
    FileProgressIndicator.Visible := False;
 end;
 
@@ -166,15 +178,15 @@ begin
          case rgFileType.ItemIndex of
             0 : begin
                    Title := 'Select Sire List file';
-                   lStep4.Caption := 'Import the Sire List SCI file.'
+                   lStep4.Caption := 'Import the Sire List '+FImportType+' file.'
                 end;
             1 : begin
                    Title := 'Select Youngstock file';
-                   lStep4.Caption := 'Import the Youngstock SCI file.'
+                   lStep4.Caption := 'Import the Youngstock '+FImportType+' file.'
                 end;
             2 : begin
                    Title := 'Select Milking Herd file';
-                   lStep4.Caption := 'Import the Milking Herd SCI file.'
+                   lStep4.Caption := 'Import the Milking Herd '+FImportType+' file.'
                 end;
          end;
          Execute;
@@ -183,7 +195,7 @@ begin
          lSelectedFileName.Caption := FSelectedFile;
          lSelectedFile.Visible := lSelectedFileName.Visible;
          btnImportFile.Enabled := lSelectedFile.Visible;
-         lStep4.Enabled := lSelectedFile.Visible;
+         lStep5.Enabled := lSelectedFile.Visible;
       finally
          Free;
       end;
@@ -203,11 +215,12 @@ var
    i, iAnimalNoPos, iTagNoPos, iValuatPos, iUpdateCount, iNoValueCount, iNotFoundCount : Integer;
    sLine, sMsgAnimalType : String;
    qAnimals, qUpdateAnimal : TQuery;
-   slNoValues, slNotFound : TStringList;
+   slFile, slNoValues, slNotFound : TStringList;
 
    function LocateAndUpdateAnimal (AAnimalNo, ATagNo : String; AValuation : Double) : Boolean;
    var
       iAnimalID : Integer;
+      sFieldName, sTableName : String;
    begin
       Result := False;
       iAnimalID := 0;
@@ -215,11 +228,22 @@ var
       if ( FAnimals.Locate('AnimalNo',AAnimalNo,[loCaseInsensitive]) ) or
          ( FAnimals.Locate('SearchNatID',ATagNo,[loCaseInsensitive]) ) then
          iAnimalID := FAnimals.FieldByName('AnimalID').AsInteger;
-
       if ( iAnimalID = 0 ) then Exit;
+
+      if ( rgImportType.ItemIndex = 0 ) then
+         begin
+            sFieldName := 'EBI';
+            sTableName := 'CowExt';
+         end
+      else
+         begin
+            sFieldName := 'ACI';
+            sTableName := 'AnimalsExt';
+         end;
+
       qUpdateAnimal.SQL.Clear;
       qUpdateAnimal.SQL.Add('SELECT *');
-      qUpdateAnimal.SQL.Add('FROM CowExt');
+      qUpdateAnimal.SQL.Add('FROM '+sTableName);
       qUpdateAnimal.SQL.Add('WHERE AnimalID = :AnimalID');
       qUpdateAnimal.Params[0].AsInteger := iAnimalID;
       qUpdateAnimal.Open;
@@ -227,8 +251,8 @@ var
          begin
             qUpdateAnimal.Close;
             qUpdateAnimal.SQL.Clear;
-            qUpdateAnimal.SQL.Add('UPDATE CowExt');
-            qUpdateAnimal.SQL.Add('SET EBI = :NewValue');
+            qUpdateAnimal.SQL.Add('UPDATE '+sTableName);
+            qUpdateAnimal.SQL.Add('SET '+sFieldName+' = :NewValue');
             qUpdateAnimal.SQL.Add('WHERE AnimalID = :iAnimalID');
             qUpdateAnimal.Params[0].AsFloat := AValuation;
             qUpdateAnimal.Params[1].AsInteger := iAnimalID;
@@ -238,17 +262,20 @@ var
          begin
             qUpdateAnimal.Close;
             qUpdateAnimal.SQL.Clear;
-            qUpdateAnimal.SQL.Add('INSERT INTO CowExt (AnimalID, EBI)');
+            qUpdateAnimal.SQL.Add('INSERT INTO '+sTableName+' (AnimalID, '+sFieldName+')');
             qUpdateAnimal.SQL.Add('VALUES (:AnimalID, :Valuation)');
             qUpdateAnimal.Params[0].AsInteger := iAnimalID;
             qUpdateAnimal.Params[1].AsFloat := AValuation;
             qUpdateAnimal.ExecSQL;
          end;
+
       Result := True;
    end;
 
 begin
-   with TStringList.Create do
+   Parser := TSPParser.Create(nil);
+   slFile := TStringList.Create;
+   with slFile do
       try
          LoadFromFile(FSelectedFile);
          if ( Count = 0 ) then
@@ -263,7 +290,6 @@ begin
                           'Please select another file.',mtError,[mbOK],0);
                Exit;
             end;
-         Parser := TSPParser.Create(nil);
          Parser.SepChar := ',';
          Parser.Parse(sLine);
          if ( Parser.Count = 0 ) then
@@ -277,14 +303,14 @@ begin
                   iAnimalNoPos := i;
                if ( UpperCase(RemoveQuotationMarks(Parser.Fields[i])) = 'IDENTITY' ) then
                   iTagNoPos := i;
-               if ( Pos('£SCI',UpperCase(RemoveQuotationMarks(Parser.Fields[i]))) > 0 ) then
+               if ( Pos('£'+FImportType,UpperCase(RemoveQuotationMarks(Parser.Fields[i]))) > 0 ) then
                   iValuatPos := i;
                if ( iAnimalNoPos > 0 ) and ( iTagNoPos > 0 ) and ( iValuatPos > 0 ) then
                   Break;
             end;
          if ( iAnimalNoPos = 0 ) or ( iValuatPos = 0 ) then
             begin
-               MessageDlg('Unable to locate LineNo and SCI positions on file.',mtError,[mbOK],0);
+               MessageDlg('Unable to locate LineNo and '+FImportType+' positions on file.',mtError,[mbOK],0);
                Exit;
             end;
 
@@ -354,25 +380,29 @@ begin
                begin
                   sLine := Strings[i];
                   Parser.Parse(sLine);
-                  if ( StrToFloat(RemoveQuotationMarks(Parser.Fields[iValuatPos])) <= -999 ) then
+                  if ( (Length(Parser.Fields[iAnimalNoPos]) > 0) or (Length(Parser.Fields[iTagNoPos]) > 0) ) and
+                     ( Length(Parser.Fields[iValuatPos]) > 0 ) then
                      begin
-                        Inc(iNoValueCount);
-                        if ( slNoValues.Count = 0 ) then
-                           slNoValues.Add('%d %s with no SCI values on the AHDB file.'+cCRLF+
-                                          '-----------------------------------------------');
-                        slNoValues.Add(RemoveQuotationMarks(Parser.Fields[iAnimalNoPos]));
-                     end
-                  else if ( LocateAndUpdateAnimal(RemoveQuotationMarks(Parser.Fields[iAnimalNoPos]),
-                                                  RemoveQuotationMarks(StripAllSpaces(Parser.Fields[iTagNoPos])),
-                                                  StrToFloat(RemoveQuotationMarks(Parser.Fields[iValuatPos]))) ) then
-                     Inc(iUpdateCount)
-                  else
-                     begin
-                        Inc(iNotFoundCount);
-                        if ( slNotFound.Count = 0 ) then
-                           slNotFound.Add('%d %s with SCI values on the AHDB file not in Kingswood.'+cCRLF+
-                                          '-------------------------------------------------------');
-                        slNotFound.Add(RemoveQuotationMarks(Parser.Fields[iAnimalNoPos]));
+                        if ( StrToFloat(RemoveQuotationMarks(Parser.Fields[iValuatPos])) <= -999 ) then
+                           begin
+                              Inc(iNoValueCount);
+                              if ( slNoValues.Count = 0 ) then
+                                 slNoValues.Add('%d %s with no '+FImportType+' values on the AHDB file.'+cCRLF+
+                                                '-----------------------------------------------');
+                              slNoValues.Add(RemoveQuotationMarks(Parser.Fields[iAnimalNoPos]));
+                           end
+                        else if ( LocateAndUpdateAnimal(RemoveQuotationMarks(Parser.Fields[iAnimalNoPos]),
+                                                        RemoveQuotationMarks(StripAllSpaces(Parser.Fields[iTagNoPos])),
+                                                        StrToFloat(RemoveQuotationMarks(Parser.Fields[iValuatPos]))) ) then
+                           Inc(iUpdateCount)
+                        else
+                           begin
+                              Inc(iNotFoundCount);
+                              if ( slNotFound.Count = 0 ) then
+                                 slNotFound.Add('%d %s with '+FImportType+' values on the AHDB file not in Kingswood.'+cCRLF+
+                                                '-------------------------------------------------------');
+                              slNotFound.Add(RemoveQuotationMarks(Parser.Fields[iAnimalNoPos]));
+                           end;
                      end;
                   FileProgressIndicator.Position := FileProgressIndicator.Position + 1;
                   Application.ProcessMessages;
@@ -440,26 +470,33 @@ var
       qUpdateAnimal.SQL.Add('WHERE AnimalID = :AID');
       qUpdateAnimal.Params[0].AsInteger := iAnimalID;
       qUpdateAnimal.Open;
-      if ( qUpdateAnimal.RecordCount > 0 ) then
+      if ( rgImportType.ItemIndex = 0 ) then
          begin
-            qUpdateAnimal.Close;
-            qUpdateAnimal.SQL.Clear;
-            qUpdateAnimal.SQL.Add('UPDATE BullExt');
-            qUpdateAnimal.SQL.Add('SET RBI = :AValuation');
-            qUpdateAnimal.SQL.Add('WHERE AnimalID = :AID');
-            qUpdateAnimal.Params[0].AsFloat := AValuation;
-            qUpdateAnimal.Params[1].AsInteger := iAnimalID;
-            qUpdateAnimal.ExecSQL;
+            if ( qUpdateAnimal.RecordCount > 0 ) then
+               begin
+                  qUpdateAnimal.Close;
+                  qUpdateAnimal.SQL.Clear;
+                  qUpdateAnimal.SQL.Add('UPDATE BullExt');
+                  qUpdateAnimal.SQL.Add('SET RBI = :AValuation');
+                  qUpdateAnimal.SQL.Add('WHERE AnimalID = :AID');
+                  qUpdateAnimal.Params[0].AsFloat := AValuation;
+                  qUpdateAnimal.Params[1].AsInteger := iAnimalID;
+                  qUpdateAnimal.ExecSQL;
+               end
+            else
+               begin
+                  qUpdateAnimal.Close;
+                  qUpdateAnimal.SQL.Clear;
+                  qUpdateAnimal.SQL.Add('INSERT INTO BullExt (AnimalID, RBI)');
+                  qUpdateAnimal.SQL.Add('VALUES (:AnimalID, :Valuation)');
+                  qUpdateAnimal.Params[0].AsInteger := iAnimalID;
+                  qUpdateAnimal.Params[1].AsFloat := AValuation;
+                  qUpdateAnimal.ExecSQL;
+               end;
          end
       else
          begin
-            qUpdateAnimal.Close;
-            qUpdateAnimal.SQL.Clear;
-            qUpdateAnimal.SQL.Add('INSERT INTO BullExt (AnimalID, RBI)');
-            qUpdateAnimal.SQL.Add('VALUES (:AnimalID, :Valuation)');
-            qUpdateAnimal.Params[0].AsInteger := iAnimalID;
-            qUpdateAnimal.Params[1].AsFloat := AValuation;
-            qUpdateAnimal.ExecSQL;
+
          end;
       Result := True;
    end;
@@ -494,14 +531,14 @@ begin
             begin
                if ( UpperCase(RemoveQuotationMarks(Parser.Fields[i])) = 'BULL NAME' ) then
                   iBullNamePos := i;
-               if ( Pos('£SCI',RemoveQuotationMarks(UpperCase(Parser.Fields[i]))) > 0 ) then
+               if ( Pos('£'+FImportType,RemoveQuotationMarks(UpperCase(Parser.Fields[i]))) > 0 ) then
                   iValuatPos := i;
                if ( iBullNamePos > 0 ) and ( iValuatPos > 0 ) then
                   Break;
             end;
          if ( iBullNamePos = 0 ) and ( iValuatPos = 0 ) then
             begin
-               MessageDlg('Unable to locate Bull Name and SCI positions on file.',mtError,[mbOK],0);
+               MessageDlg('Unable to locate Bull Name and '+FImportType+' positions on file.',mtError,[mbOK],0);
                Exit;
             end;
 
@@ -545,7 +582,7 @@ begin
                   begin
                      Inc(iNoValueCount);
                      if ( slNoValues.Count = 0 ) then
-                        slNoValues.Add('%d bull(s) with no SCI values on the AHDB file.'+cCRLF+
+                        slNoValues.Add('%d bull(s) with no '+FImportType+' values on the AHDB file.'+cCRLF+
                                        '-----------------------------------------------');
                      slNoValues.Add(RemoveQuotationMarks(Parser.Fields[iBullNamePos]));
                   end
@@ -555,7 +592,7 @@ begin
                   begin
                      Inc(iNotFoundCount);
                      if ( slNotFound.Count = 0 ) then
-                        slNotFound.Add('%d bull(s) with SCI values on the AHDB file not in Kingswood.'+cCRLF+
+                        slNotFound.Add('%d bull(s) with '+FImportType+' values on the AHDB file not in Kingswood.'+cCRLF+
                                        '-------------------------------------------------------');
                      slNotFound.Add(RemoveQuotationMarks(Parser.Fields[iBullNamePos]));
                   end;
@@ -616,6 +653,21 @@ begin
          FAnimals.DeleteTable;
          FreeAndNil(FAnimals);
       end;
+end;
+
+procedure TfmAHDBImport.FormActivate(Sender: TObject);
+begin
+   rgImportType.ItemIndex := 0;
+end;
+
+procedure TfmAHDBImport.rgImportTypePropertiesChange(Sender: TObject);
+begin
+   if ( rgImportType.ItemIndex = 0 ) then
+      FImportType := 'SCI'
+   else
+      FImportType := 'ACI';
+   lStep5.Caption := 'Import the '+FImportType+' file.';
+   rgFileTypePropertiesChange(Sender);   
 end;
 
 end.

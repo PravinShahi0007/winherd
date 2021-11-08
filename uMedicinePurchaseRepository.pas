@@ -11,6 +11,10 @@
 
    25/06/19 [V5.8 R9.6] /MK Change - CreateMedicinePurchase - Added EventSource as a variable to be passed in.
                                                             - Default IsSynchronized to False.
+
+   05/11/21 [V6.0 R2.8] /MK Change - GetMostRecentPurchaseId - Added consts for ATreatDate and APurchDate for
+                                                               - If ATreatDate and not APurchDate then get purchases less than or equal to ATreatDate.
+                                                               - If APurchDate and not ATreatDate then get purchases on the APurchDate. 
 }
 
 unit uMedicinePurchaseRepository;
@@ -25,7 +29,7 @@ type
       function CreateMedicinePurchase(ADrugId, ASupplierId : Integer;
          APurchaseDate, AExpiryDate : TDateTime; ABatchNumber, ATagDesc, APurchDoseRate : string;
          AQuantity, ACostPerUnit : Double; AComment :string; const AEventSource : Integer = 0) : Integer;
-      function GetMostRecentPurchaseId(ADrugId : Integer; ABatchNumber : string; APurchaseDate : TDateTime) : Integer;
+      function GetMostRecentPurchaseId(ADrugId : Integer; ABatchNumber : string; const APurchDate : TDateTime = 0; const ATreatDate : TDateTime = 0) : Integer;
       procedure UpdateMedPurchQtyRemaining (ADrugID, ADrugPurchID : Integer; AQtyUsed : Double; const ADisposalID : Integer = 0);
    end;
 
@@ -81,20 +85,24 @@ begin
             FQuery.Params[11].AsBoolean := False;
             FQuery.Params[12].AsInteger := AEventSource;
             FQuery.ExecSQL;
-            Result := GetMostRecentPurchaseId(ADrugId,ABatchNumber,APurchaseDate);
+            Result := GetMostRecentPurchaseId(ADrugId,ABatchNumber,APurchaseDate,0);
          end;
    finally
       FQuery.Close;
    end;
 end;
 
-function TMedicinePurchaseRepository.GetMostRecentPurchaseId(ADrugId: Integer;
-  ABatchNumber: string; APurchaseDate : TDateTime): Integer;
+function TMedicinePurchaseRepository.GetMostRecentPurchaseId(ADrugId : Integer; ABatchNumber : string;
+   const APurchDate : TDateTime = 0; const ATreatDate : TDateTime = 0) : Integer;
 begin
    FQuery.SQL.Clear;
    FQuery.SQL.Add('SELECT M.Id, M.PurchDate FROM MediPur M');
    FQuery.SQL.Add('WHERE (M.DrugId = :DrugId) ');
-   FQuery.SQL.Add('AND   (M.PurchDate = "'+FormatDateTime('mm/dd/yyyy',APurchaseDate)+'")');
+   //   05/11/21 [V6.0 R2.8] /MK Bug Fix - This query was only looking for purchases on the ATreatPurchDate instead of less than or equal to.
+   if ( ATreatDate > 0 ) then
+      FQuery.SQL.Add('AND   (M.PurchDate <= "'+FormatDateTime('mm/dd/yyyy',ATreatDate)+'")')
+   else if ( APurchDate > 0 ) then
+      FQuery.SQL.Add('AND   (M.PurchDate = "'+FormatDateTime('mm/dd/yyyy',APurchDate)+'")');
    if ( Length(ABatchNumber) > 0 ) then
       FQuery.SQL.Add('AND   (UPPER(M.BatchNo) = :ABatchNumber)');
    FQuery.SQL.Add('AND   (M.InUse = True)');

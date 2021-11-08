@@ -3094,7 +3094,7 @@ begin
                                  end
                               else
                                  begin
-                                    WinData.GroupManager.RemoveAnimalFromGrp(EventTable.FieldByName('AnimalID').AsInteger,FieldByName('GroupID').AsInteger);
+                                    WinData.GroupManager.RemoveAnimalFromGrp(EventTable.FieldByName('AnimalID').AsInteger,FieldByName('GroupID').AsInteger,False);
                                     if ( GroupType = gtFeed ) then
                                        WinData.FeedManager.EndFeedEventsForAnimal(EventTable.FieldByName('AnimalID').AsInteger);
                                  end;

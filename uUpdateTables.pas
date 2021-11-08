@@ -199,7 +199,7 @@
   10/02/16 [V5.5 R2.7] /MK Bug Fix - CreateAnimalCart - AnimalCart table defintion was the same as the SyncWarnings table definitions.
 
   09/03/16 [V5.5 R5.4] /MK Additional Feature - Added IgnoreEBIUpdate fields to CowExt and BullExt to be used with ICBF Import and WinData.CreateYoungStockEBIValues
-                                                to stop the program from updating the EBI values of young stock that were already updated by the ICBF Import.                                                 
+                                                to stop the program from updating the EBI values of young stock that were already updated by the ICBF Import.
 
   10/02/16 [V5.5 R2.7] /MK Bug Fix - CreateAnimalCart - AnimalCart table defintion was the same as the SyncWarnings table definitions.
 
@@ -296,6 +296,18 @@
   23/11/20 [V5.9 R7.5] /MK Additional Feature - UpdateGenLook - Add Sexed Semen service type if it can't be found already.
 
   02/12/20 [V5.9 R7.7] /MK Bug Fix - UpdateGenLook - Changed Foot to Hoof and fixed spelling misate of Paring - GL request.
+
+  01/07/21 [V6.0 R1.5] /MK Additional Feature - UpdateAnimals - Added PenName field to store the Feed Group name even after the animal is sold - Kepak.
+                                                              - Added sub procedure that will add the Feed Group name to the PenName for animals in the herd
+                                                                after the field PenName is added to the table.
+
+  03/08/21 [V6.0 R1.7] /MK Additional Feature - UpdateGenlook - Added Botulism to list of diseases - TGM request.
+                           Change - UpdateSyncDefaults - Add MaxInUseBullCount if the field doesn't exist and default count to 60.
+                                                       - If MaxInUseBullCount field exists and count is currently 20 then change to 60 - GL/SP/Adrian Thackleberry request.
+
+  30/08/21 [V6.0 R2.1] /MK Additional Feature - Added DueToCalveDate and ExpectedBullCode to CowExt table.
+
+  06/09/21 [V6.0 R2.2] /MK Additional Feature - UpdateAnimalsExt - Added the ACI field to the AnimalsExt table.
 }
 
 unit uUpdateTables;
@@ -304,8 +316,7 @@ interface
 
 uses
    Classes, db, dbTables, GenTypesConst, SysUtils, Def,
-   Dialogs, Password, Forms, kRoutines, FileCtrl,
-   uApplicationLog;
+   Dialogs, Password, Forms, kRoutines, FileCtrl, uApplicationLog;
 
    procedure Initialize; {}
    procedure Finalize;   {}
@@ -3876,6 +3887,8 @@ begin
          AddVaccinationDiseaseCode('KH12','Johnes',LVaccination_DiseaseCode);
          //   29/10/20 [V5.9 R6.6] /MK Additional Feature - Added Mastitis to list of diseases - Kevin Maguire request.
          AddVaccinationDiseaseCode('KH13','Mastitis',LVaccination_DiseaseCode);
+         //   03/08/21 [V6.0 R1.7] /MK Additional Feature - Added Botulism to list of diseases - TGM request.
+         AddVaccinationDiseaseCode('KH14','Botulism',LVaccination_DiseaseCode);
 
          //   20/09/12 [V5.0 R9.9] /MK Additional Feature - Added Default Vaccination Report Description Types.
          AddListType('KHRD1','Repeat Vaccination',LHealthReportDesc,False,True);
@@ -3935,6 +3948,9 @@ begin
          AddListType('MD2', 'Spilled', LMediDiposalReasons, False, True);
          AddListType('MD3', 'Stolen', LMediDiposalReasons, False, True);
          AddListType('MD4', 'Unknown', LMediDiposalReasons, False, True);
+
+         AddListType('KHD1', 'Positive', LHerdTestResult, False, True);
+         AddListType('KHD2', 'Negative', LHerdTestResult, False, True);
 
       except
          on e : Exception do
@@ -4510,7 +4526,30 @@ begin
                      ShowMessage(e.Message);
                end;
             end;
-            
+
+      //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Added DueToCalveDate and ExpectedBullCode to CowExt table.
+      if ( not(FieldExists('DueToCalveDate')) ) then
+         with UpdateQuery do
+            begin
+               SQL.Clear;
+               SQL.Add('ALTER TABLE "' + UpdateTable.TableName + '" ADD DueToCalveDate DATE');
+               try
+                  ExecSQL;
+               except
+                  on e : Exception do
+                     ShowMessage(e.Message);
+               end;
+
+               SQL.Clear;
+               SQL.Add('ALTER TABLE "' + UpdateTable.TableName + '" ADD ExpectedBullCode CHAR(10)');
+               try
+                  ExecSQL;
+               except
+                  on e : Exception do
+                     ShowMessage(e.Message);
+               end;
+            end;
+
    except
       Result := False;
    end;
@@ -5793,6 +5832,63 @@ begin
 end;
 
 function UpdateAnimals : Boolean;
+
+   function UpdatePenNameFromFeedGroup : Boolean;
+   var
+      qGetGroups,
+      qUpdateAnimals : TQuery;
+   begin
+      Result := False;
+      qGetGroups := TQuery.Create(nil);
+      qUpdateAnimals := TQuery.Create(nil);
+      try
+         try
+            qUpdateAnimals.DatabaseName := UpdateQuery.DatabaseName;
+            qUpdateAnimals.Close;
+            qUpdateAnimals.SQL.Clear;
+            qUpdateAnimals.SQL.Add('UPDATE Animals');
+            qUpdateAnimals.SQL.Add('SET PenName = :FeedGroup');
+            qUpdateAnimals.SQL.Add('WHERE ID = :AId');
+
+            qGetGroups.DatabaseName := UpdateQuery.DatabaseName;
+            qGetGroups.SQL.Clear;
+            qGetGroups.SQL.Add('SELECT A.Id, G.Description');
+            qGetGroups.SQL.Add('FROM Grps G');
+            qGetGroups.SQL.Add('LEFT JOIN GrpLinks GL ON (GL.GroupId = G.Id)');
+            qGetGroups.SQL.Add('LEFT JOIN Animals A ON (A.Id = GL.AnimalId)');
+            qGetGroups.SQL.Add('WHERE (A.InHerd = True)');
+            qGetGroups.SQL.Add('AND   (A.AnimalDeleted = False)');
+            qGetGroups.SQL.Add('AND   (A.HerdId IN (SELECT DefaultHerdId FROM Defaults))');
+            qGetGroups.SQL.Add('AND   (Upper(G.GroupType) = "FEED")');
+            qGetGroups.Open;
+            if ( qGetGroups.RecordCount = 0 ) then Exit;
+
+            qGetGroups.First;
+            while ( not(qGetGroups.Eof) ) do
+               begin
+                  qUpdateAnimals.Close;
+                  qUpdateAnimals.Params[0].AsString := qGetGroups.Fields[1].AsString;
+                  qUpdateAnimals.Params[1].AsInteger := qGetGroups.Fields[0].AsInteger;
+                  qUpdateAnimals.ExecSQL;
+                  qGetGroups.Next;
+               end;
+         except
+            on e : Exception do
+               begin
+                  ShowDebugMessage(e.Message);
+                  ApplicationLog.LogException(e);
+                  ApplicationLog.LogError(e.Message);
+                  Result := False;
+               end;
+         end;
+      finally
+         if ( qGetGroups <> nil ) then
+            FreeAndNil(qGetGroups);
+         if ( qUpdateAnimals <> nil ) then
+            FreeAndNil(qUpdateAnimals);
+      end;
+   end;
+
 begin
    Result := True;
    UpdateTable.TableName := 'Animals';
@@ -5932,6 +6028,16 @@ begin
          try
             SQL.Text := 'ALTER TABLE Animals ADD QANoMovements CHAR(10)';
             ExecSQL;
+         except
+            Result := False;
+         end;
+
+   if not FieldExists('PenName') then
+      with UpdateQuery do
+         try
+            SQL.Text := 'ALTER TABLE Animals ADD PenName CHAR(30)';
+            ExecSQL;
+            UpdatePenNameFromFeedGroup;
          except
             Result := False;
          end;
@@ -6530,7 +6636,6 @@ begin
    UpdateTable.TableName := 'AnimalsExt.db';
    if not UpdateTable.Exists then
       begin
-
          with UpdateTable do
             try
                with FieldDefs do
@@ -6538,6 +6643,7 @@ begin
                      Clear;
                      Add('AnimalID', ftInteger);
                      Add('Comments', ftMemo,240);
+                     Add('BVDResult', ftInteger);
                   end;
 
                with IndexDefs do
@@ -6556,6 +6662,47 @@ begin
                   end;
             end;
       end;
+
+   if ( not(FieldExists('BVDResult')) ) then
+      with UpdateQuery do
+         try
+            try
+               SQL.Clear;
+               SQL.Add('ALTER TABLE "'+UpdateTable.TableName+'" ADD BVDResult INTEGER');
+               ExecSQL;
+               Result := True;
+            except
+               on e : Exception do
+                  begin
+                     Result := False;
+                     ApplicationLog.LogException(e);
+                     ApplicationLog.LogError(e.Message);
+                     ApplicationLog.LogError('uUpdateTables - UpdateAnimalsExt - Error adding BVDResult field.');
+                  end;
+            end;
+         finally
+         end;
+
+   //   06/09/21 [V6.0 R2.2] /MK Additional Feature - Added the ACI field to the AnimalExt table.
+   if ( not(FieldExists('ACI')) ) then
+      with UpdateQuery do
+         try
+            try
+               SQL.Clear;
+               SQL.Add('ALTER TABLE "'+UpdateTable.TableName+'" ADD ACI FLOAT');
+               ExecSQL;
+               Result := True;
+            except
+               on e : Exception do
+                  begin
+                     Result := False;
+                     ApplicationLog.LogException(e);
+                     ApplicationLog.LogError(e.Message);
+                     ApplicationLog.LogError('uUpdateTables - UpdateAnimalsExt - Error adding ACI field.');
+                  end;
+            end;
+         finally
+         end;
 end;
 
 function UpdateSires : Boolean;
@@ -11113,6 +11260,22 @@ begin
    Result := True;
    UpdateTable.TableName := 'SyncDefaults';
    try
+      //   03/08/21 [V6.0 R1.7] /MK Change - Add MaxInUseBullCount if the field doesn't exist and default count to 60.
+      if not FieldExists('MaxInUseBullCount') then
+         with UpdateQuery do
+            try
+               SQL.Clear;
+               SQL.Add('ALTER TABLE "' + UpdateTable.TableName + '" Add MaxInUseBullCount INTEGER ');
+               ExecSQL;
+
+               SQL.Clear;
+               SQL.Add('UPDATE "' + UpdateTable.TableName + '" SET MaxInUseBullCount = 60 ');
+               ExecSQL;
+
+               Result := True;
+            finally
+            end;
+
       if not FieldExists('NoOfYearsHealthHistory') then
          with UpdateQuery do
             try
@@ -11179,6 +11342,24 @@ begin
                SQL.Add('ALTER TABLE "' + UpdateTable.TableName + '" Add herdEvaluationModifiedOn DATE ');
                ExecSQL;
 
+               Result := True;
+            finally
+            end;
+
+      //   03/08/21 [V6.0 R1.7] /MK Change - If MaxInUseBullCount field exists and count is currently 20 then change to 60 - GL/SP/Adrian Thackleberry request.
+      if ( FieldExists('MaxInUseBullCount') ) then
+         with UpdateQuery do
+            try
+               SQL.Clear;
+               SQL.Add('SELECT MaxInUseBullCount FROM '+UpdateTable.TableName);
+               Open;
+               if ( FieldByName('MaxInUseBullCount').AsInteger = 20 ) then
+                  begin
+                     Close;
+                     SQL.Clear;
+                     SQL.Add('UPDATE '+UpdateTable.TableName+' SET MaxInUseBullCount = 60');
+                     ExecSQL;
+                  end;
                Result := True;
             finally
             end;

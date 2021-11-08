@@ -70,6 +70,8 @@
 
   24/03/20 [V5.9 R3.0] /MK Additional Feature - Show uMessageScr if the user has the App or if they don't that this will be the last time to use the ICBF email option.
                                               - If the user has recorded BDP welfare events in the last year then don't show uMessageScr.
+
+  08/11/21 [V6.0 R2.8] /MK Additional Feature - If the user has the App then only allow BDP Welfare Events to be emailed and tell the user this in uMessageScr.                                              
 }
 
 unit uICBFEventExport;
@@ -258,6 +260,7 @@ type
     FormActivated : Boolean;
     FICBFDamScoreQuery,
     FICBFStockBullScoreQuery : TQuery;
+    FActiveFarmSync : Boolean;
     function StripLeadingZeros ( ItemToStrip : String ) : String;
     procedure CheckValidHealthCodes; // All Health codes MUST be ICBF Health Codes
     procedure CheckValidNatIDs;      // All National ID's, bare NONE Herds Animals require Valid NatID's
@@ -324,6 +327,8 @@ begin
 end;
 
 procedure TfICBFEventExport.sbStartClick(Sender: TObject);
+var
+   bHasEvents : Boolean;
 begin
    if ( cbHerdID.Value = '' ) then
       begin
@@ -354,18 +359,13 @@ begin
                SQL.Add('SELECT *');
                SQL.Add('FROM Events');
                SQL.Add('WHERE ICBFNotified = False');
+               if ( FActiveFarmSync ) then
+                  SQL.Add('AND EventType IN ('+IntToStr(CICBFCalfSurveyEvent)+', '+IntToStr(CICBFDamEvent)+', '+IntToStr(CICBFStockBullEvent)+')');
                try
                   Open;
-                  //   23/11/16 [V5.6 R3.5] /MK Change - No point going through SQL's for Calvings and Services if there are no events to register - MK.
-                  if ( RecordCount = 0 ) then
-                     begin
-                        Update;
-                        HideStatus;
-                        ShowStatus(stReviewPeriod,false);
-                        HideStatus;
-                        Update;
-                        Exit;
-                     end;
+                  if ( FActiveFarmSync ) then
+                     TfmMessageScr.ShowTheForm(mtICBFAppWarning);
+                  bHasEvents := ( RecordCount > 0 );
                except
                   on e : Exception do
                      ShowMessage(e.Message);
@@ -375,11 +375,30 @@ begin
             end;
        end;
 
+   Update;
+   //   23/11/16 [V5.6 R3.5] /MK Change - No point going through SQL's for Calvings and Services if there are no events to register - MK.
+   if ( not(bHasEvents) ) then
+      begin
+         HideStatus;
+         if ( not(FActiveFarmSync) ) then
+            begin
+               ShowStatus(stReviewPeriod,false);
+               HideStatus;
+            end;
+         Update;
+         Exit;
+      end;
+   HideStatus;
+   Update;
+
    CreateTables;
    Update;
 
-   CalvingQuery;
-   Update;
+   if ( not(FActiveFarmSync) ) then
+      begin
+         CalvingQuery;
+         Update;
+      end;
 
    ServiceQuery;
    Update;
@@ -816,15 +835,19 @@ begin
          SQL.Add('LEFT JOIN SalesDeaths     SD ON (E.ID = SD.EventID) ');
          SQL.Add('LEFT JOIN GenLook         GG ON (GG.ID = SD.Culled) ');
          SQL.Add('LEFT JOIN MilkTemperament MT ON (E.ID = MT.EventID) ');
-         SQL.Add('WHERE E.EventType IN ('+IntToStr(cBullingEvent)+  ','+IntToStr(cServiceEvent)+  ','+ IntToStr(cPregDiagEvent)+',');
-         SQL.Add('                      '+IntToStr(cDryOffEvent)+   ','+IntToStr(cWeightEvent)+   ','+ IntToStr(cHealthEvent)+',');
-         SQL.Add('                      '+IntToStr(cSaleDeathEvent)+','+IntToStr(cStockBullEvent)+','+IntToStr(cNewIDEvent)+', ');
-         SQL.Add('                      '+IntToStr(CCastrateEvent)+','+IntToStr(cMealFeedingEvent)+','+IntToStr(CWeaningEvent)+', ');
-         SQL.Add('                      '+IntToStr(CDisbuddingEvent)+','+IntToStr(CCastrationNAEvent)+','+IntToStr(CDisbuddingNAEvent)+', ');
-         SQL.Add('                      '+IntToStr(CMilkTemperament)+','+IntToStr(CICBFDamEvent)+','+IntToStr(CICBFStockBullEvent)+', ');
-         SQL.Add('                      '+IntToStr(CICBFCalfSurveyEvent)+')');
+         SQL.Add('WHERE E.EventType IN ('+IntToStr(CCastrateEvent)+','+IntToStr(cMealFeedingEvent)+','+IntToStr(CWeaningEvent)+',');
+         SQL.Add('                      '+IntToStr(CDisbuddingEvent)+','+IntToStr(CCastrationNAEvent)+','+IntToStr(CDisbuddingNAEvent)+',');
+         SQL.Add('                      '+IntToStr(CICBFCalfSurveyEvent)+','+IntToStr(CICBFDamEvent)+','+IntToStr(CICBFStockBullEvent)+')');
+         if ( not(FActiveFarmSync) ) then
+            begin
+               SQL.Add('OR   E.EventType IN ('+IntToStr(cBullingEvent)+  ','+IntToStr(cServiceEvent)+  ','+ IntToStr(cPregDiagEvent)+',');
+               SQL.Add('                     '+IntToStr(cDryOffEvent)+   ','+IntToStr(cWeightEvent)+   ','+ IntToStr(cHealthEvent)+',');
+               SQL.Add('                     '+IntToStr(cSaleDeathEvent)+','+IntToStr(cStockBullEvent)+','+IntToStr(cNewIDEvent)+',');
+               SQL.Add('                     '+IntToStr(CMilkTemperament)+')');
+            end;
+
          SQL.Add('AND   (A.HerdID = ' + cbHerdID.Value+')' );
-//         if (cbReRegister.Checked = FALSE) then
+
          if not IncludeEventsalreadyMarkedasRegisteredtoICBF1.Checked then
             SQL.Add('AND NOT (E.ICBFNotified = True)');
          if (DateFrom.Date <> 0) and (DateTo.Date <> 0) then
@@ -832,7 +855,6 @@ begin
          else if (DateFrom.Date > 0) then
             SQL.Add('AND (EventDate >= ' + '''' + FormatDateTime(cUSDateStyle, DateTo.Date ) + '''' + ')')
          else if (DateTo.Date > 0) then
-            //SQL.Add('AND (EventDate <= ' + '''' + FormatDateTime(cUSDateStyle, DateTo.Date ) + '''' + ')');
             SQL.Add('AND (EventDate Between '+''''+FormatDateTime(cUSDateStyle,StrToDate(ICBFStartDate))+''''+' And '+''''+FormatDateTime(cUSDateStyle,StrToDate(DateTo.Text))+''''+')');
          Prepare;
          ExecSQL;
@@ -862,13 +884,18 @@ begin
          SQL.Add('      (SEventDate, SHerdID, SAction, SEventID, SEventType)');
          SQL.Add('SELECT I.EventDate, '+'"'+HerdIdentifier+'"'+', I.Action, I.EventID, I.EventType');
          SQL.Add('FROM ICBFDelete I ');
-         SQL.Add('WHERE I.EventType IN ( '+ IntToStr(cBullingEvent)+','+ IntToStr(cServiceEvent)+','+ IntToStr(cPregDiagEvent)+',');
-         SQL.Add('                       '+ IntToStr(cDryOffEvent)+','+ IntToStr(cWeightEvent)+','+ IntToStr(cHealthEvent)+',');
-         SQL.Add('                       '+ IntToStr(cSaleDeathEvent)+','+IntToStr(cStockBullEvent)+',');
-         SQL.Add('                       '+ IntToStr(CCastrateEvent)+','+IntToStr(cMealFeedingEvent)+','+IntToStr(CWeaningEvent)+','+IntToStr(cDisbuddingEvent)+',');
-         SQL.Add('                       '+ IntToStr(CCastrationNAEvent)+','+IntToStr(CDisbuddingNAEvent)+','+IntToStr(CMilkTemperament)+',');
-         SQL.Add('                       '+ IntToStr(CICBFDamEvent)+','+IntToStr(CICBFStockBullEvent)+','+IntToStr(CICBFCalfSurveyEvent)+') ');
-//         if (cbReRegister.Checked = FALSE) then
+
+         SQL.Add('WHERE I.EventType IN ('+IntToStr(CCastrateEvent)+','+IntToStr(cMealFeedingEvent)+','+IntToStr(CWeaningEvent)+',');
+         SQL.Add('                      '+IntToStr(CDisbuddingEvent)+','+IntToStr(CCastrationNAEvent)+','+IntToStr(CDisbuddingNAEvent)+',');
+         SQL.Add('                      '+IntToStr(CICBFCalfSurveyEvent)+','+IntToStr(CICBFDamEvent)+','+IntToStr(CICBFStockBullEvent)+')');
+         if ( not(FActiveFarmSync) ) then
+            begin
+               SQL.Add('OR   I.EventType IN ('+IntToStr(cBullingEvent)+  ','+IntToStr(cServiceEvent)+  ','+ IntToStr(cPregDiagEvent)+',');
+               SQL.Add('                     '+IntToStr(cDryOffEvent)+   ','+IntToStr(cWeightEvent)+   ','+ IntToStr(cHealthEvent)+',');
+               SQL.Add('                     '+IntToStr(cSaleDeathEvent)+','+IntToStr(cStockBullEvent)+','+IntToStr(cNewIDEvent)+', ');
+               SQL.Add('                     '+IntToStr(CMilkTemperament)+')');
+            end;
+
          if not IncludeEventsalreadyMarkedasRegisteredtoICBF1.Checked then
             SQL.Add('AND NOT (I.Notified = True)');
          SQL.Add('AND   (I.HerdID = ' + cbHerdID.Value+')' );
@@ -877,7 +904,6 @@ begin
          else if (DateFrom.Date > 0) then
             SQL.Add('AND (I.EventDate >= ' + '''' + FormatDateTime(cUSDateStyle, DateTo.Date ) + '''' + ')')
          else if (DateTo.Date > 0) then
-            //SQL.Add('AND (I.EventDate <= ' + '''' + FormatDateTime(cUSDateStyle, DateTo.Date ) + '''' + ')');
             SQL.Add('AND (I.EventDate Between '+''''+FormatDateTime(cUSDateStyle,StrToDate(ICBFStartDate))+''''+' And '+''''+FormatDateTime(cUSDateStyle,StrToDate(DateTo.Text))+''''+')');
          Prepare;
          ExecSQL;
@@ -2022,6 +2048,8 @@ begin
 //   if not FormActivated then
   //    begin
 
+   FActiveFarmSync := ( TfmFarmSyncSettings.SyncConfigured(DataDir, WinData.GetSyncingHerd(), stHerd) );
+
    IncludeEventsalreadyMarkedasRegisteredtoICBF1.Checked := False;
    Screen.ActiveForm.Refresh; // don not remove this.
    sbStartClick(Sender);
@@ -2036,12 +2064,8 @@ begin
          WinData.FICBFEventsToBeResent := False;
       end
    else if ( not(HasRecentBDPEvents) ) then
-      begin
-         if ( TfmFarmSyncSettings.SyncConfigured(DataDir, WinData.GetSyncingHerd(), stHerd) ) then
-            TfmMessageScr.ShowTheForm(mtICBFAppWarning)
-         else
-            TfmMessageScr.ShowTheForm(mtICBFNoAppWarning);
-      end;
+      if ( not(FActiveFarmSync) ) then
+         TfmMessageScr.ShowTheForm(mtICBFNoAppWarning);
 end;
 
 procedure TfICBFEventExport.FormShow(Sender: TObject);
@@ -2877,22 +2901,23 @@ begin
 end;
 
 function TfICBFEventExport.GetHasRecentBDPEvents: Boolean;
+var
+   qHasBDPEvents : TQuery;
 begin
    Result := False;
-   with TQuery.Create(nil) do
+   qHasBDPEvents := TQuery.Create(nil);
+   with qHasBDPEvents do
       try
          DatabaseName := AliasName;
          SQL.Clear;
          SQL.Add('SELECT *');
          SQL.Add('FROM Events');
          SQL.Add('WHERE EventDate >= :InLastYear');
-         SQL.Add('AND   EventType = :ICBFCalfSurvey');
-         SQL.Add('OR    EventType = :ICBFDamEvent');
-         SQL.Add('OR    EventType = :ICBFSireEvent');
+         SQL.Add('AND   ICBFNotified = False');
+         SQL.Add('AND   EventType IN ('+IntToStr(CCastrateEvent)+','+IntToStr(cMealFeedingEvent)+','+IntToStr(CWeaningEvent)+', ');
+         SQL.Add('                    '+IntToStr(CDisbuddingEvent)+','+IntToStr(CCastrationNAEvent)+','+IntToStr(CDisbuddingNAEvent)+', ');
+         SQL.Add('                    '+IntToStr(CMilkTemperament)+','+IntToStr(CICBFDamEvent)+','+IntToStr(CICBFStockBullEvent)+') ');
          Params[0].AsDateTime := IncYear(Date,-1);
-         Params[1].AsInteger := CICBFCalfSurveyEvent;
-         Params[2].AsInteger := CICBFDamEvent;
-         Params[3].AsInteger := CICBFStockBullEvent;
          try
             Open;
             Result := ( RecordCount > 0 );

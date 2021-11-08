@@ -246,6 +246,8 @@ unit uHealth;
                                     - ShowHealth - When editing the event change the qDrugBatchNo query to look at all batch numbers regardless of whether they are in use or not.
                                                  - When adding the event change the qDrugBatchNo query to look at only batch numbers that are in use.
                                     - FormClose - When closing the form change the query back to the default where only in use batch numbers appear.
+
+   08/11/21 [V6.0 R2.8] /MK Bug Fix - Fixed the tab order - Kathleen Porter.
 }
 
 interface

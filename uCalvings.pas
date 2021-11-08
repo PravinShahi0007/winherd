@@ -1479,7 +1479,7 @@ begin
                                     GroupData := WinData.GroupManager.GetGroupData(DamFeedGroup,'ID,Description');
                                     if MessageDlg(Format('Do you want to remove "%s" from feed group "%s"?',[WinData.AnimalFileByIDNatIDNum.AsString, GroupData[1]]),mtConfirmation,[mbYes,mbNo],0) = idYes then
                                        begin
-                                          WinData.GroupManager.RemoveAnimalFromGrp(DamID,GroupData[0]);
+                                          WinData.GroupManager.RemoveAnimalFromGrp(DamID,GroupData[0],False);
                                           WinData.RemoveFromEventLookupData(DamID, cFeedingEvent); // Remove old feed grp to update grid display
                                        end;
                                  end;

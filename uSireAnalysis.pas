@@ -18,7 +18,7 @@
    21/08/18 [V5.8 R2.5] /MK Additional Feature - Added Live Weight and Kill Out % columns and fields to the Calf Grid - GL/Derek Deane.
                                                - Added averages to the footer for these new columns/fields.
                             Change - Changed the Sale/Death Date to Sales Date as only sold animals are included.
-                                   - ProcessCalfTable - Exclude calves that have died - GL.                
+                                   - ProcessCalfTable - Exclude calves that have died - GL.
 
    22/08/18 [V5.8 R2.5] /MK Change - ProcessCalfTable - Added query to get calves in FCalfTable's birth weight.
                                                       - Added query to get weighing events of calves in FCalfTable after birth weight.
@@ -29,6 +29,8 @@
                                                         weight can be found in the recent weighings if the animals is still alive or in the qMovementsInfo query.
                                    - In the average footers for the live weight, dead weight and kill out, only add get average based on animals
                                      that have a values in the fields that the footer is based on.
+
+   17/06/21 [V6.0 R1.4] /MK Bug Fix - ProcessCalfTable - When filtering the qWeighInfo query clear the filter after using the data. 
 }
 
 unit uSireAnalysis;
@@ -279,10 +281,15 @@ begin
 
       SireGridDBBandedTableView.OnFocusedRecordChanged := nil;
 
-      FQuery.Close;
-      FQuery.SQL.Text := 'INSERT INTO '+FCalfTable.TableName+' (CalfID, DateOfBirth, InHerd) '+
-                         FQuery.SQL.Text;
-      FQuery.ExecSQL;
+      try
+         FQuery.Close;
+         FQuery.SQL.Text := 'INSERT INTO '+FCalfTable.TableName+' (CalfID, DateOfBirth, InHerd) '+
+                            FQuery.SQL.Text;
+         FQuery.ExecSQL;
+      except
+         on e : Exception do
+            ShowMessage(e.Message);
+      end;
 
       FCalfTable.Close;
       FCalfTable.Open;
@@ -350,7 +357,7 @@ begin
          begin
             FCalfTable.RecNo := i;
 
-            // If the calf in FCalfTable does not have any birth or recent weighings then ignore this calf. 
+            // If the calf in FCalfTable does not have any birth or recent weighings then ignore this calf.
             if ( qBirthWeighInfo.Locate('CalfID',FCalfTable.FieldByName('CalfID').AsInteger,[]) ) or
                ( qWeighInfo.Locate('CalfID',FCalfTable.FieldByName('CalfID').AsInteger,[]) ) then
                try
@@ -398,6 +405,8 @@ begin
                         qWeighInfo.FindLast;
                         FCalfTable.FieldByName('FirstWeighDate').AsDateTime := qWeighInfo.FieldByName('WeighDate').AsFloat;
                         FCalfTable.FieldByName('FirstWeight').AsFloat := qWeighInfo.FieldByName('Weight').AsFloat;
+                        qWeighInfo.Filter := '';
+                        qWeighInfo.Filtered := False;
                      end;
 
                   // If the calf is in herd then locate its last weighing event and assign this as the last weight.
@@ -408,9 +417,10 @@ begin
                         qWeighInfo.Filter := 'CalfID = '+IntToStr(FCalfTable.FieldByName('CalfID').AsInteger);
                         qWeighInfo.Filtered := True;
                         qWeighInfo.FindFirst;
-
                         FCalfTable.FieldByName('LastWeighDate').AsDateTime := qWeighInfo.FieldByName('WeighDate').AsFloat;
                         FCalfTable.FieldByName('LastWeight').AsFloat := qWeighInfo.FieldByName('Weight').AsFloat;
+                        qWeighInfo.Filter := '';
+                        qWeighInfo.Filtered := False;
                      end
                   // If the calf is NOT in herd then assign its last weight as the sale weight.
                   else

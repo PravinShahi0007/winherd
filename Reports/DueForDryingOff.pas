@@ -20,6 +20,8 @@
 
   04/11/20 [V5.9 R7.2] /MK Change - Changed Pregnancy to Preg Status - GL request.
                                   - If the PD is Undefined then change it to ? similar to Due to Calve - GL request.
+
+  07/07/21 [V6.0 R1.6] /MK Additional Feature - Added (>200 K) under the High SCC column, I had to move the column headings up to add this new text in.                                  
 }
 
 unit DueForDryingOff;
@@ -100,6 +102,7 @@ type
     QRDBText23: TQRDBText;
     QRDBText24: TQRDBText;
     QRDBText25: TQRDBText;
+    QRLabel10: TQRLabel;
     procedure DueForDryingOffScrBeforePrint(Sender: TCustomQuickRep;
       var PrintReport: Boolean);
     procedure MainHeader1BeforePrint(Sender: TQRCustomBand;

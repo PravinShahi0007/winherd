@@ -37,7 +37,9 @@
 
    07/06/18 [V5.8 R0.6] /MK Change - AddAnimalToXMLFile - Add NationalID number to CrushXML file.
 
-   23/05/19 [V5.8 R9.3] /MK Bug Fix - Got errors in "Stop On Delphi Exception" for qSuppliers not being active. 
+   23/05/19 [V5.8 R9.3] /MK Bug Fix - Got errors in "Stop On Delphi Exception" for qSuppliers not being active.
+
+   09/07/21 [V6.0 R1.6] /MK Change - Changed DateOfPurchase TDBDateEdit to dePurchaseDate TcxDBDateTime so that user can enter 4 date year - Geraldine Carroll.    
 }
 
 unit uPurchases;
@@ -50,7 +52,7 @@ uses
   RXDBCtrl, Buttons, CurrEdit, DBTables, RXCtrls, ComCtrls, ToolWin,
   kwDBNavigator, cxControls, cxContainer, cxEdit, cxTextEdit,
   cxCurrencyEdit, cxDBEdit, cxLabel, cxGroupBox, cxCheckBox,
-  uCrushXML, KDBRoutines, uAnimal;
+  uCrushXML, KDBRoutines, uAnimal, cxMaskEdit, cxDropDownEdit, cxCalendar;
 
 type
   TAddorModify = (amAdd, amModify);
@@ -92,7 +94,6 @@ type
     lCommission: TLabel;
     lFQASDays: TLabel;
     Supplier: TRxDBLookupCombo;
-    DateOfPurchase: TDBDateEdit;
     Price: TDBEdit;
     Weight: TDBEdit;
     Buyers: TRxDBLookupCombo;
@@ -126,6 +127,8 @@ type
     dbcBatchGroup: TComboBox;
     lFQASDate: TLabel;
     lFQASDateDate: TcxLabel;
+    DateOfPurchase: TDBDateEdit;
+    dePurchaseDate: TcxDBDateEdit;
     procedure ExitButtonClick(Sender: TObject);
     procedure SupplierCloseUp(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -256,11 +259,11 @@ end;
 
 procedure TfPurchases.DateOfPurchaseExit(Sender: TObject);
 begin
-   if (DateOfPurchase.Date>0) and (DateOfPurchase.Date < WinData.AnimalFileByIdDateOfBirth.Value) then
+   if (dePurchaseDate.Date>0) and (dePurchaseDate.Date < WinData.AnimalFileByIdDateOfBirth.Value) then
       begin
           MessageDLG('Purchase Date cannot be before Date of Birth',mtinformation,[mbOK],0);
+          dePurchaseDate.SetFocus;
           Abort;
-          DateOfPurchase.SetFocus;
       end;
 end;
 
@@ -301,7 +304,7 @@ var
                                     Params[0].AsInteger  := WinData.AnimalFileByIDID.AsInteger;
                                     Params[1].AsInteger  := nCurrentGroupId;
                                     //Params[2].AsDateTime := Now;
-                                    Params[2].AsDateTime := DateOfPurchase.Date;
+                                    Params[2].AsDateTime := dePurchaseDate.Date;
                                  end
                               // alter existing record
                               else
@@ -315,7 +318,7 @@ var
                                     Params[0].AsInteger  := WinData.AnimalFileByIDID.AsInteger;
                                     Params[1].AsInteger  := Integer(AComboBox.Items.Objects[AComboBox.ItemIndex]);
                                     //Params[2].AsDateTime := Now;
-                                    Params[2].AsDateTime := DateOfPurchase.Date;
+                                    Params[2].AsDateTime := dePurchaseDate.Date;
                                     Params[3].AsInteger  := Params[0].AsInteger;
                                     Params[4].AsInteger  := AOrigGroupID;
                                  end;
@@ -326,12 +329,12 @@ var
                               if ( AOrigGroupID > 0 ) then
                                  begin
                                     WinData.GroupManager.RemoveAnimalFromGrp(WinData.AnimalFileByIDID.AsInteger,AOrigGroupID);
-                                    WinData.FeedManager.EndFeedEventsForAnimal(WinData.AnimalFileByIDID.AsInteger,DateOfPurchase.Date)
+                                    WinData.FeedManager.EndFeedEventsForAnimal(WinData.AnimalFileByIDID.AsInteger,dePurchaseDate.Date)
                                  end
                               else
                                  begin
-                                    WinData.GroupManager.AddToGroup(WinData.AnimalFileByIDID.AsInteger,nCurrentGroupId,True,DateOfPurchase.Date,WinData.AnimalFileByIDNatIDNum.AsString);
-                                    WinData.FeedManager.CreateFeedsForAnimal(WinData.AnimalFileByIDID.AsInteger,nCurrentGroupId,DateOfPurchase.Date);
+                                    WinData.GroupManager.AddToGroup(WinData.AnimalFileByIDID.AsInteger,nCurrentGroupId,True,dePurchaseDate.Date,WinData.AnimalFileByIDNatIDNum.AsString);
+                                    WinData.FeedManager.CreateFeedsForAnimal(WinData.AnimalFileByIDID.AsInteger,nCurrentGroupId,dePurchaseDate.Date);
                                  end;
                            end;
                      finally
@@ -658,7 +661,7 @@ begin
                Abort;
             end;
 
-         if ( DateOfPurchase.Date <= 0 ) then
+         if ( dePurchaseDate.Date <= 0 ) then
             begin
                MessageDlg('You must enter a Purchase date',mtWarning,[mbOk],0);
                Abort;
@@ -775,7 +778,7 @@ end;
 procedure TfPurchases.RxSpeedButton3Click(Sender: TObject);
 begin
    Update;
-   TfmGroupUpdate.ShowForm(WinData.AnimalFileByIDID.AsInteger, DateOfPurchase.Date);
+   TfmGroupUpdate.ShowForm(WinData.AnimalFileByIDID.AsInteger, dePurchaseDate.Date);
 end;
 
 procedure TfPurchases.SupplierChange(Sender: TObject);
@@ -951,8 +954,8 @@ begin
    lFQASDate.Visible := ( (lFQAS.Visible) and (not(eFQASDays.Text = '')) );
    lFQASDateDate.Visible := lFQASDate.Visible;
    if ( lFQASDateDate.Visible ) then
-      if ( DateOfPurchase.Date > 0 ) and ( (eFQASDays.Text <> '') or (eFQASDays.Text <> Null) ) then
-         lFQASDateDate.Caption := DateToStr(DateOfPurchase.Date+StrToInt(eFQASDays.Text));
+      if ( dePurchaseDate.Date > 0 ) and ( (eFQASDays.Text <> '') or (eFQASDays.Text <> Null) ) then
+         lFQASDateDate.Caption := DateToStr(dePurchaseDate.Date+StrToInt(eFQASDays.Text));
 end;
 
 procedure TfPurchases.BuyersDropDown(Sender: TObject);

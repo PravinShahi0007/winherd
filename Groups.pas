@@ -22,6 +22,8 @@
    11/06/19 [V5.8 R9.4] /MK Change - AddToGroup - Removed Weaning messages if Sale Group and Sale Date provided - Ivan Tanner.
 
    05/11/19 [V5.9 R1.1] /MK Bug Fix - AddToGroup - Even if not(AllowDeletion), if the new group is Feed then Remove Animal from CurrentGroupID.
+
+   02/07/21 [V6.0 R1.5] /MK Change - AddToGroup/RemoveAnimalFromGrp - Update the Pen Name field in the animals table - only remove Pen Name if animal is removed from a group but not after sale.
 }
 
 unit Groups;
@@ -72,7 +74,7 @@ type
       function AnimalInThisGroup(const AID, GrpID: Integer): Boolean;
       function GetGroupIDGroupType(const AGroupId : Integer ) : TGroupType;
       function GetGroupTypeFromGroupTypeStr(AGroupTypeStr : String) : TGroupType;
-      function RemoveAnimalFromGrp(const AAnimalID : Integer; const AGroupID : Integer) : Boolean;
+      function RemoveAnimalFromGrp(const AAnimalID : Integer; const AGroupID : Integer; const ASoldAnimal : Boolean = False) : Boolean;
       function AddToGroup(AID, GroupID: Integer; AllowDeletion: Boolean;
          const DateJoined: TDateTime; const ATagNo: String = '';
          const ShowConfirmMsg : Boolean = True;
@@ -360,7 +362,7 @@ begin
       end;
 end;
 
-function TGroupManager.RemoveAnimalFromGrp(const AAnimalID: Integer; const AGroupID : Integer): Boolean;
+function TGroupManager.RemoveAnimalFromGrp(const AAnimalID : Integer; const AGroupID : Integer; const ASoldAnimal : Boolean = False) : Boolean;
 begin
    with TQuery.Create(nil) do
       try
@@ -373,6 +375,18 @@ begin
          Params[1].AsInteger := AAnimalID;
          try
             ExecSQL;
+
+            if ( GetGroupIDGroupType(AGroupId) = gtFeed ) and ( not(ASoldAnimal) ) then
+               begin
+                  Close;
+                  SQL.Clear;
+                  SQL.Add('UPDATE Animals');
+                  SQL.Add('SET PenName = ""');
+                  SQL.Add('WHERE ID = :AID');
+                  Params[0].AsInteger := AAnimalID;
+                  ExecSQL;
+               end;
+
             uHerdSync.ResetSyncFlagForGroup(AGroupID);
          except
             on e : Exception do
@@ -608,6 +622,18 @@ begin
                   Params[1].AsInteger := GroupID ;
                   Params[2].AsDateTime := DateJoined;
                   ExecSQL;
+
+                  if ( gtNewGroupType = gtFeed ) then
+                     begin
+                        Close;
+                        SQL.Clear;
+                        SQL.Add('UPDATE Animals');
+                        SQL.Add('SET PenName = :PenName');
+                        SQL.Add('WHERE ID = :AID');
+                        Params[0].AsString := sSelectedGroupName;
+                        Params[1].AsInteger := AID;
+                        ExecSQL;
+                     end;
 
                   Result := True;
 

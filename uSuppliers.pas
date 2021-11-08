@@ -24,6 +24,11 @@
    27/03/19 [V5.8 R8.3] /MK Bug Fix - Tab Order was wrong.
 
    19/09/19 [V5.9 R0.5] /MK Bug Fix - ComponentPrinterLink had lost its Component so I have hard coded it, Print Suppliers not showing data - Adrian Walsh.
+
+   06/07/21 [V6.0 R1.6] /MK Change - Removed search from eSearch.OnKeyPress.
+                                   - Added search using GridView.DataController.Filter to eSearch.OnChange to allow for partial search - Geraldine Murray.
+
+   07/07/21 [V6.0 R1.6] /MK Change - Allow the user to search by either column on the grid by checking to see which column is sorted.
 }
 
 unit uSuppliers;
@@ -38,7 +43,7 @@ uses
   cxGridLevel, cxClasses, cxGridCustomView, cxGridCustomTableView,
   cxGridTableView, cxGridDBTableView, cxGrid, dxPSCore, dxPScxCommon,
   dxPScxGridLnk, cxButtons, uHerdLookup, cxCheckBox, cxLabel, cxDBLabel,
-  Menus, uMartEmailRequest, GenTypesConst, KRoutines;
+  Menus, uMartEmailRequest, GenTypesConst, KRoutines, cxFilter;
 
 type
   TfSuppliers = class(TForm)
@@ -104,6 +109,7 @@ type
     btnOptions: TRxSpeedButton;
     pmOptions: TPopupMenu;
     pmiLookupMarts: TMenuItem;
+    lSearchNote: TLabel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure DBNavigatorClick(Sender: TObject; Button: TKNavigateBtn);
     procedure sbHelpClick(Sender: TObject);
@@ -268,9 +274,28 @@ begin
 end;
 
 procedure TfSuppliers.eSearchChange(Sender: TObject);
+var
+   SortedColumn : TObject;
+   i : Integer;
 begin
    if ( eSearch.Text = '' ) then
       SupplierGridDBTableView.DataController.FocusedRecordIndex := 0;
+
+   for i := 0 to SupplierGridDBTableView.ColumnCount-1 do
+      if ( SupplierGridDBTableView.Columns[i].SortIndex > -1 ) then
+         begin
+            SortedColumn := SupplierGridDBTableView.Columns[i];
+            Break;
+         end;
+
+   SupplierGridDBTableView.DataController.Filter.Clear;
+   SupplierGridDBTableView.DataController.Filter.Active := False;
+   if ( Length(eSearch.Text) > 0 ) then
+      begin
+         SupplierGridDBTableView.DataController.Filter.Options := [fcoCaseInsensitive];
+         SupplierGridDBTableView.DataController.Filter.AddItem(nil, SortedColumn, foLike, '%'+eSearch.Text+'%', '%'+eSearch.Text+'%');
+         SupplierGridDBTableView.DataController.Filter.Active := True;
+      end;
 end;
 
 procedure TfSuppliers.eSearchKeyPress(Sender: TObject; var Key: Char);
@@ -283,44 +308,44 @@ var
 begin
    //   27/11/15 [V5.5 R1.4] /MK Change - Added partial search i.e. the program will search for text in whole of name not
    //                                     just the start of the name.
-   if ( key in iCharSearchSet ) then
-      with SupplierGridDBTableView do
-         begin
-            Screen.Cursor := crHourGlass;
-            DataController.BeginLocate;
-            Success := False;
-            try
-               SearchText := Trim(eSearch.Text+key);
-               if ( SearchText <> '' ) then
-                  begin
-                     SearchText := UPPERCASE(eSearch.Text+key);
-                     StartIndex := 0;
-                     with SupplierGridDBTableView.ViewData do
-                        begin
-                           Success := False;
-                           for i := StartIndex to SupplierGridDBTableView.ViewData.RowCount - 1 do
-                              begin
-                                 FieldValue := VarToStr(Rows[i].Values[SupplierGridDBTableViewName.Index]);
-                                 if ( not(VarIsNull(FieldValue)) ) then
-                                    begin
-                                       FieldValue := UPPERCASE(FieldValue);
-                                       if ( Pos(SearchText, FieldValue) > 0 ) then
-                                          begin
-                                             SupplierGridDBTableView.DataController.FocusedRecordIndex := Rows[i].RecordIndex;;
-                                             Success := True;
-                                             Break;
-                                          end;
-                                    end;
-                              end;
-                        end;
-                  end
-               else
-                  DataController.DataSet.First;
-            finally
-               DataController.EndLocate;
-               Screen.Cursor := crDefault;
-            end;
+   {
+   with SupplierGridDBTableView do
+      begin
+         DataController.BeginLocate;
+         Success := False;
+         try
+            SearchText := Trim(eSearch.Text+key);
+            if ( SearchText <> '' ) then
+               begin
+                  SearchText := UPPERCASE(eSearch.Text+key);
+                  StartIndex := 0;
+                  with SupplierGridDBTableView.ViewData do
+                     begin
+                        Success := False;
+                        for i := StartIndex to SupplierGridDBTableView.ViewData.RowCount - 1 do
+                           begin
+                              FieldValue := VarToStr(Rows[i].Values[SupplierGridDBTableViewName.Index]);
+                              if ( not(VarIsNull(FieldValue)) ) then
+                                 begin
+                                    FieldValue := UPPERCASE(FieldValue);
+                                    if ( Pos(SearchText, FieldValue) > 0 ) then
+                                       begin
+                                          SupplierGridDBTableView.DataController.FocusedRecordIndex := Rows[i].RecordIndex;;
+                                          Success := True;
+                                          Break;
+                                       end;
+                                 end;
+                           end;
+                     end;
+               end
+            else
+               DataController.DataSet.First;
+         finally
+            DataController.EndLocate;
+            Screen.Cursor := crDefault;
          end;
+   end;
+   }
 end;
 
 procedure TfSuppliers.FormCreate(Sender: TObject);
@@ -396,3 +421,4 @@ begin
 end;
 
 end.
+

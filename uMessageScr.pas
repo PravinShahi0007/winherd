@@ -84,11 +84,11 @@ const
                             'Do you wish to continue?';
 
    cICBFAppWarningFormCaption = 'Email of ICBF Events';
-   cICBFAppWarningTxt = 'This will be your last time having to use this Gmail link with ICBF.'+cCRLFx2+
-                        'Since you have the Kingswood Herd App installed, all events from 1st January 2020'+cCRLF+
-                        'are now being sent automatically from the Kingswood server to the ICBF.'+cCRLF+
+   cICBFAppWarningTxt = 'Since you have the Kingswood Herd App installed, all non BDP Welfare events '+cCRLF+
+                        'from 1st January 2020 are being sent automatically to ICBF.'+cCRLF+
                         'To benefit from this facility please ensure that Kingswood Herd on your PC'+cCRLF+
-                        'is syncing correctly with our server.'+cCRLFx2+
+                        'is syncing correctly with our server i.e. the "Sync in Progress" screen'+cCRLF+
+                        'appears when you open this program.'+cCRLFx2+
                         'Call us at 01-4596677 if you have any queries.';
 
 

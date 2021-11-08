@@ -8,6 +8,8 @@
                                    - Convert - If TBeefRemitCountry is GB then set fields in field depending on GB consts.
 
    03/03/21 [V5.9 R9.2] /MK Change - Convert - If a null date is found as the Event Date give error and don't covert the file - Grace (C&J Meats).
+
+   06/07/21 [V6.0 R1.6] /MK Additional Feature - Added Total Dead Weight to summary items before Remittance End - Una Carter request.   
 }
 
 unit ElectronicRemittanceConverter;
@@ -109,6 +111,7 @@ var
    TempStr : string;
    fSumValue : Double;
    fSumDeducts : Double;
+   fSumDeadWeight : Double;
 begin
    FElectronicRemittanceFile.Clear;
 
@@ -314,6 +317,8 @@ begin
                else
                   TempStr := PadLeft(FParser.Fields[9], ' ', idCWEIGHT[1]);
                AddToLine(TempStr);
+               if ( Length(TempStr) > 0 ) then
+                  fSumDeadWeight := fSumDeadWeight + StrToFloat(TempStr);
 
                TempStr := ' ';
                AddToLine(TempStr);
@@ -363,12 +368,21 @@ begin
       end;
 
   FElectronicRemittanceFile.Add('');
+  FElectronicRemittanceFile.Add('');
 
   if ( fSumValue > 0 ) then
      begin
         FLine := '';
         AddToLine(PadRight('Total Value', ' ',20));
         AddToLine(FloatToStr(fSumValue));
+        FElectronicRemittanceFile.Add(FLine);
+     end;
+
+  if ( fSumDeadWeight > 0 ) then
+     begin
+        FLine := '';
+        AddToLine(PadRight('Total Dead Weight', ' ',20));
+        AddToLine(FloatToStr(fSumDeadWeight));
         FElectronicRemittanceFile.Add(FLine);
      end;
 

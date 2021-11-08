@@ -157,6 +157,9 @@
   18/04/19 [V5.8 R8.9] /MK Change - FormActivate - Added check for atNonHerdDam to then default sex to Female.
 
   25/11/20 [V5.9 R7.6] /MK Change - SetMilkDiskGridDisplayColumns - Default to Cummulative Yield.
+
+  08/07/21 [V6.0 R1.6] /MK Change - CreateFooter - Created a ftNone FooterType that allows the Footer.Text to be set to nothing.
+                                                 - Remove averaging SCC columns in individual recording section of Animal Record screen - GL request.
 }
 
 unit SetUpAnimals;
@@ -183,7 +186,7 @@ uses
 type
   TAncestryFieldArray = Array [0..3] of TDBEdit;
   tAnimalSet = ( UnKnown, FemaleDairy, FemaleBeef, Beef, BeefAI, FemaleSuckler, FemalePedigree );
-  TFooterType = (ftAll, ftAvg, ftSum);
+  TFooterType = (ftNone, ftAll, ftAvg, ftSum);
   TAddOrEdit = (aeAdd, aeEdit);
   TfSetUpAnimals = class(TForm)
     pMainDetails: TPanel;
@@ -4686,7 +4689,7 @@ begin
                         CreateFooter(DBGrid, '305BFatKgs',0,ftAvg);
                         CreateFooter(DBGrid, '305ProtKgs',0,ftAvg);
                         CreateFooter(DBGrid, '305TotalSolids',0,ftAvg);
-                        CreateFooter(DBGrid, 'SCC',0,ftAvg);
+                        //CreateFooter(DBGrid, 'SCC',0,ftAvg);
                      end
                   else if ( FooterSelection = 2 ) then
                      begin
@@ -4728,7 +4731,6 @@ begin
                         CreateFooter(DBGrid, 'CumYield', 0, ftAvg);
                         CreateFooter(DBGrid, 'CumBfatPerc', 0, ftAvg);
                         CreateFooter(DBGrid, 'CumProtPerc', 0, ftAvg);
-
                         //   01/12/14 [V5.4 R0.2] /MK Additional Feature - Added Footers for Solids and SCC - Brendan Meade request.
                         //   26/11/15 [V5.5 R1.3] /MK Change - Added footers for all kg values and removed SCC footer - GL/Brendan Meade (6980) request.
                         CreateFooter(DBGrid, 'CumBFatKgs', 0, ftAvg);
@@ -4760,7 +4762,7 @@ begin
                   CreateFooter(DBGrid, 'DailyBfatPerc', 0, ftAll);
                   CreateFooter(DBGrid, 'DailyProtPerc', 0, ftAll);
                   CreateFooter(DBGrid, 'DailyLactPerc', 0, ftAll);
-                  CreateFooter(DBGrid, 'SCC', 0, ftAll);
+                  CreateFooter(DBGrid, 'SCC', 0, ftNone);
                   CreateFooter(DBGrid, 'SCC', 1,ftAll);
                end
             else if ( FooterSelection = 1 ) then
@@ -4771,7 +4773,7 @@ begin
                   CreateFooter(DBGrid, 'DailyBfatPerc', 0, ftAvg);
                   CreateFooter(DBGrid, 'DailyProtPerc', 0, ftAvg);
                   CreateFooter(DBGrid, 'DailyLactPerc', 0, ftAvg);
-                  CreateFooter(DBGrid, 'SCC', 0, ftAvg);
+                  CreateFooter(DBGrid, 'SCC', 0, ftNone);
                end
             else if ( FooterSelection = 2 ) then
                begin
@@ -4804,6 +4806,7 @@ begin
                     end;
             ftAvg : Footers[FootIndex].ValueType := fvtAvg;
             ftSum : Footers[FootIndex].ValueType := fvtSum;
+            ftNone : Footers[FootIndex].Value := '';
          end;
       end
    else

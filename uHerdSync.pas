@@ -140,6 +140,16 @@
    23/02/21 [V5.9 R8.5] /MK Change - CreateExistingClientIdElement - Changed format of eventDate node to 4 digit year to match server format
                                                                    - Changed format of dateofBirth node to 4 digit year to match server format
                                                                    - OpenCalvingQuery - Change LEFT JOIN to INNER JOIN to make the query quicker.
+
+   09/06/21 [V6.0 R1.4] /MK Change - ReadHerdSyncData - When bringing in an animal number with a length > 10 then move on but log problem.
+
+   02/07/21 [V6.0 R1.5] /MK Change - CreateHerdSyncData - Use LEFT JOIN instead of INNER JOIN when calvings table wasn't updated with calf recorded - Create Calving Utility required to fix.
+
+   27/09/21 [V6.0 R2.5] /MK Bug Fix - CreateHerdSyncData - Don't sync the event again if its already synced from ICBFDelete table - Eoin Godwin/SP.
+
+   05/10/21 [V6.0 R2.6] /MK Change - CreateHerdSyncData - Sync all breeding events regardless of lactation matching current lactation.
+
+   05/11/21 [V6.0 R2.8] /MK Additional Feature - CreateHealthEvents - Set the comment to be the medicine name and application rate similar to treatments done on PC.
 }
 
 unit uHerdSync;
@@ -834,6 +844,13 @@ begin
                                     end;
                               end;
 
+                           //   17/06/21 [V6.0 R1.4] /MK Change - When bring in an animal number with a length > 10 then move on but log problem.
+                           if ( Length(AnimalNo) > 10 ) then
+                              begin
+                                 CreateLogEntry(Format('Unable to create Animal. Animal No. %s exceeds field length of 10.',[AnimalNo]));
+                                 Continue;
+                              end;
+
                            if (InHerd) then // more likely a purchased animal
                               begin
                                  AddAnimalToDb := true;
@@ -866,7 +883,6 @@ begin
                               AnimalRecord.ValidateColour := False;
                               AnimalRecord.ValidateDOB := False;
                               try
-
                                  if InHerd then
                                     begin
                                        AnimalRecord.Add;
@@ -1392,7 +1408,7 @@ begin
 
                   FHerdID := FHerdQuery.Fields[0].AsInteger;
 
-                  Verbose := TfmFarmSyncSettings.GetVerbose(FHerdQuery.FieldByName('HerdIdentity').AsString,FHerdID);
+                  Verbose := TfmFarmSyncSettings.GetVerbose(FSyncOutputParams.DatabaseName,FHerdID);
 
                   FSyncDataQuery.SQL.Clear;
                   // Animal Info
@@ -1646,14 +1662,15 @@ begin
                   FSyncDataQuery.SQL.Add('       E.EventDesc AS EventComment, G.LookupCode As CalvingSurvey');
                   FSyncDataQuery.SQL.Add('FROM Animals A');
                   FSyncDataQuery.SQL.Add('INNER JOIN Events E ON (E.AnimalId=A.Id)');
-                  FSyncDataQuery.SQL.Add('INNER JOIN Calvings C ON (C.EventId=E.Id)');
+                  //   02/07/21 [V6.0 R1.5] /MK Change - Use LEFT JOIN instead of INNER JOIN when calvings table wasn't updated with calf recorded - Create Calving Utility required to fix.
+                  FSyncDataQuery.SQL.Add('LEFT JOIN Calvings C ON (C.EventId=E.Id)');
                   //   06/11/14 [V5.3 R8.8] /MK Change - Use LEFT JOIN instead of INNER JOIN for GB customers that don't record Birth Type - SP/GL/TGM request.
                   FSyncDataQuery.SQL.Add('LEFT JOIN GenLook G ON (G.Id=C.BirthType)');
                   FSyncDataQuery.SQL.Add('WHERE (E.EventType=5)');
                   FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=False)');
                   FSyncDataQuery.SQL.Add('AND (A.InHerd=True)');
                   FSyncDataQuery.SQL.Add('AND (A.Sex = ''Female'')');
-                  FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
+                  //FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
                   FSyncDataQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
                   FSyncDataQuery.SQL.Add('ORDER BY E.EventDate Desc');
                   FSyncDataQuery.Params[0].AsInteger := FHerdID;
@@ -1723,11 +1740,11 @@ begin
                   FSyncDataQuery.SQL.Add('LEFT JOIN  Animals A2 ON (S.ServiceBull=A2.Id)');
                   FSyncDataQuery.SQL.Add('LEFT JOIN  GenLook G ON (G.ID = S.SexedSemen)');
                   FSyncDataQuery.SQL.Add('WHERE (E.EventType=2)');
-                  FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=False)');
-                  FSyncDataQuery.SQL.Add('AND (A.InHerd=True)');
-                  FSyncDataQuery.SQL.Add('AND (A.Sex = ''Female'')');
-                  FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
-                  FSyncDataQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
+                  FSyncDataQuery.SQL.Add('AND   (E.IsSynchronized=False)');
+                  FSyncDataQuery.SQL.Add('AND   (A.InHerd=True)');
+                  FSyncDataQuery.SQL.Add('AND   (A.Sex = ''Female'')');
+                  //FSyncDataQuery.SQL.Add('AND   (A.LactNo = E.AnimalLactNo)');
+                  FSyncDataQuery.SQL.Add('AND   (A.HerdId =:AHerdId)');
                   FSyncDataQuery.SQL.Add('ORDER BY E.EventDate Desc');
                   FSyncDataQuery.Params[0].AsInteger := FHerdID;
                   FSyncDataQuery.Active := True;
@@ -1807,7 +1824,7 @@ begin
                   FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=False)');
                   FSyncDataQuery.SQL.Add('AND (A.InHerd=True)');
                   FSyncDataQuery.SQL.Add('AND (A.Sex = ''Female'')');
-                  FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
+                  //FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
                   FSyncDataQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
                   FSyncDataQuery.SQL.Add('ORDER BY E.EventDate Desc');
                   FSyncDataQuery.Params[0].AsInteger := FHerdID;
@@ -1883,7 +1900,7 @@ begin
                   FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=False)');
                   FSyncDataQuery.SQL.Add('AND (A.InHerd=True)');
                   FSyncDataQuery.SQL.Add('AND (A.Sex = ''Female'')');
-                  FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
+                  //FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
                   FSyncDataQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
                   FSyncDataQuery.SQL.Add('ORDER BY E.EventDate Desc');
                   FSyncDataQuery.Params[0].AsInteger := FHerdID;
@@ -2126,7 +2143,7 @@ begin
                   FSyncDataQuery.SQL.Add('WHERE (E.EventType=20)');
                   FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=False)');
                   FSyncDataQuery.SQL.Add('AND (A.InHerd=True)');
-                  FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
+                  //FSyncDataQuery.SQL.Add('AND (A.LactNo = E.AnimalLactNo)');
                   FSyncDataQuery.SQL.Add('AND (A.HerdId =:AHerdId)');
                   FSyncDataQuery.SQL.Add('ORDER BY E.EventDate Desc');
                   FSyncDataQuery.Params[0].AsInteger := FHerdID;
@@ -2228,13 +2245,17 @@ begin
                   ArrayIndex := 0;
                   SetLength(MyArray,0);
 
+                  //   27/09/21 [V6.0 R2.5] /MK Bug Fix - Don't sync the event again if its already synced from ICBFDelete table - Eoin Godwin/SP.
                   FSyncDataQuery.SQL.Clear;
                   FSyncDataQuery.SQL.Add('SELECT EventID, ClientID, NatIDNo, EventType');
                   FSyncDataQuery.SQL.Add('FROM EventsExt');
                   FSyncDataQuery.SQL.Add('WHERE IsDeleted = True');
                   FSyncDataQuery.SQL.Add('AND   IsSynchronized = False');
+                  FSyncDataQuery.SQL.Add('AND   EventId NOT IN (SELECT EventId');
+                  FSyncDataQuery.SQL.Add('                      FROM ICBFDelete');
+                  FSyncDataQuery.SQL.Add('		        WHERE (IsSynchronized = False)');
+                  FSyncDataQuery.SQL.Add('		        AND   (HerdId IN (SELECT DefaultHerdId FROM Defaults)))');
                   FSyncDataQuery.Active := True;
-
                   try
                      if ( FSyncDataQuery.RecordCount > 0 ) then
                         begin
@@ -5517,12 +5538,11 @@ procedure THerdSync.CreateHealthEvents(ARemediesNode : IXMLDOMNodeList; IsDryOff
          end;
    end;}
 
-   function GetDrugPurchaseId(const ADrugId : Integer; const ABatchNo : string; APurchaseDate : TDateTime) : Integer;
+   function GetDrugPurchaseId(const ADrugId : Integer; const ABatchNo : string; ATreatmentDate : TDateTime) : Integer;
    begin
       Result := 0;
       if (ADrugId <= 0) or (Trim(ABatchNo) = '') then Exit;
-
-      Result := FMedicinePurchaseRepository.GetMostRecentPurchaseId(ADrugId, ABatchNo, APurchaseDate);
+      Result := FMedicinePurchaseRepository.GetMostRecentPurchaseId(ADrugId, ABatchNo, 0, ATreatmentDate);
    end;
 
    function GetDrugApplicationMethod(
@@ -5815,18 +5835,26 @@ begin
                            FHealthEvent.EventComment := EventComment;
                            FHealthEvent.EventSource := sSMARTPHONE;
 
-                           //   04/12/20 [V5.9 R7.8] /MK Change - If multi treatment then save first event as dryoff and any following treatments as remedy events.
-                           FHealthEvent.DryOffEvent := ( (IsDryOffEvent) and (not(DryOffSaved)) );
-                           //   04/12/20 [V5.9 R7.8] /MK Change - Also change the comment of following treatments of dry off events to Remedy Event similar to non Dry Off Events.
-                           if ( IsDryOffEvent ) and ( not(FHealthEvent.DryOffEvent) ) then
-                              FHealthEvent.EventComment := 'Remedy Event';
-
                            FHealthEvent.IsSynchronized := True;
 
                            FHealthEvent.DrugUsed := GetDrugIdByVPANumber(RemedyTreatment.DrugVPANumber);
                            FHealthEvent.RateApplic := RemedyTreatment.ApplicationRate;
                            FHealthEvent.NoTimes := RemedyTreatment.TimesDaily;
                            FHealthEvent.NoDays := RemedyTreatment.DaysTaken;
+
+                           //   04/12/20 [V5.9 R7.8] /MK Change - If multi treatment then save first event as dryoff and any following treatments as remedy events.
+                           FHealthEvent.DryOffEvent := ( (IsDryOffEvent) and (not(DryOffSaved)) );
+                           //   04/12/20 [V5.9 R7.8] /MK Change - Also change the comment of following treatments of dry off events to Remedy Event similar to non Dry Off Events.
+                           if ( not(IsDryOffEvent) ) and ( not(FHealthEvent.DryOffEvent) ) then
+                              begin
+                                 //   05/11/21 [V6.0 R2.8] /MK Additional Feature - Set the comment to be the medicine name and application rate similar to treatments done on PC.
+                                 if ( FHealthEvent.DrugUsed > 0 ) and ( FHealthEvent.RateApplic > 0 ) then
+                                    FHealthEvent.EventComment := GetHealthCommentByName_Unit_ApplicRate(FHealthEvent.DrugUsed,
+                                                                                                        FHealthEvent.RateApplic,
+                                                                                                        THealth)
+                                 else
+                                    FHealthEvent.EventComment := 'Remedy Event';
+                              end;
 
                            if (RemedyTreatment.ApplicationMethod.IsValid) then
                               begin
@@ -9477,7 +9505,7 @@ begin
                      end
                   else if ( ChildNode.nodeName = 'groupDesc' ) then
                      try
-                        sGroupDesc := ChildNode.text;
+                        sGroupDesc := Trim(ChildNode.text);
                      except
                      end
                   else if ( ChildNode.nodeName = 'groupType' ) then

@@ -222,6 +222,16 @@
    23/11/20 [V5.9 R7.5] /MK Additional Feature - Added the cmboServiceType combo box.
                                                - FormCreate - Add all service types to the new cmboServiceType combo box as well as an option to select All.
                                                - BuildDueToCalve - Filter out animals due to calve by service type.
+
+   30/08/21 [V6.0 R2.1] /MK Additional Feature - BuildDueToCalve - If IncludeAnimal then add DueToCalveDate and ExpectedBullCode(if any) data to CowExt table for main grid.
+                                                                 - Update WinData.DueCalvingUpdated variable once DueToCalve data has been added to CowExt table.
+                                               - FormActivate - If WinData.ShowMainGridGridDueToCalvCalcMsg then show message to explain to the user to run this report for the grid data.
+
+   06/09/21 [V6.0 R2.1] /MK Change - FormActivate - Changed Expected to Projected - GL request.
+
+   09/09/21 [V6.0 R2.3] /MK Bug Fix - BuildDueToCalve - If the LastBirth is something else then set field column in report to this - TGM reported.
+
+   17/09/21 [V6.0 R2.4] /MK Change - Added Application.ProcessMessages and Update after pbCount.Position change - Scott (Fletchers).   
 }
 
 unit ActionReminderFilt;
@@ -680,6 +690,7 @@ begin
                           pbCount.Min := 0;
                           pbCount.Max := RecordCount;
                        end;
+
                     while NOT EOF do
                        begin
                           IncludeAnimal := TRUE;
@@ -853,12 +864,16 @@ begin
                           else
                              WinData.TempTable.Cancel;
 
-                          qReportPD.Next;
-
                           if RunWithProgressOnly then
                              ProgressIndicator.Position := qReportPD.RecNo
                           else
                              pbCount.Position := qReportPD.RecNo;
+
+                          Application.ProcessMessages;
+                          Update;
+
+                          qReportPD.Next;
+
                        end;
 
                     // Reset the Query for the Report
@@ -982,13 +997,15 @@ Var
    PdDate,
    LastServiceDate,
    LastHeatDate,
-   TestDate  : TDateTime;
+   TestDate,
+   dDueToCalveDate : TDateTime;
    LookupCalvings : TTable;
    ServedAfterPD : Boolean;
-   //   18/01/12 [V5.0 R3.5] /MK Change - New Variable To Be Able To Change ICBF Event Description.
-   LastBirth : String;
 
-   TempStr : string;
+   //   18/01/12 [V5.0 R3.5] /MK Change - New Variable To Be Able To Change ICBF Event Description.
+   LastBirth,
+   TempStr,
+   sBullUsed : string;
 
    HealthWithDrawalInfo : THealthWithDrawalInfo;
 
@@ -1387,7 +1404,10 @@ begin
                                                            else if ( Copy(LastBirth,1,2) = '3=' ) then
                                                               WinData.TempTable.FieldByName('LastBirth').AsString := 'Cons Dif'
                                                            else if ( Copy(LastBirth,1,2) = '4=' ) then
-                                                              WinData.TempTable.FieldByName('LastBirth').AsString := 'Vet';
+                                                              WinData.TempTable.FieldByName('LastBirth').AsString := 'Vet'
+                                                           //   09/09/21 [V6.0 R2.3] /MK Bug Fix - If the LastBirth is something else then set field column in report to this - TGM reported.
+                                                           else
+                                                              WinData.TempTable.FieldByName('LastBirth').AsString := LastBirth;
                                                         end;
                                                      // Get the Calves Sex and Concat into LAstCalf String.
 
@@ -1426,8 +1446,55 @@ begin
                                                      else
                                                         WinData.TempTable.FieldByName('LastCalfType').AsString := WinData.TempTable.FieldByName('LastCalfType').AsString + '/' +
                                                                                                             Copy(WinData.LookUpDamSire.FieldByName('Sex').AsString,1,1);
-
                                                end;
+                                         end;
+
+                                      //   30/08/21 [V6.0 R2.1] /MK Additional Feature - If IncludeAnimal then add DueToCalveDate and ExpectedBullCode(if any) data to CowExt table for main grid.
+                                      dDueToCalveDate := WinData.TempTable.FieldByName('DueToCalve').AsDateTime;
+                                      sBullUsed := WinData.TempTable.FieldByName('BullUsed').AsString;
+                                      with TQuery.Create(nil) do
+                                         try
+                                            DatabaseName := AliasName;
+                                            SQL.Clear;
+                                            SQL.Add('SELECT *');
+                                            SQL.Add('FROM CowExt');
+                                            SQL.Add('WHERE AnimalId = :AID');
+                                            Params[0].AsInteger := WinData.TempTable.FieldByName('AnimalId').AsInteger;
+                                            try
+                                               Open;
+                                               if ( RecordCount > 0 ) then
+                                                  begin
+                                                     Close;
+                                                     SQL.Clear;
+                                                     SQL.Add('UPDATE CowExt');
+                                                     SQL.Add('SET DueToCalveDate = :dDueToCalveDate,');
+                                                     SQL.Add('    ExpectedBullCode = :sBullUsed');
+                                                     SQL.Add('WHERE AnimalId = :AID');
+                                                     Params[0].AsDateTime := dDueToCalveDate;
+                                                     Params[1].AsString := sBullUsed;
+                                                     Params[2].AsInteger := WinData.TempTable.FieldByName('AnimalId').AsInteger;
+                                                     ExecSQL;
+                                                  end
+                                               else
+                                                  begin
+                                                     Close;
+                                                     SQL.Clear;
+                                                     SQL.Add('INSERT INTO CowExt (AnimalId, DueToCalveDate, ExpectedBullCode)');
+                                                     SQL.Add('VALUES (:AId, :dDueToCalveDate, :sBullUsed)');
+                                                     Params[0].AsInteger := WinData.TempTable.FieldByName('AnimalId').AsInteger;
+                                                     Params[1].AsDateTime := dDueToCalveDate;
+                                                     Params[2].AsString := sBullUsed;
+                                                     ExecSQL;
+                                                  end;
+                                               //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Update WinData.DueCalvingUpdated variable once DueToCalve data has been added to CowExt table.
+                                               if ( not(WinData.DueCalvingUpdated) ) then
+                                                  WinData.DueCalvingUpdated := True;
+                                            except
+                                               on e : Exception do
+                                                  ShowDebugMessage(e.Message);
+                                            end;
+                                         finally
+                                            Free;
                                          end;
 
                                       // Get the Milk Production Info for the Last Lactation. joanne tighe 6/02/2004
@@ -1505,12 +1572,15 @@ begin
                           else
                              WinData.TempTable.Cancel;
 
-
-                          qDueToCalve.Next;
                           if RunWithProgressOnly then
                              ProgressIndicator.Position := qDueToCalve.RecNo
                           else
                              pbCount.Position := qDueToCalve.RecNo;
+
+                          Application.ProcessMessages;
+                          Update;
+
+                          qDueToCalve.Next;
                        end;
 
                     // ReSet the Query for the Report
@@ -1908,20 +1978,21 @@ begin
                                    if ( iMastCount > 0 ) then
                                       WinData.TempTable.FieldByName('MastIncid').AsInteger := iMastCount;
 
-                                   if RunWithProgressOnly then
-                                      begin
-                                         ProgressIndicator.Position := qDueforDryingOff.RecNo;
-                                      end
-                                   else
-                                      begin
-                                         pbCount.Min := 0;
-                                         pbCount.Position := qDueforDryingOff.RecNo;
-                                      end;
-
                                    // post last record to table
                                    if qDueForDryingOff.RecNo = qDueForDryingOff.RecordCount then
                                       WinData.TempTable.Post;       // ?????
                                 end;
+
+                             if RunWithProgressOnly then
+                                ProgressIndicator.Position := qDueforDryingOff.RecNo
+                             else
+                                begin
+                                   pbCount.Min := 0;
+                                   pbCount.Position := qDueforDryingOff.RecNo;
+                                end;
+
+                             Application.ProcessMessages;
+                             Update;
 
                              qDueForDryingOff.Next;
                           except
@@ -2248,7 +2319,6 @@ begin
                              if ( WinData.LookUpDamSire.Locate('ID',iPlannedBullID,[]) ) then
                                 WinData.TempTable.FieldByName('PlannedBull').AsString := WinData.LookUpDamSire.FieldByName('AnimalNo').AsString;
 
-                          WinData.TempTable.Next;
                           if RunWithProgressOnly then
                              ProgressIndicator.Position := WinData.TempTable.RecNo
                           else
@@ -2256,6 +2326,11 @@ begin
                                 pbCount.Min := 0;
                                 pbCount.Position := WinData.TempTable.RecNo;
                              end;
+
+                          Application.ProcessMessages;
+                          Update;
+
+                          WinData.TempTable.Next;
                        end;
 
                     // ReSet the Query for the Report
@@ -2957,6 +3032,14 @@ begin
       end;
 
     FCountry := HerdLookup.CountryByHerdID(HerdLookup.DefaultHerdID);
+
+    //   30/08/21 [V6.0 R2.1] /MK Additional Feature - If WinData.ShowMainGridGridDueToCalvCalcMsg then show message to explain to the user to run this report for the grid data.
+    if ( WinData.ShowMainGridGridDueToCalvCalcMsg ) and ( pDueToCalve.Visible ) then
+       begin
+          //   06/09/21 [V6.0 R2.1] /MK Change - Changed Expected to Projected - GL request. 
+          MessageDlg('To produce the Projected Calving Date on the main grid, run the Due Calving Report.',mtInformation,[mbOK],0);
+          WinData.ShowMainGridGridDueToCalvCalcMsg := False;
+       end;
 end;
 
 procedure TActionReminderFilter.ToServiceDateAcceptDate(Sender: TObject;

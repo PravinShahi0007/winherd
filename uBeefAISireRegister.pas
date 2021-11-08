@@ -758,13 +758,13 @@ begin
    GetAllBulls.DestinationName := 'Beef_AI_Bulls_SBV_Stars.xls';
    FSireFileName := IncludeTrailingBackslash(GetAllBulls.DownloadDir) + GetAllBulls.DestinationName;
    dLastUpdateDate := LastBeefAIUpdateDate;
-  if ( CanDownloadFile ) then
-      if ( dLastUpdateDate = 0 ) or ( Date - dLastUpdateDate >= 90 ) then
-         begin
-            if ( FileExists(FSireFileName) ) then
-               DeleteFile(FSireFileName);
-            LastBeefAIUpdateDate := Date;
-         end;
+   if ( CanDownloadFile ) then
+       if ( dLastUpdateDate = 0 ) or ( Date - dLastUpdateDate >= 90 ) then
+          begin
+             if ( FileExists(FSireFileName) ) then
+                DeleteFile(FSireFileName);
+             LastBeefAIUpdateDate := Date;
+          end;
    Update;
    LoadAIFile;
 end;

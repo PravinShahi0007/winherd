@@ -15,6 +15,8 @@
                             Change - Only show Incomplete Medicines Reminder if Ireland, BordBiaRegistered and there are Incomplete Medicines.
 
    16/10/18 [V5.8 R3.1] /MK Additional Feature - A new reminder created to sync with AIM after 30 days based on HerdRecLastSyncDate field in Owners table
+
+   08/07/21 [V6.0 R1.6] /MK Additional Feature - Allow ICBF Reg Reminder and AIM Herd Sync reminders to be removed - John Joe Murphy.   
 }
 
 unit uStartupReminders;
@@ -105,7 +107,7 @@ const
    cVersionHistoryReminder = 9;
    cDownloadEmailsReminder = 10;
    cMedicinesNullGroup_NullWithdrawals = 11;
-   cSyncWithDept = 12;
+   cAIMHerdRecReminder = 12;
 
 implementation
 
@@ -163,7 +165,7 @@ begin
          if ( WinData.SystemRegisteredCountry = England ) and ( WinData.CTSMovementRegCount > 0 ) then
             AddReminder(cMoveRegReminder, PadDescription(Format('There are %d movements to register with CTS.',[WinData.CTSMovementRegCount])));
 
-         if ( WinData.FICBFEventsToRegister > 0 ) then
+         if ( WinData.GlobalSettings.ICBFRegReminder ) and ( WinData.FICBFEventsToRegister > 0 ) then
             AddReminder(cICBFRegReminder,PadDescription('There are ICBF events to register'));
 
          if ( WinData.GlobalSettings.BackupReminder ) then
@@ -198,13 +200,13 @@ begin
          if ( Preferences.ValueAsBoolean[cGSShowActionWarningRemindersOnStartup] = True ) then
             AddReminder(cActionWarningsReminder, PadDescription('Run Action/Warning/Reminder Reports.'));
 
-         if ( WinData.SystemRegisteredCountry = Ireland ) then
+         if ( WinData.SystemRegisteredCountry = Ireland ) and ( WinData.GlobalSettings.AIMHerdRecReminder ) then
             begin
                iDateDiff := 0;
                if ( Date > WinData.UserDefaultHerdRecSyncDate ) then
                   iDateDiff := Trunc(Date - WinData.UserDefaultHerdRecSyncDate);
                if ( iDateDiff >= 30 ) then
-                  AddReminder(cSyncWithDept, PadDescription(Format('Its been %d days since your last sync with AIM. Click the arrow to sync now.',[iDateDiff])));
+                  AddReminder(cAIMHerdRecReminder, PadDescription(Format('Its been %d days since your last sync with AIM. Click the arrow to sync now.',[iDateDiff])));
             end;
 
          EndFullUpdate;
@@ -317,7 +319,7 @@ begin
                PostMessage(Handle, WM_REMOVE_REMINDER,0,0);
             FreeAndNil(FAnimalRemedyData);
          end
-      else if ( AReminderType = cSyncWithDept ) then
+      else if ( AReminderType = cAIMHerdRecReminder ) then
          begin
             WinData.GoToHerdProfile(WinData.UserDefaultHerdId);
             PostMessage(Handle, WM_REMOVE_REMINDER,0,0);
@@ -351,7 +353,11 @@ begin
                else if ( Value = cDownloadEmailsReminder ) then
                   WinData.GlobalSettings.GmailEmailDownloadReminder := False
                else if ( Value = cVersionHistoryReminder ) then
-                  WinData.DisplayNews := False;
+                  WinData.DisplayNews := False
+               else if ( Value = cICBFRegReminder ) then
+                  WinData.GlobalSettings.ICBFRegReminder := False
+               else if ( Value = cAIMHerdRecReminder ) then
+                  WinData.GlobalSettings.AIMHerdRecReminder := False;
                WinData.SavePreferences;
             end;
       end;
@@ -412,8 +418,7 @@ begin
                iValue := Value;
             end;
             AAllow := ( not(iValue in [cCalfRegReminder, cMoveRegReminder,
-                                       cICBFRegReminder, cMedicinesNullGroup_NullWithdrawals,
-                                       cSyncWithDept]) );
+                                       cMedicinesNullGroup_NullWithdrawals]) );
       end;
 end;
 
@@ -468,8 +473,7 @@ begin
    if ( Value = Null ) then Exit;
    iValue := Value;
    if ( not(iValue = 0) and (iValue in [cCalfRegReminder, cMoveRegReminder,
-                                        cICBFRegReminder, cMedicinesNullGroup_NullWithdrawals,
-                                        cSyncWithDept]) ) then
+                                        cMedicinesNullGroup_NullWithdrawals]) ) then
       begin
          Rect := AViewInfo.Bounds;
          ACanvas.Pen.Color := clWindow;

@@ -6,6 +6,8 @@
                                    - Added validation for new NatIDNum box.
                                    - Added CheckBox to show/hide new NatIDnum box.
                                    - Only show explanatory text regarding ICBF for Irish herds. 
+
+   27/09/21 [V6.0 R2.5] /MK Bug Fix - btnSaveClick - No need to add the IE or 372 if its already in the FormattedNatId.
 }
 
 unit uAddSire;
@@ -307,9 +309,10 @@ begin
                MessageDlg(Format('National ID "%s" already in use',[FormattedNatID]),mtError,[mbOK],0);
                Abort;
             end;
-         if ( IsIETag(FormattedNatID) ) then
+         //   27/09/21 [V6.0 R2.5] /MK Bug Fix - No need to add the IE or 372 if its already in the FormattedNatId.
+         if ( IsIETag(FormattedNatID) ) and ( not(Copy(UpperCase(FormattedNatID),0,2) = 'IE') ) then
             FormattedNatID := 'IE '+FormattedNatID
-         else if ( Is372Tag(FormattedNatID) ) then
+         else if ( Is372Tag(FormattedNatID) ) and ( not(Copy(UpperCase(FormattedNatID),0,3) = '372') ) then
             FormattedNatID := '372 '+FormattedNatID;
          teNatIDNum.Text := FormattedNatID;
       end;

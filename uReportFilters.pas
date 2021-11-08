@@ -8,6 +8,8 @@
    02/11/20 [V5.9 R7.1] /MK Change - LoadGrid - Order favourites by the order in which it was added not the AmountUsed - GL request.
 
    04/11/20 [V5.9 R7.2] /MK Change - LoadGrid - Build the KeyReports from new string array const.
+
+   03/08/21 [V6.0 R1.7] /MK Bug Fix - LoadGrid - Report Generators report type was not loading data into the grid.
 }
 
 unit uReportFilters;
@@ -206,7 +208,8 @@ begin
                   end;
             end;
       end
-   else if ( ReportFilterType = ftFavourites ) then
+   //   03/08/21 [V6.0 R1.7] /MK Bug Fix - Report Generators report type was not loading data into the grid.
+   else if ( ReportFilterType in [ftFavourites, ftReportGenerators] ) then
       begin
          if ( qReports.RecordCount > 0 ) then
             begin

@@ -1926,6 +1926,7 @@ begin
           end;
    end;
 
+   gbEventDates.Caption := 'Event Date Range:';
    FStatusWithCalvingFilter :=  ( MessageDlg('Do you want to include a calving filter?',mtConfirmation,[mbYes,mbNo],0) = mrYes );
    if ( FStatusWithCalvingFilter ) then
       begin

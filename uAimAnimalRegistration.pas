@@ -1,6 +1,11 @@
-// SP 16/12/2015 V5.5 R1.9 - Now trimming string fields before they are exported to xml. A bug in calving screen
-//                           caused leading spaces to be included in the AnimalNo value.
-//   22/02/17 [V5.6 R5.5] /MK Change - GoToAimAnimalRegistration - Create element at start of the document with pedigree prefix - SP request.
+{
+   16/12/2015 [V5.5 R1.9] /SP Change - Now trimming string fields before they are exported to xml. A bug in calving screen
+                                       caused leading spaces to be included in the AnimalNo value.
+
+   22/02/17 [V5.6 R5.5] /MK Change - GoToAimAnimalRegistration - Create element at start of the document with pedigree prefix - SP request.
+
+   23/11/21 [V6.0 R2.9] /MK Change - BuildRegistrationData - Remove animals that are in the AIMAnimalReg table as registered - Joy Hayden issue.
+}
 
 unit uAimAnimalRegistration;
 
@@ -221,6 +226,12 @@ begin
             SQL.Clear;
             SQL.Add('DELETE FROM '+FTempTable.TableName);
             SQL.Add('WHERE AnimalId IN (SELECT Id FROM Animals WHERE AimRegStatus IN (3,4))');
+            ExecSQL;
+
+            //   23/11/21 [V6.0 R2.9] /MK Change - Remove animals that are in the AIMAnimalReg table as registered - Joy Hayden issue.
+            SQL.Clear;
+            SQL.Add('DELETE FROM '+FTempTable.TableName);
+            SQL.Add('WHERE AnimalId IN (SELECT AnimalId FROM AIMAnimalReg WHERE Status IN (3,4))');
             ExecSQL;
 
             SQL.Clear;

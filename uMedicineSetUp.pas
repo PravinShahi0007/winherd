@@ -128,6 +128,11 @@
                                  - dxComponentPrinter1Link1 - Changed PrinterPage.Orientation to Landscape.
 
  27/09/21 [V6.0 R2.5] /MK Bug Fix - Added check for a new drug being added will update an existing drug even if there is only one instance of this drug -
+
+ 23/11/21 [V6.0 R2.9] /MK Additional Feature - actSearchForVPAExecute - Give warning message if the user clicks the Drug Finder button on the edit of a drug - Una Carter.
+
+ 25/11/21 [V6.0 R2.9] /MK Bug Fix - actSearchForVPAExecute - Changed Locate to Lookup as the record in the table was being moved so the
+                                                             DuplicateVPAUpdated check for the selected medicine would never work.
 }
 
 unit uMedicineSetUp;
@@ -1088,14 +1093,24 @@ var
    bWithdrawalConfirmed : Boolean;
    iMedicineFound : Integer;
    sLookupName : String;
+   vMedicineId : Variant;
 begin
+   //   23/11/21 [V6.0 R2.9] /MK Additional Feature - Give warning message if the user clicks the Drug Finder button on the edit of a drug - Una Carter.
+   if ( WinData.Medicine.State in [dsBrowse, dsEdit] ) and ( WinData.MedicineID.AsInteger > 0 ) and
+      ( Length(WinData.Medicine.FieldByName('Name').AsString) > 0 ) then
+      if ( MessageDlg('This option will allow you to change the selected medicine to another from the Drug Finder screen.'+cCRLF+
+                      'This will update all medicine treatments and purchases for the selected medicine to the new medicine.'+cCRLF+
+                      'Do you wish to continue?',mtWarning,[mbYes, mbNo],0) = mrNo ) then Exit;
+
    sLookupName := WinData.Medicine.FieldByName('Name').AsString;
    WinData.Medicine.Cancel;
    Item := TfmDrugFinder.Find(sLookupName);
    if Item = nil then Exit;
    bWithdrawalConfirmed := TfmDrugFinderWithdMsg.WithdrawalConfirmed(Item);
-   if ( WinData.Medicine.Locate('VPANo',Item.VPANumber,[loCaseInsensitive]) ) then
-      iMedicineFound := WinData.Medicine.FieldByName('Id').AsInteger;
+   //   25/11/21 [V6.0 R2.9] /MK Bug Fix - Changed Locate to Lookup as the record in the table was being moved so the DuplicateVPAUpdated check for the selected medicine would never work.
+   vMedicineId := WinData.Medicine.Lookup('VPANo',UpperCase(Item.VPANumber),'Id');
+   if ( not(VarIsNull(vMedicineId)) ) then
+      iMedicineFound := vMedicineId;
    try
       if ( not(WinData.Medicine.State in dsEditModes) ) then
          if ( FAddedMedicine ) and ( iMedicineFound = 0 ) then

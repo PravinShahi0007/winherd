@@ -448,7 +448,6 @@ uses
   uAnimal in '..\..\..\..\Common\uAnimal.pas',
   uSemenStockControl in '..\..\..\..\Common\uSemenStockControl.pas',
   uFarmSyncSettings in '..\..\..\..\Common\uFarmSyncSettings.pas',
-  uApplicationLog in '..\..\..\..\Common\uApplicationLog.pas',
   Drawing in '..\..\..\..\Common\Drawing.pas',
   uPreferences in '..\..\..\..\Common\uPreferences.pas',
   uSQLFilters in '..\..\..\..\Common\uSQLFilters.pas',
@@ -479,8 +478,15 @@ uses
   BDEConfig in '..\..\..\..\..\Common\BDEConfig.pas',
   uBDE in '..\..\..\..\..\Common\uBDE.pas',
   uPopupAnimalEdit in 'uPopupAnimalEdit.pas' {fmPopupAnimalEdit},
-  uModifyGridCols in 'uModifyGridCols.pas' {fmModifyGridCols},
-  uGeneralMemo in 'uGeneralMemo.pas' {fmGeneralMemo};
+  uCalculateGridColSelect in 'uCalculateGridColSelect.pas' {fmCalculateGridColSelect},
+  uGeneralMemo in 'uGeneralMemo.pas' {fmGeneralMemo},
+  uApplicationLog in 'uApplicationLog.pas',
+  uSalesRepCattleCostings in 'uSalesRepCattleCostings.pas' {fmSalesRepCattleCostings},
+  uSalesRepNoFeedCosts in 'uSalesRepNoFeedCosts.pas' {fmSalesRepNoFeedCosts},
+  uSalesRepNoFarmCosts in 'uSalesRepNoFarmCosts.pas' {fmSalesRepNoFarmCosts},
+  uHerdStatsBreedingRep in 'uHerdStatsBreedingRep.pas' {fmHerdStatsBreedingRep},
+  uHerdStatsGenReport in 'uHerdStatsGenReport.pas' {fmHerdStatsGenReport},
+  uHerdStatsBeefGenRep in 'uHerdStatsBeefGenRep.pas' {fmHerdStatsBeefGenRep};
 
 {$R *.RES}
 { 08/03/12 [V5.0 R4.1] - Program has dependancy on qrpdflib.dll. }

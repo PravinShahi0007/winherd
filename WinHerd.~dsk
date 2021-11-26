@@ -1,11 +1,11 @@
 [Closed Files]
-File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,1,1,0,0
-File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,41,21,66,0,0
-File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uCTSBirthReg.pas',0,1,1,1,37,1,0
-File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',0,1,11320,1,11340,1,0
-File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uUpdateTables.pas',0,1,535,1,566,0,0
-File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas',0,1,66,1,87,1,0
-File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,420,36,436,0,0
+File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,1314,1,1334,0,0
+File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,1,1,0,0
+File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,41,21,66,0,0
+File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uCTSBirthReg.pas',0,1,1,1,37,1,0
+File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',0,1,11320,1,11340,1,0
+File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uUpdateTables.pas',0,1,535,1,566,0,0
+File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas',0,1,66,1,87,1,0
 File_7=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\BestCowsInHerd.pas',0,1,1,20,11,1,0
 File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\BreedingAnalysisFilt.pas',0,1,839,28,361,1,0
 File_9=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\extctrls.pas',0,1,1265,1,1285,0,0
@@ -50,8 +50,8 @@ LeftPanelClients=CodeExplorer@EditWindow0
 LeftPanelData=00000400010000000C000000436F64654578706C6F7265720000000000000000000000000000000000FFFFFFFF
 RightPanelSize=0
 BottomPanelSize=140
-BottomPanelClients=DockSite1
-BottomPanelData=0000040000000000BD06000000000000028C000000000000000100000000BD06000009000000446F636B5369746531FFFFFFFF
+BottomPanelClients=DockSite0
+BottomPanelData=0000040000000000BD06000000000000028C000000000000000100000000BD06000009000000446F636B5369746530FFFFFFFF
 
 [View0]
 Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
@@ -65,7 +65,9 @@ Count=1
 Watch0='UpdateSuccess',256,0,18,1,0
 
 [Breakpoints]
-Count=0
+Count=2
+Breakpoint0='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',7556,'',0,1,'',1,0,0,'',1,'','',''
+Breakpoint1='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',1334,'',0,1,'',1,0,0,'',1,'','',''
 
 [AddressBreakpoints]
 Count=0
@@ -320,26 +322,6 @@ DockSiteType=1
 Create=1
 Visible=1
 State=0
-Left=0
-Top=107
-Width=193
-Height=944
-MaxLeft=-1
-MaxTop=-1
-ClientWidth=185
-ClientHeight=913
-TBDockHeight=926
-LRDockWidth=219
-Dockable=1
-TabPosition=0
-ActiveTab=Project Manager
-TabDockClients=PropertyInspector,ProjectManager
-
-[DockSite1]
-DockSiteType=1
-Create=1
-Visible=1
-State=0
 Left=12
 Top=0
 Width=1713
@@ -354,4 +336,24 @@ Dockable=1
 TabPosition=0
 ActiveTab=Call Stack
 TabDockClients=BreakpointWindow,WatchWindow,DebugLogView,LocalVarsWindow,ModuleWindow,CallStackWindow,MessageView@EditWindow0
+
+[DockSite1]
+DockSiteType=1
+Create=1
+Visible=1
+State=0
+Left=0
+Top=107
+Width=193
+Height=944
+MaxLeft=-1
+MaxTop=-1
+ClientWidth=185
+ClientHeight=913
+TBDockHeight=926
+LRDockWidth=219
+Dockable=1
+TabPosition=0
+ActiveTab=Project Manager
+TabDockClients=PropertyInspector,ProjectManager
 

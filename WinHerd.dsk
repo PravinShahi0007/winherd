@@ -1,14 +1,14 @@
 [Closed Files]
-File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,130,29,151,0,0
-File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,1,3,0,0
-File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,1314,1,1334,0,0
-File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uCTSBirthReg.pas',0,1,1,1,37,1,0
-File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',0,1,11320,1,11340,1,0
-File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uUpdateTables.pas',0,1,535,1,566,0,0
-File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas',0,1,66,1,87,1,0
-File_7=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\BestCowsInHerd.pas',0,1,1,20,11,1,0
-File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\BreedingAnalysisFilt.pas',0,1,839,28,361,1,0
-File_9=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\extctrls.pas',0,1,1265,1,1285,0,0
+File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,49,21,72,0,0
+File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFile.pas',0,1,152,23,160,0,0
+File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,79,3,0,0
+File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFileReview.pas',0,1,41,29,53,1,0
+File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',0,1,32683,27,32711,1,0
+File_5=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\ExtCtrls.pas',0,1,1265,1,1285,0,0
+File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,1314,1,1334,0,0
+File_7=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uCTSBirthReg.pas',0,1,1,1,37,1,0
+File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uUpdateTables.pas',0,1,535,1,566,0,0
+File_9=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas',0,1,66,1,87,1,0
 
 [Modules]
 Module0=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
@@ -28,6 +28,18 @@ FormOnTop=0
 FormState=0
 FormOnTop=0
 
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uBaseForm.pas]
+FormState=0
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uImageStore.pas]
+FormState=0
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdLookup.pas]
+FormState=0
+FormOnTop=0
+
 [EditWindow0]
 ViewCount=1
 CurrentView=0
@@ -37,8 +49,8 @@ MessageView=MessageView@EditWindow0
 Create=1
 Visible=1
 State=0
-Left=187
-Top=106
+Left=192
+Top=107
 Width=1733
 Height=944
 MaxLeft=-1
@@ -80,8 +92,8 @@ Left=0
 Top=0
 Width=1920
 Height=115
-MaxLeft=-4
-MaxTop=-4
+MaxLeft=-1
+MaxTop=-1
 MaxWidth=1928
 MaxHeight=115
 ClientWidth=1920
@@ -150,7 +162,7 @@ LRDockWidth=219
 Dockable=1
 SplitPos=85
 ArrangeBy=Name
-SelectedItem=
+SelectedItem=Name
 ExpandedItems=DataBinding,Font.Style,LookAndFeel,OptionsView,Properties,Properties.ValueChecked,Properties.ValueGrayed,Properties.ValueUnchecked
 HiddenCategories=Legacy
 ShowStatusBar=1
@@ -310,7 +322,7 @@ MaxLeft=-1
 MaxTop=-1
 ClientWidth=1705
 ClientHeight=111
-TBDockHeight=111
+TBDockHeight=140
 LRDockWidth=443
 Dockable=1
 

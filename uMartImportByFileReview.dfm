@@ -307,6 +307,11 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
           HeaderAlignmentVert = vaCenter
           Width = 75
         end
+        object MartDataGridDBTableViewGrade: TcxGridDBColumn
+          DataBinding.FieldName = 'Grade'
+          HeaderAlignmentVert = vaCenter
+          Width = 75
+        end
         object MartDataGridDBTableViewHaulage: TcxGridDBColumn
           Tag = 1
           Caption = 'Transport'
@@ -860,6 +865,10 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
       FieldName = 'QADays'
       Size = 10
     end
+    object tMartGrade: TStringField
+      FieldName = 'Grade'
+      Size = 15
+    end
   end
   object dstMart: TDataSource
     DataSet = tMart
@@ -955,7 +964,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
       PrinterPage._dxMeasurementUnits_ = 0
       PrinterPage._dxLastMU_ = 2
       ReportDocument.Caption = 'Animal Grid'
-      ReportDocument.CreationDate = 44273.6195890162
+      ReportDocument.CreationDate = 44537.7359898032
       OptionsFormatting.LookAndFeelKind = lfFlat
       OptionsOnEveryPage.Footers = False
       OptionsOnEveryPage.FilterBar = False

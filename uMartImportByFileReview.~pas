@@ -39,6 +39,13 @@
                                                   - Allow the BreedCode field to be edited if (its a purchase file) and (there are blank breeds).
                                    - FormCloseQuery - Don't allow the form to close if (its a purchase file) and (there are blank breeds).
                                    - FormCreate - Added new query and datasource for in use breeds for BreedColumn LookupCombobox property.
+
+   03/12/19 [V5.9 R1.4] /MK Additional Feature - Added QualityAssured and QADays fields to tMart table.
+                                               - Added "Q.A" and "No. Movements" columns to grid.
+                                               - Only show these columns if Country is Ireland.
+                                               - Added "Print Animal Grid" button which prints the grid of purchased animals - TOK request.
+
+   18/03/21 [V5.9 R9.5] /MK Change - Allow editing of the Quality Assured field - GL/Albert Thompson.                                                
 }
 
 unit uMartImportByFileReview;
@@ -52,7 +59,8 @@ uses
   cxGridTableView, cxGridDBTableView, cxGrid, db, dbtables, uMartImportTypes,
   uHerdLookup, dxmdaset, cxPC, Menus, cxCustomData, cxStyles, ExtCtrls,
   cxTextEdit, cxMaskEdit, cxDropDownEdit, cxContainer, cxEdit, cxLabel,
-  cxLookupEdit, cxDBLookupEdit, cxDBLookupComboBox, DairyData;
+  cxLookupEdit, cxDBLookupEdit, cxDBLookupComboBox, DairyData, dxPSCore,
+  dxPScxCommon, dxPScxGridLnk;
 
 type
   TfmMartImportByFileReview = class(TfmBaseForm)
@@ -167,6 +175,16 @@ type
     lcmboBatchGroup: TcxLookupComboBox;
     lSupplier: TcxLabel;
     lcmboSuppliers: TcxLookupComboBox;
+    MartDataGridDBTableViewQualityAssured: TcxGridDBColumn;
+    MartDataGridDBTableViewQADays: TcxGridDBColumn;
+    tMartQualityAssured: TBooleanField;
+    tMartQADays: TStringField;
+    AnimalGridPrint: TdxComponentPrinter;
+    AnimalGridPrintLink: TdxGridReportLink;
+    blbPrintAnimalGrid: TdxBarLargeButton;
+    actPrintAnimalGrid: TAction;
+    MartDataGridDBTableViewGrade: TcxGridDBColumn;
+    tMartGrade: TStringField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);
@@ -202,6 +220,7 @@ type
     procedure PostHeaderComboChange(Sender : TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormActivate(Sender: TObject);
+    procedure actPrintAnimalGridExecute(Sender: TObject);
   private
     { Private declarations }
     FCancelled : Boolean;
@@ -266,6 +285,8 @@ begin
 
    LookupBreedsSource := TDataSource.Create(nil);
    LookupBreedsSource.DataSet := LookupBreedsQuery;
+
+   AnimalGridPrintLink.Component := AnimalGrid;
 end;
 
 procedure TfmMartImportByFileReview.actCloseExecute(Sender: TObject);
@@ -371,10 +392,16 @@ begin
          //   16/12/13 [V5.2 R7.0] /MK Additional Feature - FQAS Days replaced by FQAS date.
          //   17/06/14 [V5.3 R2.8] /MK Change - Brought back FQASDays for NIreland herds - TGM/GL Request.
          MartDataGridDBTableViewDaysOnPrevHolding.Visible := ( Country = NIreland );
-         MartDataGridDBTableViewDaysOnPrevHolding.Hidden := ( not(MartDataGridDBTableViewFQASDate.Visible) );
+         MartDataGridDBTableViewDaysOnPrevHolding.Hidden := ( not(MartDataGridDBTableViewDaysOnPrevHolding.Visible) );
 
          MartDataGridDBTableViewFQASDate.Visible := ( Country = NIreland );
          MartDataGridDBTableViewFQASDate.Hidden := ( not(MartDataGridDBTableViewFQASDate.Visible) );
+
+         MartDataGridDBTableViewQualityAssured.Visible := ( FMartImportType = mitPurchase ) and ( Country = Ireland );
+         MartDataGridDBTableViewQualityAssured.Hidden := ( not(MartDataGridDBTableViewQualityAssured.Visible) );
+
+         MartDataGridDBTableViewQADays.Visible := ( FMartImportType = mitPurchase ) and ( Country = Ireland );
+         MartDataGridDBTableViewQADays.Hidden := ( not(MartDataGridDBTableViewQADays.Visible) );
 
          if tMartBuyerID.AsInteger > 0 then
             begin
@@ -852,6 +879,13 @@ begin
             end;
       end;
    OnActivate := nil;
+end;
+
+procedure TfmMartImportByFileReview.actPrintAnimalGridExecute(
+  Sender: TObject);
+begin
+   inherited;
+   AnimalGridPrintLink.Preview;
 end;
 
 end.

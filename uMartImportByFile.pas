@@ -153,6 +153,8 @@
                                    - ImportFromXML - Only copy 40 characters of the Source Name as FarmSync only allows for 40 characters - SP request.
 
    18/03/21 [V5.9 R9.5] /MK Change - ImportFromXML - Default the QualityAssured field to False so that if the QA field is not found at least the box is unticked.
+
+   07/12/21 [V6.0 R3.0] /MK Additional Feature - Added a grade column for purchases and sales - C & J Meats.                                                   
 }
 
 unit uMartImportByFile;
@@ -321,6 +323,7 @@ begin
    FMartTable.FieldDefs.Add('StillOffFarm',ftBoolean);
    FMartTable.FieldDefs.Add('QualityAssured',ftBoolean);
    FMartTable.FieldDefs.Add('QADays',ftString,10);
+   FMartTable.FieldDefs.Add('Grade',ftString,15);
 
    FMartTable.IndexDefs.Clear;
    FMartTable.IndexDefs.Add('iID', 'ID', [ixPrimary,ixUnique]);
@@ -1567,6 +1570,8 @@ var
                      else
                         PurchaseEvent.EventComment := 'Purchase';
 
+                     PurchaseEvent.Grade := FMartTable.FieldByName('Grade').AsString;
+
                      PurchaseEvent.EventSource := sMART;
 
                      if FFileType in ([mftNIMovementIn,mftNIMovementOut]) then
@@ -2145,6 +2150,7 @@ begin
                                           else
                                              SaleDeathEvent.EventComment := 'Sale';
 
+                                          SaleDeathEvent.Grade := FieldByName('Grade').AsString;
                                           SaleDeathEvent.EventSource := sMART;
                                           SaleDeathEvent.PreSale := False;
 

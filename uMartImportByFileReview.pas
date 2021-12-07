@@ -45,7 +45,9 @@
                                                - Only show these columns if Country is Ireland.
                                                - Added "Print Animal Grid" button which prints the grid of purchased animals - TOK request.
 
-   18/03/21 [V5.9 R9.5] /MK Change - Allow editing of the Quality Assured field - GL/Albert Thompson.                                                
+   18/03/21 [V5.9 R9.5] /MK Change - Allow editing of the Quality Assured field - GL/Albert Thompson.
+
+   07/12/21 [V6.0 R3.0] /MK Additional Feature - Added a grade column for purchases and sales - C & J Meats.                                                   
 }
 
 unit uMartImportByFileReview;
@@ -183,6 +185,8 @@ type
     AnimalGridPrintLink: TdxGridReportLink;
     blbPrintAnimalGrid: TdxBarLargeButton;
     actPrintAnimalGrid: TAction;
+    MartDataGridDBTableViewGrade: TcxGridDBColumn;
+    tMartGrade: TStringField;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure actCloseExecute(Sender: TObject);

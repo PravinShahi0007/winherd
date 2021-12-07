@@ -1,7 +1,7 @@
 inherited fmMartImportByFileReview: TfmMartImportByFileReview
-  Left = 345
+  Left = 282
   Top = 162
-  Width = 1466
+  Width = 1529
   Height = 737
   Caption = ''
   OldCreateOrder = True
@@ -14,7 +14,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
   TextHeight = 13
   inherited StatusBar: TdxStatusBar
     Top = 686
-    Width = 1458
+    Width = 1521
     Panels = <
       item
         PanelStyleClassName = 'TdxStatusBarTextPanelStyle'
@@ -25,7 +25,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
   object pgDefaultTreatments: TcxPageControl [1]
     Left = 0
     Top = 507
-    Width = 1458
+    Width = 1521
     Height = 149
     ActivePage = tsHealth
     Align = alBottom
@@ -42,7 +42,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     OnDrawTabEx = pgDefaultTreatmentsDrawTabEx
     ClientRectBottom = 148
     ClientRectLeft = 1
-    ClientRectRight = 1457
+    ClientRectRight = 1520
     ClientRectTop = 29
     object tsHealth: TcxTabSheet
       Caption = 'Health Events'
@@ -56,7 +56,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
       object HealthGrid: TcxGrid
         Left = 0
         Top = 0
-        Width = 1456
+        Width = 1519
         Height = 119
         Align = alClient
         TabOrder = 0
@@ -119,7 +119,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
   object bcDefaultTreatments: TdxBarDockControl [2]
     Left = 0
     Top = 656
-    Width = 1458
+    Width = 1521
     Height = 30
     Align = dalBottom
     BarManager = BarManager
@@ -127,7 +127,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
   object AnimalGridPanel: TPanel [3]
     Left = 0
     Top = 127
-    Width = 1458
+    Width = 1521
     Height = 380
     Align = alClient
     BevelOuter = bvNone
@@ -135,7 +135,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     object AnimalGrid: TcxGrid
       Left = 0
       Top = 0
-      Width = 1458
+      Width = 1521
       Height = 380
       Align = alClient
       BorderStyle = cxcbsNone
@@ -307,6 +307,11 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
           HeaderAlignmentVert = vaCenter
           Width = 75
         end
+        object MartDataGridDBTableViewGrade: TcxGridDBColumn
+          DataBinding.FieldName = 'Grade'
+          HeaderAlignmentVert = vaCenter
+          Width = 75
+        end
         object MartDataGridDBTableViewHaulage: TcxGridDBColumn
           Tag = 1
           Caption = 'Transport'
@@ -328,6 +333,27 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
           DataBinding.FieldName = 'LotNo'
           HeaderAlignmentVert = vaCenter
           Width = 70
+        end
+        object MartDataGridDBTableViewQualityAssured: TcxGridDBColumn
+          Caption = 'Q.A'
+          DataBinding.FieldName = 'QualityAssured'
+          PropertiesClassName = 'TcxCheckBoxProperties'
+          HeaderAlignmentVert = vaCenter
+          Options.Filtering = False
+          Options.FilteringMRUItemsList = False
+          Options.IncSearch = False
+          Options.Grouping = False
+        end
+        object MartDataGridDBTableViewQADays: TcxGridDBColumn
+          Caption = 'No. Movements'
+          DataBinding.FieldName = 'QADays'
+          HeaderAlignmentVert = vaCenter
+          Options.Editing = False
+          Options.Filtering = False
+          Options.FilteringMRUItemsList = False
+          Options.IncSearch = False
+          Options.Grouping = False
+          Width = 100
         end
         object MartDataGridDBTableViewDaysOnPrevHolding: TcxGridDBColumn
           Tag = 1
@@ -382,7 +408,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
   object pTop: TPanel [4]
     Left = 0
     Top = 49
-    Width = 1458
+    Width = 1521
     Height = 78
     Align = alTop
     TabOrder = 8
@@ -468,7 +494,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     end
   end
   inherited ActionList: TActionList
-    Left = 418
+    Left = 607
     object actDelete: TAction
       Caption = 'Delete'
       ImageIndex = 21
@@ -506,6 +532,11 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     object Action1: TAction
       Caption = 'Action1'
     end
+    object actPrintAnimalGrid: TAction
+      Caption = 'Print Animal Grid'
+      ImageIndex = 33
+      OnExecute = actPrintAnimalGridExecute
+    end
   end
   inherited BarManager: TdxBarManager
     Bars = <
@@ -538,6 +569,12 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
           item
             BeginGroup = True
             Item = bblbDelete
+            UserGlyph.Data = {00000000}
+            Visible = True
+          end
+          item
+            BeginGroup = True
+            Item = blbPrintAnimalGrid
             UserGlyph.Data = {00000000}
             Visible = True
           end
@@ -611,7 +648,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     Categories.Visibles = (
       True)
     LargeImages = nil
-    Left = 448
+    Left = 637
     DockControlHeights = (
       0
       0
@@ -673,11 +710,44 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
       SyncImageIndex = False
       ImageIndex = 29
     end
+    object blbPrintAnimalGrid: TdxBarLargeButton
+      Action = actPrintAnimalGrid
+      Category = 0
+      Height = 45
+      LargeGlyph.Data = {
+        36030000424D3603000000000000360000002800000010000000100000000100
+        18000000000000030000830F0000830F00000000000000000000FF00FFFF00FF
+        FF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFA6A8A99B9B9B9B
+        9B9B9B9B9B9B9B9B9B9B9B9B9B9BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFA6A8A9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9B9B9BFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FF737373696969656563929391FFFFFFAF
+        AFAFAFAFAFAFAFAFFFFFFF7B7B754F4F4F545454545454FF00FFFF00FF737373
+        93979793979775777590918EFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF7B7B755B5C
+        5C787B7B606161545454FF00FF737373939797ADB5B56667665F5F5F77777777
+        77777777777777777171715A5A586869697F8282707171545454FF00FF737373
+        ADB5B5ADB5B5ADB5B5ADB5B5ADB5B5ADB5B5ADB5B5ADB5B5ADB5B5A2A8A86AA4
+        7708B518767878565757FF00FF737373D2D2D2988D91997C809A797BAA8186AA
+        7F86AA7E86AD828AA77F859D7C7F8B7D7A5E9063787A7A575858FF00FF737373
+        D2D2D2855A62956B6D8A6969896D6D876B6B866A6A886E6D8A706F8D6A699363
+        6A9C6C819397975C5D5DFF00FF737373D2D2D26F4952583F415F4C4C74696972
+        67677166667166667166665E424254393C8A72749397976C6D6DFF00FF737373
+        ADB5B57E686A757272A6A8A9FFFFFFFFFFFFFFFFFFFFFFFFFFFFFF9B9B9B6E5F
+        61988989ADB5B56C6D6DFF00FFFF00FF7373738E81818F8485A6A8A9FFFFFFFF
+        FFFFFFFFFFFFFFFFFFFFFF9B9B9B8473748F85856C6D6DFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFA6A8A9FFFFFFFFFFFFFFFFFFA6A8A99B9B9B9B9B9BFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFA6A8A9FFFFFFFF
+        FFFFFFFFFFA6A8A9FFFFFF9B9B9BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF
+        FF00FFFF00FFFF00FFA6A8A9FFFFFFFCFCFCFFFFFFA6A8A99B9B9BFF00FFFF00
+        FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFFF00FFA6A8A99B9B9B9B
+        9B9B9B9B9B9B9B9BFF00FFFF00FFFF00FFFF00FFFF00FFFF00FF}
+      Width = 100
+    end
   end
   object tMart: TTable
     DatabaseName = 'Kingswd'
     TableName = 'tMart'
-    Left = 479
+    Left = 668
     Top = 9
     object tMartID: TAutoIncField
       FieldName = 'ID'
@@ -788,15 +858,26 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     object tMartFQASDate: TDateField
       FieldName = 'FQASDate'
     end
+    object tMartQualityAssured: TBooleanField
+      FieldName = 'QualityAssured'
+    end
+    object tMartQADays: TStringField
+      FieldName = 'QADays'
+      Size = 10
+    end
+    object tMartGrade: TStringField
+      FieldName = 'Grade'
+      Size = 15
+    end
   end
   object dstMart: TDataSource
     DataSet = tMart
-    Left = 508
+    Left = 697
     Top = 9
   end
   object dsHealthTable: TDataSource
     DataSet = HealthTable
-    Left = 568
+    Left = 757
     Top = 9
   end
   object HealthTable: TTable
@@ -806,7 +887,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     MasterFields = 'SearchTagNo'
     MasterSource = dstMart
     TableName = 'tMartHealth'
-    Left = 538
+    Left = 727
     Top = 9
     object HealthTableID: TAutoIncField
       FieldName = 'ID'
@@ -850,7 +931,7 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
     end
   end
   object cxStyleRepository: TcxStyleRepository
-    Left = 597
+    Left = 786
     Top = 9
     object sHiddenFieldData: TcxStyle
       AssignedValues = [svColor, svFont]
@@ -860,6 +941,37 @@ inherited fmMartImportByFileReview: TfmMartImportByFileReview
       Font.Height = -11
       Font.Name = 'Tahoma'
       Font.Style = []
+    end
+  end
+  object AnimalGridPrint: TdxComponentPrinter
+    CurrentLink = AnimalGridPrintLink
+    Version = 0
+    Left = 816
+    Top = 9
+    object AnimalGridPrintLink: TdxGridReportLink
+      Active = True
+      Component = AnimalGrid
+      PrinterPage.DMPaper = 1
+      PrinterPage.Footer = 6350
+      PrinterPage.Header = 6350
+      PrinterPage.Margins.Bottom = 12700
+      PrinterPage.Margins.Left = 12700
+      PrinterPage.Margins.Right = 12700
+      PrinterPage.Margins.Top = 12700
+      PrinterPage.Orientation = poLandscape
+      PrinterPage.PageSize.X = 215900
+      PrinterPage.PageSize.Y = 279400
+      PrinterPage._dxMeasurementUnits_ = 0
+      PrinterPage._dxLastMU_ = 2
+      ReportDocument.Caption = 'Animal Grid'
+      ReportDocument.CreationDate = 44537.7359898032
+      OptionsFormatting.LookAndFeelKind = lfFlat
+      OptionsOnEveryPage.Footers = False
+      OptionsOnEveryPage.FilterBar = False
+      OptionsView.ExpandButtons = False
+      OptionsView.FilterBar = False
+      OptionsView.GroupFooters = False
+      BuiltInReportLink = True
     end
   end
 end

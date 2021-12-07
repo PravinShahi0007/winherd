@@ -1,5 +1,6 @@
 Version V6.0 R2.9
-             Change - uAimAnimalRegistration - BuildRegistrationData - Remove animals that are in the AIMAnimalReg table as registered - Joy Hayden issue.
+
+25/11/21 /MK Change - uAimAnimalRegistration - BuildRegistrationData - Remove animals that are in the AIMAnimalReg table as registered - Joy Hayden issue.
 25/11/21 /MK Bug Fix - uMedicineSetup - actSearchForVPAExecute - Changed Locate to Lookup as the record in the table was being moved so the
                                                                  DuplicateVPAUpdated check for the selected medicine would never work.
 Version V6.0 R2.8

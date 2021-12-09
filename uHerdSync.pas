@@ -150,6 +150,8 @@
    05/10/21 [V6.0 R2.6] /MK Change - CreateHerdSyncData - Sync all breeding events regardless of lactation matching current lactation.
 
    05/11/21 [V6.0 R2.8] /MK Additional Feature - CreateHealthEvents - Set the comment to be the medicine name and application rate similar to treatments done on PC.
+
+   08/12/21 [V6.0 R3.1] /MK Change - CreateHerdSyncData - Sync up Dry Off events that don't have a drug - Liam Ryan.
 }
 
 unit uHerdSync;
@@ -2564,6 +2566,76 @@ begin
 
                                  FChildNode := FDocument.createElement('adminByCode');
                                  FChildNode.Set_text(FSyncDataQuery.FieldByName('AdminByCode').AsString);
+                                 FInputEventNode.appendChild(FChildNode);
+
+                                 FInputEventsNode.appendChild(FInputEventNode);
+
+                                 SetLength(myArray, ArrayIndex+1);
+                                 myArray[ArrayIndex] := FSyncDataQuery.FieldByName('EventID').AsInteger;
+                                 Inc(ArrayIndex);
+
+                                 FSyncDataQuery.Next;
+                              end;
+                        end;
+
+                     FlagAsSynchronized(MyArray, EventSync);
+                  finally
+                     FSyncDataQuery.Active := False;
+                  end;
+
+                  //   08/12/21 [V6.0 R3.1] /MK Change - Sync up Dry Off events that don't have a drug - Liam Ryan.
+                  // Sync Dry Off events without any drug information i.e. those not in the selective dry cow therapy.
+                  ArrayIndex := 0;
+                  SetLength(MyArray, 0);
+
+                  FSyncDataQuery.SQL.Clear;
+                  FSyncDataQuery.SQL.Add('SELECT A.NatIDNum, E.Id AS EventId, E.EventDate, E.AnimalLactNo,');
+                  FSyncDataQuery.SQL.Add('		 E.EventDesc AS EventComment, E.EventType, E.Modified');
+                  FSyncDataQuery.SQL.Add('FROM Events E');
+                  FSyncDataQuery.SQL.Add('INNER JOIN Animals A ON (A.Id = E.AnimalId)');
+                  FSyncDataQuery.SQL.Add('WHERE (A.HerdId = :AHerdId)');
+                  FSyncDataQuery.SQL.Add('AND   (E.EventType = 4)');
+                  FSyncDataQuery.SQL.Add('AND   (E.EventDate BETWEEN ' + '''' + FormatDateTime('mm/dd/yyyy', IncYear(Date,-GetNoOfYearsHealthHistory())) + '''' +
+                                                         ' AND ' + '''' + FormatDateTime('mm/dd/yyyy',Date) + '''' + ')');
+                  FSyncDataQuery.SQL.Add('AND (A.AnimalDeleted=FALSE)');
+                  FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=FALSE)');
+                  FSyncDataQuery.SQL.Add('AND ((E.EventSource <> ' + IntToStr(sSMARTPHONE) + ') OR (E.EventSource IS NULL))');
+                  FSyncDataQuery.Params[0].AsInteger := FHerdID;
+                  FSyncDataQuery.Active := True;
+                  try
+                     // Add Node For Dry Off Event without drugs i.e. not in the Health table.
+                     if FSyncDataQuery.RecordCount > 0 then
+                        begin
+                           FSyncDataQuery.First;
+                           while not FSyncDataQuery.Eof do
+                              begin
+                                 FInputEventNode := FDocument.createElement('dryOffEvent') ;
+
+                                 FChildNode := FDocument.createElement('eventId');
+                                 FChildNode.Set_text(FSyncDataQuery.FieldByName('EventId').AsString);
+                                 FInputEventNode.appendChild(FChildNode);
+
+                                 FChildNode := FDocument.createElement('natIdNo');
+                                 FChildNode.Set_text(FSyncDataQuery.FieldByName('NatIDNum').AsString);
+                                 FInputEventNode.appendChild(FChildNode);
+
+                                 FChildNode := FDocument.createElement('eventDate');
+                                 FChildNode.Set_text(FormatDate(FSyncDataQuery.FieldByName('EventDate').AsDateTime,dsIrish));
+                                 FInputEventNode.appendChild(FChildNode);
+
+                                 FChildNode := FDocument.createElement('edited');
+                                 if (FSyncDataQuery.FieldByName('Modified').AsBoolean) then
+                                     FChildNode.Set_text('true')
+                                 else
+                                     FChildNode.Set_text('false');
+                                 FInputEventNode.appendChild(FChildNode);
+
+                                 FChildNode := FDocument.createElement('lactationNumber');
+                                 FChildNode.Set_text(IntToStr(FSyncDataQuery.FieldByName('AnimalLactNo').AsInteger));
+                                 FInputEventNode.appendChild(FChildNode);
+
+                                 FChildNode := FDocument.createElement('eventComment');
+                                 FChildNode.Set_text(FSyncDataQuery.FieldByName('EventComment').AsString);
                                  FInputEventNode.appendChild(FChildNode);
 
                                  FInputEventsNode.appendChild(FInputEventNode);

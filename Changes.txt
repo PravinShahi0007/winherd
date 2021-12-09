@@ -1,3 +1,7 @@
+Version V6.0 R3.1
+
+08/12/21 /MK Change - uHerdSync - CreateHerdSyncData - Sync up Dry Off events that don't have a drug - Liam Ryan.
+
 Version V6.0 R3.0
 
 07/12/21 /MK Additional Feature - uMartImportByFileReview/uMartImportByFile - Added a grade column for purchases and sales - C & J Meats.

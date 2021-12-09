@@ -1,6 +1,8 @@
 Version V6.0 R3.1
 
 08/12/21 /MK Change - uHerdSync - CreateHerdSyncData - Sync up Dry Off events that don't have a drug - Liam Ryan.
+                    - uMartImportByFile - PostSales - If the user has a ColdDeadWt and Weight then calc KillOut on that else get DefaultKillOut - Grace C&J Meats.
+                                        - ImportFromNIMovementsOut - If the UsePurchaseWeightAsLiveWeightForKillOut preference is ticked then take weight from Purchase Weight - Grace C&J Meats.
 
 Version V6.0 R3.0
 

@@ -154,7 +154,10 @@
 
    18/03/21 [V5.9 R9.5] /MK Change - ImportFromXML - Default the QualityAssured field to False so that if the QA field is not found at least the box is unticked.
 
-   07/12/21 [V6.0 R3.0] /MK Additional Feature - Added a grade column for purchases and sales - C & J Meats.                                                   
+   07/12/21 [V6.0 R3.0] /MK Additional Feature - Added a grade column for purchases and sales - C & J Meats.
+
+   08/12/21 [V6.0 R3.1] /MK Change - PostSales - If the user has a ColdDeadWt and Weight then calc KillOut on that else get DefaultKillOut - Grace C&J Meats.
+                                   - ImportFromNIMovementsOut - If the UsePurchaseWeightAsLiveWeightForKillOut preference is ticked then take weight from Purchase Weight - Grace C&J Meats.
 }
 
 unit uMartImportByFile;
@@ -165,7 +168,7 @@ uses
    Classes, Forms, db, dbTables, sysutils, MSXML2_TLB, OleServer, ComObj, dialogs,
    uSPParser, Messages, Windows, uMartImportByFileReview, uMartImportTypes, DairyData,
    uNationalID, uSelectBuyer, Controls, uCrushXML, Def, KDBRoutines, uMovementInHealthBatchNo,
-   KRoutines, FileCtrl, GenTypesConst, uAnimal, uApplicationLog;
+   KRoutines, FileCtrl, GenTypesConst, uAnimal, uApplicationLog, uKillOutCalculator;
 
 type
 
@@ -188,6 +191,7 @@ type
       Value, VATRate, PriceLessVAT : Double;
       VATRegistered : Boolean;
       FAnimalSaved : Boolean;
+      FKillOutCalculator : TKillOutCalculator;
 
       procedure PostFileDetails;
       function ImportFromXML : TMartImportType;
@@ -284,10 +288,13 @@ begin
    FSourceDetails := TTable.Create(nil);
    FSourceDetails.DatabaseName := 'kingswd';
 
+   FKillOutCalculator := TKillOutCalculator.Create();
+
    if FMartTable.Exists then FMartTable.DeleteTable;
 
    FMartTable.FieldDefs.Clear;
    FMartTable.FieldDefs.Add('ID',ftAutoInc);
+   FMartTable.FieldDefs.Add('AnimalId',ftInteger);
    FMartTable.FieldDefs.Add('AnimalNo',ftString,10);
    FMartTable.FieldDefs.Add('tAnimalNo',ftString,10);
    FMartTable.FieldDefs.Add('TagNo',ftString,20);
@@ -378,17 +385,19 @@ begin
 
    FreeAndNil(FSourceDetails);
 
+   FreeAndNil(FKillOutCalculator);
+
    FBreedTable.Active := False;
    FreeAndNil(FBreedTable);
 
    FreeAndNil(FErrorList);
    FreeAndNil(FParser);
 
-    if WinData.Customers.Filtered then // ensure filter is cleared. maybe inuse .
-       begin
-          WinData.Customers.Filter := '';
-          WinData.Customers.Filtered := False;
-       end;
+   if WinData.Customers.Filtered then // ensure filter is cleared. maybe inuse .
+      begin
+         WinData.Customers.Filter := '';
+         WinData.Customers.Filtered := False;
+      end;
 
 end;
 
@@ -780,6 +789,41 @@ var
    fNIMovementsOut : TStringList;
    TempStr : string;
    tNatIDNum, Sex : string;
+   Animal : TAnimal;
+
+   procedure UpdateLiveWeightFromPurchaseWeight;
+   var
+      qPurchaseWeight : TQuery;
+   begin
+      qPurchaseWeight := TQuery.Create(nil);
+      try
+         qPurchaseWeight.DatabaseName := AliasName;
+         qPurchaseWeight.Close;
+         qPurchaseWeight.SQL.Clear;
+         qPurchaseWeight.SQL.Add('SELECT M.AnimalId, P.Weight');
+         qPurchaseWeight.SQL.Add('FROM tMart M');
+         qPurchaseWeight.SQL.Add('LEFT JOIN Events E ON (E.AnimalId = M.AnimalId)');
+         qPurchaseWeight.SQL.Add('LEFT JOIN Purchases P ON (P.EventId = E.Id)');
+         qPurchaseWeight.SQL.Add('WHERE E.EventType = 12');
+         qPurchaseWeight.Open;
+         if ( qPurchaseWeight.RecordCount = 0 ) then Exit;
+         qPurchaseWeight.First;
+         while ( not(qPurchaseWeight.Eof) ) do
+            begin
+               if ( qPurchaseWeight.FieldByName('Weight').AsFloat > 0 ) and
+                  ( FMartTable.Locate('AnimalId',qPurchaseWeight.FieldByName('AnimalId').AsInteger,[]) ) then
+                  begin
+                     FMartTable.Edit;
+                     FMartTable.FieldByName('Weight').AsFloat := qPurchaseWeight.FieldByName('Weight').AsFloat;
+                     FMartTable.Post;
+                  end;
+               qPurchaseWeight.Next;
+            end;
+      finally
+         FreeAndNil(qPurchaseWeight);
+      end;
+   end;
+
 begin
 
    FParser.Sepchar := ',';
@@ -814,6 +858,14 @@ begin
                         FMartTable.FieldByName('SortTagNo').AsString := CreateSortNatIDString(FMartTable.FieldByName('TagNo').asString,0,NIreland);
                      end;
                end;
+
+            Animal := GetAnimal(tNatIDNum,True,FHerdID);
+            if ( Animal = nil ) then
+               begin
+                  FMartTable.Cancel;
+                  Continue;
+               end;
+            FMartTable.FieldByName('AnimalId').AsInteger := Animal.Id;
 
             TempStr := RemoveQuotationMarks(FParser.Fields[2]);
             if TempStr <> '' then
@@ -873,6 +925,11 @@ begin
             FMartTable.Post;
             Inc(FNoRecorded);
          end;
+
+      //   08/12/21 [V6.0 R3.1] /MK Change - If the UsePurchaseWeightAsLiveWeightForKillOut preference is ticked then take weight from Purchase Weight - Grace C&J Meats.
+      if ( WinData.GlobalSettings.UsePurchaseWeightAsLiveWeightForKillOut ) then
+         UpdateLiveWeightFromPurchaseWeight;
+
    finally
       FMartTable.IndexName := 'iEventDate';
       if ( not(TfmMartImportByFileReview.ReviewData(mitSale, FHerdID, 'Movements Out - Review')) ) then
@@ -2012,6 +2069,7 @@ var
    iExistSaleEventID,
    iSaleEventID : Integer;
    Animal : TAnimal;
+   KillOutPerc : Double;
 
    function ActiveTempMovements : Boolean;
    var
@@ -2177,9 +2235,15 @@ begin
                                           }
 
                                           SaleDeathEvent.Price := FieldByName('Price').AsFloat;
-
                                           SaleDeathEvent.Weight := FieldByName('Weight').AsFloat;
                                           SaleDeathEvent.ColdDeadWt := FieldByName('ColdDeadWt').AsFloat;
+
+                                          //   08/12/21 [V6.0 R3.1] /MK Change - PostSales - If the user has a ColdDeadWt and Weight then calc KillOut on that else get DefaultKillOut - Grace C&J Meats.
+                                          if ( FieldByName('Weight').AsFloat > 0 ) and ( FieldByName('ColdDeadWt').AsFloat > 0 ) then
+                                             SaleDeathEvent.KillOut := ( (FieldByName('ColdDeadWt').AsFloat * 100 ) / FieldByName('Weight').AsFloat )
+                                          else
+                                             SaleDeathEvent.KillOut := FKillOutCalculator.Calculate(FAnimalTable.FieldByName('ID').AsInteger);
+
                                           SaleDeathEvent.Sold := not(FMartTable.FieldByName('Death').AsBoolean);
                                           SaleDeathEvent.Notified := False;
                                           SaleDeathEvent.Slaughter := False;

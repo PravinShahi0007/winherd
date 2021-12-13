@@ -1,3 +1,7 @@
+Version V6.0 R3.2
+
+13/12/21 /MK Change - uHerdSync - CreateHerdSyncData - Never checked that the EventId doesn't exist in the Health table causing duplicate EventIds to go up to server but FarmSync stops.
+
 Version V6.0 R3.1
 
 08/12/21 /MK Change - uHerdSync - CreateHerdSyncData - Sync up Dry Off events that don't have a drug - Liam Ryan.

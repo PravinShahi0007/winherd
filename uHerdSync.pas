@@ -152,6 +152,8 @@
    05/11/21 [V6.0 R2.8] /MK Additional Feature - CreateHealthEvents - Set the comment to be the medicine name and application rate similar to treatments done on PC.
 
    08/12/21 [V6.0 R3.1] /MK Change - CreateHerdSyncData - Sync up Dry Off events that don't have a drug - Liam Ryan.
+
+   13/12/21 [V6.0 R3.2] /MK Change - CreateHerdSyncData - Never checked that the EventId doesn't exist in the Health table causing duplicate EventIds to go up to server but FarmSync stops.
 }
 
 unit uHerdSync;
@@ -2600,6 +2602,8 @@ begin
                   FSyncDataQuery.SQL.Add('AND (A.AnimalDeleted=FALSE)');
                   FSyncDataQuery.SQL.Add('AND (E.IsSynchronized=FALSE)');
                   FSyncDataQuery.SQL.Add('AND ((E.EventSource <> ' + IntToStr(sSMARTPHONE) + ') OR (E.EventSource IS NULL))');
+                  //   13/12/21 [V6.0 R3.2] /MK Change - Never checked that the EventId doesn't exist in the Health table causing duplicate EventIds to go up to server but FarmSync stops.
+                  FSyncDataQuery.SQL.Add('AND   (E.ID NOT IN (SELECT H.EventId FROM Health H))');
                   FSyncDataQuery.Params[0].AsInteger := FHerdID;
                   FSyncDataQuery.Active := True;
                   try

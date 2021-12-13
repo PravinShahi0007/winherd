@@ -1,11 +1,11 @@
 [Closed Files]
-File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,41,21,72,0,0
-File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFile.pas',0,1,139,23,163,0,0
-File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,1,6,0,0
-File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uRemittanceRecord.pas',0,1,1328,1,1355,0,0
-File_4=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\db.pas',0,1,8632,1,8655,0,0
-File_5=SourceModule,'C:\Kingswood\Delphi Development\Common\uKillOutCalculator.pas',0,1,16,1,45,0,0
-File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,134,117,154,0,0
+File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,186,3,0,0
+File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,121,189,156,0,0
+File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,41,21,72,0,0
+File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFile.pas',0,1,139,23,163,0,0
+File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uRemittanceRecord.pas',0,1,1328,1,1355,0,0
+File_5=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\db.pas',0,1,8632,1,8655,0,0
+File_6=SourceModule,'C:\Kingswood\Delphi Development\Common\uKillOutCalculator.pas',0,1,16,1,45,0,0
 File_7=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFileReview.pas',0,1,41,29,53,1,0
 File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',0,1,32683,27,32711,1,0
 File_9=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\ExtCtrls.pas',0,1,1265,1,1285,0,0
@@ -308,7 +308,7 @@ MaxLeft=-1
 MaxTop=-1
 ClientWidth=1705
 ClientHeight=111
-TBDockHeight=111
+TBDockHeight=140
 LRDockWidth=443
 Dockable=1
 

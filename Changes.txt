@@ -1,3 +1,7 @@
+Version V6.0 R3.3
+
+14/12/21 /MK Change - DairyData - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.
+
 Version V6.0 R3.2
 
 13/12/21 /MK Change - uHerdSync - CreateHerdSyncData - Never checked that the EventId doesn't exist in the Health table causing duplicate EventIds to go up to server but FarmSync stops.

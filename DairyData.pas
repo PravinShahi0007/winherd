@@ -1049,6 +1049,8 @@ unit DairyData;
                                              - Added ACI field to the AnimalsExt MemDataSet.
 
  05/11/21 [V6.0 R2.8] /MK Change - CheckFiles - Look for remedy events from the App with Batch Number that don't have the DrugPurchId updated and set the DrugPurchId.
+
+ 14/12/21 [V6.0 R3.3] /MK Change - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.
 }
 
 interface
@@ -11604,6 +11606,28 @@ try
    //   05/11/21 [V6.0 R2.8] /MK Change - Look for remedy events from the App with Batch Number that don't have the DrugPurchId updated and set the DrugPurchId.
    if ( UpdateOK ) and ( UpdateNo < 6028 ) then
       UpdateOK := FixAppRemedysNoDrugPurchId;
+
+   //   14/12/21 [V6.0 R3.3] /MK Change - Default the no of years of health history to sync to 2 years - GL/TOK request.
+   if ( UpdateOK ) and ( UpdateNo < 6032 ) then
+      with TQuery.Create(nil) do
+         try
+            DatabaseName := AliasName;
+            SQL.Clear;
+            SQL.Add('UPDATE SyncDefaults SET NoOfYearsHealthHistory = 2');
+            try
+               ExecSQL;
+               UpdateOK := True;
+            except
+               on e : Exception do
+                  begin
+                     ApplicationLog.LogException(e);
+                     ApplicationLog.LogError('Error updating NoOfYearsHealthHistory default to 2 years.');
+                     UpdateOK := False;
+                  end;
+            end;
+         finally
+            Free;
+         end;
 
    if ( UpdateOK ) then
       UpdateDefaults;

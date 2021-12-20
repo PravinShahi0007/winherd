@@ -1043,6 +1043,8 @@ unit MenuUnit;
                                   - New ACI column was showing for all herd types and countries, should only be showing for Dairy/Suckler and AHDB countries.
 
    28/10/21 [V6.0 R2.7] /MK Additional Feature - actQueryAimAnimalDetailsExecute - Pass in the ShowAllAnimals ActiveFilterType if Show All Animals is on to show AIM Details for selected animal - GL request.
+
+   20/12/21 [V6.0 R3.5] /MK Change - ShowOnFarmEvents - Only refresh the animal and event grids if the database has changed.
 }
 
 interface
@@ -13070,9 +13072,13 @@ begin
       ( not(WinData.MultiHerd) ) then
       CheckSelectedHerd; 
    uEventsByGroup.ShowTheForm(TNoEvent,True,True);
-   // Call the Animals Query to refresh the Data.
-   SetUpQuery;
-   EventGridAnimalEventsView.DataController.RefreshExternalData;
+   //   20/12/21 [V6.0 R3.5] /MK Change - Only refresh the animal and event grids if the database has changed.
+   if ( WinData.SessionState.DbChanged ) then
+      begin
+         // Call the Animals Query to refresh the Data.
+         SetUpQuery;
+         EventGridAnimalEventsView.DataController.RefreshExternalData;
+      end;
 end;
 
 procedure TMenuForm.ShowMovementsIn;

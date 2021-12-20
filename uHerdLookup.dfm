@@ -2883,11 +2883,14 @@ object HerdLookup: THerdLookup
   object qBatchNoByPurchData: TQuery
     DatabaseName = 'Kingswd'
     SQL.Strings = (
-      'SELECT ID, BatchNo, PurchDate, QtyRemaining'
-      'FROM MediPur'
-      'WHERE DrugID = :DrugID'
-      'AND PurchDate <= :PurchDate'
-      'AND QtyRemaining > 0')
+      
+        'SELECT MP.ID, MP.BatchNo, S.Name Supplier, MP.PurchDate, MP.QtyR' +
+        'emaining'
+      'FROM MediPur MP'
+      'LEFT JOIN SuppliersBreeders S ON (S.Id = MP.SuppId)'
+      'WHERE MP.DrugID = :DrugID'
+      'AND MP.PurchDate <= :PurchDate'
+      'AND MP.QtyRemaining > 0')
     Left = 334
     Top = 398
     ParamData = <

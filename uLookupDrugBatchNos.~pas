@@ -21,6 +21,7 @@ type
     DrugBatchNoGridDBTableViewBatchNo: TcxGridDBColumn;
     DrugBatchNoGridDBTableViewPurchDate: TcxGridDBColumn;
     DrugBatchNoGridDBTableViewQtyRem: TcxGridDBColumn;
+    DrugBatchNoGridDBTableViewSupplier: TcxGridDBColumn;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private

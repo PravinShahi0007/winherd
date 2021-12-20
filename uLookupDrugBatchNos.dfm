@@ -4,7 +4,7 @@ object fmLookupDrugBatchNo: TfmLookupDrugBatchNo
   BorderStyle = bsDialog
   Caption = 'Lookup Batch No.'
   ClientHeight = 278
-  ClientWidth = 457
+  ClientWidth = 583
   Color = clBtnFace
   Font.Charset = ANSI_CHARSET
   Font.Color = clWindowText
@@ -29,12 +29,12 @@ object fmLookupDrugBatchNo: TfmLookupDrugBatchNo
     Style.TextColor = clNavy
     Style.TextStyle = [fsBold]
     Height = 33
-    Width = 409
+    Width = 533
   end
   object pBatchNos: TPanel
-    Left = 26
+    Left = 24
     Top = 74
-    Width = 403
+    Width = 531
     Height = 142
     Anchors = [akTop, akRight, akBottom]
     BevelOuter = bvNone
@@ -42,7 +42,7 @@ object fmLookupDrugBatchNo: TfmLookupDrugBatchNo
     object DrugBatchNoGrid: TcxGrid
       Left = 0
       Top = 0
-      Width = 403
+      Width = 531
       Height = 142
       Align = alClient
       TabOrder = 0
@@ -78,6 +78,16 @@ object fmLookupDrugBatchNo: TfmLookupDrugBatchNo
           SortOrder = soAscending
           Width = 100
         end
+        object DrugBatchNoGridDBTableViewSupplier: TcxGridDBColumn
+          DataBinding.FieldName = 'Supplier'
+          Options.Editing = False
+          Options.Filtering = False
+          Options.FilteringMRUItemsList = False
+          Options.Focusing = False
+          Options.Grouping = False
+          Options.Moving = False
+          Width = 150
+        end
         object DrugBatchNoGridDBTableViewQtyRem: TcxGridDBColumn
           Caption = 'Qty. Remaining'
           DataBinding.FieldName = 'QtyRemaining'
@@ -98,7 +108,7 @@ object fmLookupDrugBatchNo: TfmLookupDrugBatchNo
     end
   end
   object btnOK: TcxButton
-    Left = 220
+    Left = 346
     Top = 230
     Width = 100
     Height = 34
@@ -136,7 +146,7 @@ object fmLookupDrugBatchNo: TfmLookupDrugBatchNo
     LookAndFeel.Kind = lfOffice11
   end
   object btnCancel: TcxButton
-    Left = 333
+    Left = 459
     Top = 230
     Width = 100
     Height = 34

@@ -198,6 +198,8 @@
   29/04/21 [V6.0 R0.3] /MK Change - CreateMDPureBredBreedData - Changed this table to include all pure bred breeds regardless if they are in use or not - GL/Alan McCormick.
 
   07/07/21 [V6.0 R1.6] /MK Additional Feature - Added binoculars icon to the ImageList16x16.
+
+  20/12/21 [V6.0 R3.5] /MK Additional Feature - qBatchNoByPurchData - Added Supplier to the query - Una Carter.
 }
 
 unit uHerdLookup;

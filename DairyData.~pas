@@ -1049,6 +1049,8 @@ unit DairyData;
                                              - Added ACI field to the AnimalsExt MemDataSet.
 
  05/11/21 [V6.0 R2.8] /MK Change - CheckFiles - Look for remedy events from the App with Batch Number that don't have the DrugPurchId updated and set the DrugPurchId.
+
+ 14/12/21 [V6.0 R3.3] /MK Change - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.
 }
 
 interface
@@ -24340,6 +24342,8 @@ begin
                else
                   MDGridGrossMarginData.Close;
 
+               MovementDataHelper.CreateTempMovementEventTables;
+
                QGridPurchData := TQuery.Create(nil);
                QGridPurchData.DatabaseName := AliasName;
                with QGridPurchData do
@@ -24350,10 +24354,9 @@ begin
                      SQL.Add('        S.Name SupplierName, P.LotNumber PurchLotNumber, P.FQASDays PurchFQASDays, PE.EventDesc PurchComment, ');
                      SQL.Add('        P.Weight PurchWeight, P.SupplierCosts, P.BuyerCosts, P.Haulage, P.Commission,');
                      SQL.Add('        S.Commission SupCommission, S.Transport SupTransport ');
-                     SQL.Add(' FROM Events PE');
-                     SQL.Add(' LEFT JOIN Purchases P ON (P.EventID=PE.ID)');
+                     SQL.Add(' FROM '+MovementDataHelper.TempPurchEvents.TableName+' PE');
+                     SQL.Add(' LEFT JOIN Purchases P ON (P.EventID=PE.EventID)');
                      SQL.Add(' LEFT JOIN SuppliersBreeders S ON (S.ID=P.Supplier)');
-                     SQL.Add(' WHERE PE.EventType = 12');
                      Open;
                      ClearMemDataFieldDefs(MDGridPurchData);
                      CreateMemDataFieldDef(MDGridPurchData, 'AnimalId', ftInteger);
@@ -24422,10 +24425,9 @@ begin
                      SQL.Clear;
                      SQL.Add(' SELECT SE.AnimalID AnimalID, SE.EventDate SaleDate, C.Name CustomerName, S.Price SalePrice,');
                      SQL.Add('        S.CustomerCosts, S.TotalDeductions, S.ColdDeadWt, S.Weight, S.Grade');
-                     SQL.Add(' FROM Events SE');
-                     SQL.Add(' LEFT JOIN SalesDeaths S ON (S.EventID = SE.ID)');
+                     SQL.Add(' FROM '+MovementDataHelper.TempSaleEvents.TableName+' SE');
+                     SQL.Add(' LEFT JOIN SalesDeaths S ON (S.EventID = SE.EventID)');
                      SQL.Add(' LEFT JOIN Customers C On (C.ID = S.Customer)');
-                     SQL.Add(' WHERE SE.EventType = 11');
                      Open;
                      ClearMemDataFieldDefs(MDGridSaleData);
                      CreateMemDataFieldDef(MDGridSaleData, 'AnimalId', ftInteger);

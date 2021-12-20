@@ -516,6 +516,8 @@ Changes to Add a New Mass Update Event
                                                - CreateBVDResult - Created a function to get whether the BVDResult table has been inserted/updated with the BVD result.
 
    13/08/21 [V6.0 R1.8] /MK Additional Feature - Allow the BVDResult to be cleared by the user ticking the animal and then saving the event.
+
+   20/12/21 [V6.0 R3.5] /MK Additional Feature - Add Animal Supplier Name to Animal Grid for Health events for beef herds - Una Carter.
 }
 
 interface
@@ -1039,7 +1041,8 @@ type
     sFarmCode,
     sVetPresc,
     sGroupName,
-    sTreatmentUsed  : TStringField; // SP 30/07/2003
+    sTreatmentUsed,
+    sSupplierName  : TStringField; // SP 30/07/2003
     fRateOfApplic,
     fLastWeighingWeight,
     fNoTimes,
@@ -1453,6 +1456,8 @@ begin
                        sApplicMethod.Free;
                     if sTreatmentUsed <> nil then
                        sTreatmentUsed.Free;
+                    if sSupplierName <> nil then
+                       sSupplierName.Free;
 
                     if fRateOfApplic <> nil then
                        fRateOfApplic.Free;
@@ -1953,6 +1958,13 @@ begin
          DataSet := TempAnimals;
       end;
 
+   sSupplierName := TStringField.Create(TempAnimals);
+   with sSupplierName do
+      begin
+         FieldName := 'SupplierName';
+         DataSet := TempAnimals;
+      end;
+
    if ( WinData.EventType in [TMastitis, TLameness] ) then
       begin
          with AnimalGrid.Columns.Add do
@@ -2000,6 +2012,13 @@ begin
                      HerdLookup.qLookupTreatmentUsed.Next;
                   end;
             end;
+      end;
+
+   with AnimalGrid.Columns.Add do
+      begin
+         FieldName := 'SupplierName';
+         Title.Caption := 'Supplier';
+         Width := AnimalGrid.Font.Size * 20;
       end;
 
    with AnimalGrid.Columns.Add do
@@ -3172,6 +3191,7 @@ begin
                  FieldDefs.Add('OrganicMilkWDRLDate',ftDateTime);
                  FieldDefs.Add('SearchNatID',ftString,20);
                  FieldDefs.Add('LocateNatID',ftString,30);
+                 FieldDefs.Add('SupplierName',ftString,30);
 
                  AddFields(TempAnimals);
 
@@ -3353,10 +3373,11 @@ begin
                              begin
                                 FPurchInfoQuery.Close;
                                 FPurchInfoQuery.SQL.Clear;
-                                FPurchInfoQuery.SQL.Add('SELECT A.AnimalID, E.EventDate, P.Weight');
+                                FPurchInfoQuery.SQL.Add('SELECT A.AnimalID, E.EventDate, P.Weight, S.Name Supplier');
                                 FPurchInfoQuery.SQL.Add('FROM '+TempAnimals.TableName+' A');
                                 FPurchInfoQuery.SQL.Add('LEFT JOIN '+FPurchaseEvents.TableName+' E ON (E.AnimalID = A.AnimalID)');
                                 FPurchInfoQuery.SQL.Add('LEFT JOIN Purchases P ON (P.EventID = E.EventID)');
+                                FPurchInfoQuery.SQL.Add('LEFT JOIN SuppliersBreeders S ON (S.Id = P.Supplier)');
                                 FPurchInfoQuery.Open;
                              end;
 
@@ -3366,6 +3387,7 @@ begin
                                 if ( TempAnimals.Locate('AnimalID',FPurchInfoQuery.FieldByName('AnimalID').AsInteger,[]) ) then
                                    try
                                       TempAnimals.Edit;
+                                      TempAnimals.FieldByName('SupplierName').AsString := FPurchInfoQuery.FieldByName('Supplier').AsString;
                                       TempAnimals.FieldByName('PDate').AsDateTime := FPurchInfoQuery.FieldByName(fn_EventDate).AsDateTime;
                                       TempAnimals.FieldByName('PWeight').AsFloat := FPurchInfoQuery.FieldByName('Weight').AsFloat;
                                       TempAnimals.Post;

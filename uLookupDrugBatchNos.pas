@@ -1,3 +1,7 @@
+{
+   20/12/21 [V6.0 R3.5] /MK Additional Feature - Added Supplier to the grid - Una Carter.
+}
+
 unit uLookupDrugBatchNos;
 
 interface
@@ -21,6 +25,7 @@ type
     DrugBatchNoGridDBTableViewBatchNo: TcxGridDBColumn;
     DrugBatchNoGridDBTableViewPurchDate: TcxGridDBColumn;
     DrugBatchNoGridDBTableViewQtyRem: TcxGridDBColumn;
+    DrugBatchNoGridDBTableViewSupplier: TcxGridDBColumn;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
   private

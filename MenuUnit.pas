@@ -6956,7 +6956,7 @@ begin
    //                                                 had reached 14000 records within 3 months. New Const aAutoArchiveSerialNos created
    //                                                 with Martin's Serial Number but this can be extended to an array if any else needs it.
    //                                                 The AutoArchive program needs to be installed manually by TeamViewer.
-   pmiAutoArchive.Visible := ( Def.Definition.dSerialNo = aAutoArchiveSerialNos ) and ( FileExists(ApplicationPath+'AutoArchive.exe') );
+   pmiAutoArchive.Visible := ( InArray(Def.Definition.dSerialNo,iaAutoArchiveSerialNos) ) and ( FileExists(ApplicationPath+'AutoArchive.exe') );
 
    WinData.ShowMainGridGridDueToCalvCalcMsg := False;
 end;

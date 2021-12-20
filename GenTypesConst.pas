@@ -68,8 +68,8 @@ uses
    SysUtils, Messages, Graphics, Windows, FileCtrl;
 
 const
-   HerdVerNo = 'KHM V6.0 R3.3';
-   iHerdVerNo = 6033;
+   HerdVerNo = 'KHM V6.0 R3.5';
+   iHerdVerNo = 6035;
 
    //*** All Herd Version Changes moved to Changes unit.***//
 
@@ -494,7 +494,7 @@ const
                                                'Nutrient Production (N & P)', 'Veterinary Register', 'Breeding Chart',
                                                'Herd Fertility (Seasonal Calving)', 'Best Cows In Herd', 'Monthly Milk Recordings');
 
-   aAutoArchiveSerialNos = 5636;
+   iaAutoArchiveSerialNos : array [0..1] of Integer = (5636, 5634);
 
    cSaveDefaultsMessage = 'Save defaults?'+#13#10+#13#10+
                           'Click Yes to SAVE NEW defaults.'+#13#10+#13#10+

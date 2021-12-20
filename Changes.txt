@@ -1,3 +1,11 @@
+Version V6.0 R3.5
+
+20/12/21 /MK Additional Feature - DairyData - GetEventLookupData - Use the MovementDataHelper to speed up the get of movement data for the grid - Una Carter.
+                                - uHerdLookup - qBatchNoByPurchData - Added Supplier to the query - Una Carter.
+                                - uEventsByGroup - Add Animal Supplier Name to Animal Grid for Health events for beef herds - Una Carter.
+                                - uLookupDrugBatchNos - Added Supplier to the grid - Una Carter.
+             Change - MenuUnit - ShowOnFarmEvents - Only refresh the animal and event grids if the database has changed.
+
 Version V6.0 R3.3
 
 14/12/21 /MK Change - DairyData - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.

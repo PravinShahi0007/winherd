@@ -516,6 +516,8 @@ Changes to Add a New Mass Update Event
                                                - CreateBVDResult - Created a function to get whether the BVDResult table has been inserted/updated with the BVD result.
 
    13/08/21 [V6.0 R1.8] /MK Additional Feature - Allow the BVDResult to be cleared by the user ticking the animal and then saving the event.
+
+   20/12/21 [V6.0 R3.5] /MK Additional Feature - Add Animal Supplier Name to Animal Grid for Health events for beef herds - Una Carter.
 }
 
 interface
@@ -3385,7 +3387,8 @@ begin
                                 if ( TempAnimals.Locate('AnimalID',FPurchInfoQuery.FieldByName('AnimalID').AsInteger,[]) ) then
                                    try
                                       TempAnimals.Edit;
-                                      TempAnimals.FieldByName('SupplierName').AsString := FPurchInfoQuery.FieldByName('Supplier').AsString;
+                                      if ( WinData.EventType in [THealth, TDryOff, THerdVaccination, TMastitis, TLameness] ) then
+                                         TempAnimals.FieldByName('SupplierName').AsString := FPurchInfoQuery.FieldByName('Supplier').AsString;
                                       TempAnimals.FieldByName('PDate').AsDateTime := FPurchInfoQuery.FieldByName(fn_EventDate).AsDateTime;
                                       TempAnimals.FieldByName('PWeight').AsFloat := FPurchInfoQuery.FieldByName('Weight').AsFloat;
                                       TempAnimals.Post;

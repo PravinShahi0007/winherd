@@ -2014,12 +2014,13 @@ begin
             end;
       end;
 
-   with AnimalGrid.Columns.Add do
-      begin
-         FieldName := 'SupplierName';
-         Title.Caption := 'Supplier';
-         Width := AnimalGrid.Font.Size * 20;
-      end;
+   if ( FHerdType = htBeef ) then
+      with AnimalGrid.Columns.Add do
+         begin
+            FieldName := 'SupplierName';
+            Title.Caption := 'Supplier';
+            Width := AnimalGrid.Font.Size * 20;
+         end;
 
    with AnimalGrid.Columns.Add do
       begin
@@ -3387,7 +3388,8 @@ begin
                                 if ( TempAnimals.Locate('AnimalID',FPurchInfoQuery.FieldByName('AnimalID').AsInteger,[]) ) then
                                    try
                                       TempAnimals.Edit;
-                                      TempAnimals.FieldByName('SupplierName').AsString := FPurchInfoQuery.FieldByName('Supplier').AsString;
+                                      if ( WinData.EventType in [THealth, TDryOff, THerdVaccination, TMastitis, TLameness] ) then
+                                         TempAnimals.FieldByName('SupplierName').AsString := FPurchInfoQuery.FieldByName('Supplier').AsString;
                                       TempAnimals.FieldByName('PDate').AsDateTime := FPurchInfoQuery.FieldByName(fn_EventDate).AsDateTime;
                                       TempAnimals.FieldByName('PWeight').AsFloat := FPurchInfoQuery.FieldByName('Weight').AsFloat;
                                       TempAnimals.Post;

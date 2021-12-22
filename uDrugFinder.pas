@@ -36,8 +36,7 @@ uses
   cxGridCustomTableView, cxGridTableView, cxGridDBTableView, StdCtrls,
   cxGridLevel, cxClasses, cxControls, cxGridCustomView, cxGrid, cxButtons,
   ExtCtrls, LMDWebBase, LMDWebConfig, LMDWebHTTPGet, LMDDownload, MSXML2_TLB,
-  ActnList, GenTypesConst, db, dbTables, uHerdLookup, kRoutines, uXMLDOMHelper,
-  dxmdaset;
+  ActnList, GenTypesConst, db, dbTables, uHerdLookup, kRoutines, uXMLDOMHelper;
 
 type
   TDrugItem = class

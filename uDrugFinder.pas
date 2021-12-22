@@ -23,6 +23,8 @@
    26/02/19 [V5.8 R8.0] /MK Change - Search - Need to check for length of withdrawal ChildNode text because it was causing a hidden delphi exception.
 
    29/04/19 [V5.8 R9.0] /MK Change - GetSelectedItem - Use variables to store value as invisible exceptions were appearing if Null Meat or Milk Days.
+
+   22/12/21 [V6.0 R3.4] /MK Change - Search - If the user clicks the X to manually search then search the who string for the text entered instead of the first 3 characters.
 }
 
 unit uDrugFinder;
@@ -318,10 +320,15 @@ begin
                    else
                       TempString := ASearchText;
 
-                   //   16/08/17 [V5.7 R1.2] /MK Bug Fix - Strip out characters that are not spaces, or numbers or letters.
-                   TempString := StripAllNonSpace_Num_Alpha(TempString);
-
-                   IsMatch := UpperCase(TempString) = UpperCase(Copy(DrugNode.childNodes[0].text, 1, Length(TempString)))
+                   //   22/12/21 [V6.0 R3.4] /MK Change - If the user clicks the X to manually search then search the who string for the text entered instead of the first 3 characters.
+                   if ( FManualSearch ) then
+                      IsMatch := ( Pos(ASearchText,UpperCase(DrugNode.childNodes[0].text)) > 0 )
+                   else
+                      begin
+                         //   16/08/17 [V5.7 R1.2] /MK Bug Fix - Strip out characters that are not spaces, or numbers or letters.
+                         TempString := StripAllNonSpace_Num_Alpha(TempString);
+                         IsMatch := UpperCase(TempString) = UpperCase(Copy(DrugNode.childNodes[0].text, 1, Length(TempString)))
+                      end;
                 end;
 
              if IsMatch then

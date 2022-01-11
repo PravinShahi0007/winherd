@@ -1,3 +1,7 @@
+Version V6.0 R3.7
+
+11/01/22 /MK Incorporated Source From Release - uMedicineSetup - Brought over Bug Fix from V6.0 R3.6.
+
 Version V6.0 R3.5
 
 20/12/21 /MK Additional Feature - DairyData - GetEventLookupData - Use the MovementDataHelper to speed up the get of movement data for the grid - Una Carter.

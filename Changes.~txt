@@ -5,6 +5,7 @@ Version V6.0 R3.5
                                 - uEventsByGroup - Add Animal Supplier Name to Animal Grid for Health events for beef herds - Una Carter.
                                 - uLookupDrugBatchNos - Added Supplier to the grid - Una Carter.
              Change - MenuUnit - ShowOnFarmEvents - Only refresh the animal and event grids if the database has changed.
+05/01/22 /MK Bug Fix - uDrugsRegisterImport - ImportFile - Use the ConfirmedPurchases list to see if there were purchases saved but the treatments weren't allowing the user to re-import the treatments.
 
 Version V6.0 R3.4
 

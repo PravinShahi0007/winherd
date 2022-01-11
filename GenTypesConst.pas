@@ -68,8 +68,8 @@ uses
    SysUtils, Messages, Graphics, Windows, FileCtrl;
 
 const
-   HerdVerNo = 'KHM V6.0 R3.4';
-   iHerdVerNo = 6034;
+   HerdVerNo = 'KHM V6.0 R3.6';
+   iHerdVerNo = 6036;
 
    //*** All Herd Version Changes moved to Changes unit.***//
 

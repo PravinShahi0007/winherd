@@ -133,6 +133,8 @@
 
  25/11/21 [V6.0 R2.9] /MK Bug Fix - actSearchForVPAExecute - Changed Locate to Lookup as the record in the table was being moved so the
                                                              DuplicateVPAUpdated check for the selected medicine would never work.
+
+ 11/01/22 [V6.0 R3.6] /MK Bug Fix - When appending Medicine from another screen i.e. MediPurc, set the FAddedMedicine boolean to true - Hugh Collender.                                                             
 }
 
 unit uMedicineSetUp;
@@ -397,6 +399,8 @@ begin
                          Height := 362
                       else
                          Height := 305;
+                      MedicineGridDBTableView.DataController.FocusedRowIndex := MedicineGridDBTableView.DataController.FocusedRowIndex + 1;
+                      FAddedMedicine := True;
                       WinData.Medicine.Append;
                       BorderStyle := bsDialog;
                    end
@@ -406,6 +410,7 @@ begin
                          Height := 650
                       else
                          Height := 590;
+                      FAddedMedicine := False;
                       MedicineGridDBTableView.Controller.FocusedRecordIndex := WinData.Medicine.FieldDefs.IndexOf('ID');
                       if ( ADrugID > 0 ) then
                          begin

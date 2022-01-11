@@ -1,3 +1,7 @@
+Version V6.0 R3.4
+
+22/12/21 /MK Change - uDrugFinder - Search - If the user clicks the X to manually search then search the who string for the text entered instead of the first 3 characters.
+
 Version V6.0 R3.3
 
 14/12/21 /MK Change - DairyData - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.

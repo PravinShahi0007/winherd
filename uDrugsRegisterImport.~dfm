@@ -962,7 +962,7 @@ inherited fmDrugsRegisterImport: TfmDrugsRegisterImport
       PrinterPage._dxMeasurementUnits_ = 0
       PrinterPage._dxLastMU_ = 2
       ReportDocument.Caption = 'Outstanding Treatments'
-      ReportDocument.CreationDate = 44141.4637358333
+      ReportDocument.CreationDate = 44566.5058262963
       OptionsView.Headers = False
       OptionsView.Caption = False
       OptionsView.FilterBar = False

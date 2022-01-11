@@ -249,6 +249,8 @@
    25/06/19 [V5.8 R9.4] /MK Bug Fix - actRunExcecute - Use global GetNewDrugCode that is used by WinData.MedicineNewRecord.
 
    06/11/20 [V5.9 R7.2] /MK Change - EditVPANo1Click, ManualEnterVPANo1Click - SP suggested that I don't set the FocusedRecordIndex but instead use a locate on the Id - John Roche.
+
+   05/01/22 [V6.0 R3.5] /MK Bug Fix - ImportFile - Use the ConfirmedPurchases list to see if there were purchases saved but the treatments weren't allowing the user to re-import the treatments.
 }
 
 unit uDrugsRegisterImport;
@@ -1210,7 +1212,8 @@ begin
             bStep := FDetailTable.FindNext;
          end;
 
-      if ( HeaderDetailRecorded ) and ( iDetailCount = 0 ) then
+      //   05/01/22 [V6.0 R3.5] /MK Bug Fix - Use the ConfirmedPurchases list to see if there were purchases saved but the treatments weren't allowing the user to re-import the treatments.
+      if ( ConfirmedPurchases.Count > 0 ) and ( iDetailCount = 0 ) then
          begin
             FDetailTable.Filter := 'HeaderID = '+IntToStr(FHeaderID)+' AND Imported = TRUE AND TreatmentSaved = False';
             FDetailTable.Filtered := True;

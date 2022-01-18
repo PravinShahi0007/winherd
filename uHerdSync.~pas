@@ -152,6 +152,8 @@
    05/11/21 [V6.0 R2.8] /MK Additional Feature - CreateHealthEvents - Set the comment to be the medicine name and application rate similar to treatments done on PC.
 
    08/12/21 [V6.0 R3.1] /MK Change - CreateHerdSyncData - Sync up Dry Off events that don't have a drug - Liam Ryan.
+
+   13/12/21 [V6.0 R3.2] /MK Change - CreateHerdSyncData - Never checked that the EventId doesn't exist in the Health table causing duplicate EventIds to go up to server but FarmSync stops.
 }
 
 unit uHerdSync;
@@ -6537,12 +6539,15 @@ var
    GenDamAnimalNo : string;
    GenDamNatIdNum : string;
    BreedCode : string;
+   CalfTag : string;
+   qCalves : TQuery;
 begin
    SetLength(CalfArray, 0);
 
    CalvesNode := FDocument.createElement('calves');
 
-   with TQuery.Create(nil) do
+   qCalves := TQuery.Create(nil);
+   with qCalves do
       try
          DatabaseName := FDatabasePath;
 
@@ -6567,6 +6572,8 @@ begin
             Close;
          end;
 
+         CalfTag := '';
+
          for i := 0 to Length(CalfArray)-1 do
             begin
                CalfXmlNode := FDocument.createElement('calf');
@@ -6584,9 +6591,15 @@ begin
                   FChildNode.Set_text(IntToStr(FieldByName('Id').AsInteger));
                   CalfXmlNode.appendChild(FChildNode);
 
+                  //   18/01/22 [V6.0 R3.8] /MK Change - Older version of calving event saved the CalvingId1 and CalvingId2 fields as the same AnimalId
+                  //                                     Check to see if the tag number of subsequent calves in this EventId have the same tag number
+                  //                                     and don't add them to the calving node if this is the case.
+                  if ( (Length(CalfTag) > 0) and (Length(qCalves.FieldByName('NatIdNum').AsString) > 0) ) then
+                     if ( qCalves.FieldByName('NatIdNum').AsString = CalfTag ) then Continue;
                   FChildNode := FDocument.createElement('natIdNo');
                   FChildNode.Set_text(FieldByName('NatIdNum').AsString);
                   CalfXmlNode.appendChild(FChildNode);
+                  CalfTag := FieldByName('NatIdNum').AsString;
 
                   FChildNode := FDocument.createElement('animalNo');
                   FChildNode.Set_text(FieldByName('AnimalNo').AsString);

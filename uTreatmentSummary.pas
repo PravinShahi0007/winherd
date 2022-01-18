@@ -11,6 +11,8 @@
    29/01/15 [V5.4 R2.6] /MK Bug Fix - actApplyExecute - If user passed in a blank date from or date to the program was give a "Type Mismatch" error. 
 
    10/08/20 [V5.9 R5.3] /MK Change - Added the Herd Identity to the bottom of the screen so that it can be output to the report.   
+
+   18/01/22 [V6.0 R3.8] /MK Bug Fix - actApplyExecute - Added new mastitis and lameness events to get summary of their data - Hugh Collender.
 }
 
 unit uTreatmentSummary;
@@ -137,9 +139,12 @@ begin
          BordBiaGridTableView.DataController.EndFullUpdate;
       end;
 
-   SetLength(EventTypes,2);
+   SetLength(EventTypes,4);
    EventTypes[0] := CHealthEvent;
    EventTypes[1] := CHerdVaccination;
+   //   18/01/22 [V6.0 R3.8] /MK Bug Fix - Added new mastitis and lameness events to get summary of their data.
+   EventTypes[2] := CNewMastitisEvent;
+   EventTypes[3] := CLamenessEvent;
 
    //   29/01/15 [V5.4 R2.6] /MK Bug Fix - If user passed in a blank date from or date to the program was give a "Type Mismatch" error. 
    dDateFrom := 0;

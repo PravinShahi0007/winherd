@@ -1,3 +1,10 @@
+Version V6.0 R3.8
+
+18/01/22 /MK Bug Fix - actApplyExecute - uTreatmentSummary - Added new mastitis and lameness events to get summary of their data - Hugh Collender.
+             Change - uHerdSync - AddCalvingInformation - Older version of calving event saved the CalvingId1 and CalvingId2 fields as the same AnimalId
+                                                          Check to see if the tag number of subsequent calves in this EventId have the same tag number
+                                                          and don't add them to the calving node if this is the case.
+
 Version V6.0 R3.7
 
 11/01/22 /MK Incorporated Source From Release - uMedicineSetup - Brought over Bug Fix from V6.0 R3.6.

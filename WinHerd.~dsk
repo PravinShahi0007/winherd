@@ -1,14 +1,14 @@
 [Closed Files]
-File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,37,21,72,0,0
-File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,102,3,0,0
-File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMedicineSetUp.pas',0,1,121,1,121,1,0
-File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\MenuUnit.pas',0,1,11725,45,11630,0,0
-File_4=SourceModule,'C:\Kingswood\Delphi Development\Common\uSQLFilters.pas',0,1,1081,40,1116,0,0
-File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,1652,1,1680,0,0
-File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uDrugsRegisterImport.pas',0,1,241,1,254,1,0
-File_7=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uEventsByGroup.pas',0,1,1997,1,2023,1,0
-File_8=SourceModule,'C:\Kingswood\Delphi Development\Common\uBreedingDataHelper.pas',0,1,811,1,838,0,0
-File_9=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uLookupDrugBatchNos.pas',0,1,1,90,2,1,0
+File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,121,25,160,0,0
+File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,1,1,3,0,0
+File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uTreatmentSummary.pas',0,1,125,1,145,1,0
+File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\GenTypesConst.pas',0,1,129,27,95,0,0
+File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\HealthFilterU.pas',0,1,1107,63,1127,0,0
+File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uAnimalRemedyData.pas',0,1,198,1,219,0,0
+File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uBordBiaPrint.pas',0,1,198,17,201,1,0
+File_7=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\Db.pas',0,1,8632,1,8652,0,0
+File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMilkRec.pas',0,1,2559,33,2731,1,0
+File_9=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMedicineSetUp.pas',0,1,121,1,121,1,0
 
 [Modules]
 Module0=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
@@ -28,11 +28,15 @@ FormOnTop=0
 FormState=0
 FormOnTop=0
 
-[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas]
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uBaseForm.pas]
 FormState=0
 FormOnTop=0
 
-[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdLookup.pas]
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uImageStore.pas]
+FormState=0
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas]
 FormState=0
 FormOnTop=0
 
@@ -63,17 +67,19 @@ BottomPanelData=0000040000000000BD06000000000000028C000000000000000100000000BD06
 
 [View0]
 Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
-CursorX=1
-CursorY=1
+CursorX=71
+CursorY=25
 TopLine=1
 LeftCol=1
 
 [Watches]
-Count=1
-Watch0='UpdateSuccess',256,0,18,1,0
+Count=2
+Watch0='CalfTag',256,0,18,1,0
+Watch1='qCalves.FieldByName(''NatIdNum'').AsString',256,0,18,1,0
 
 [Breakpoints]
-Count=0
+Count=1
+Breakpoint0='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',1700,'HerdSync.FSyncDataQuery.FieldByName(''EventId'').AsInteger = 136',0,1,'',1,0,0,'',1,'','',''
 
 [AddressBreakpoints]
 Count=0
@@ -157,7 +163,7 @@ Dockable=1
 SplitPos=85
 ArrangeBy=Name
 SelectedItem=Name
-ExpandedItems=DataBinding,Font.Style,LookAndFeel,OptionsView,Properties,Properties.ValueChecked,Properties.ValueGrayed,Properties.ValueUnchecked
+ExpandedItems=DataBinding,Font.Style,LookAndFeel,OptionsView,Properties.ValueChecked,Properties.ValueGrayed,Properties.ValueUnchecked
 HiddenCategories=Legacy
 ShowStatusBar=1
 
@@ -306,7 +312,7 @@ Dockable=1
 
 [MessageView@EditWindow0]
 Create=1
-Visible=0
+Visible=1
 State=0
 Left=0
 Top=0
@@ -340,7 +346,7 @@ TBDockHeight=140
 LRDockWidth=1027
 Dockable=1
 TabPosition=0
-ActiveTab=Call Stack
+ActiveTab=Messages
 TabDockClients=BreakpointWindow,WatchWindow,DebugLogView,LocalVarsWindow,ModuleWindow,CallStackWindow,MessageView@EditWindow0
 
 [DockSite1]

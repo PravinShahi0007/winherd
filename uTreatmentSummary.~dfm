@@ -4,16 +4,15 @@ inherited fmTreatmentSummary: TfmTreatmentSummary
   VertScrollBar.Range = 0
   BorderStyle = bsDialog
   Caption = 'Veterinary Treatment Summary'
-  ClientHeight = 396
+  ClientHeight = 394
   ClientWidth = 536
   Font.Height = -13
   Font.Name = 'Segoe UI'
   OldCreateOrder = True
-  OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 17
   inherited StatusBar: TdxStatusBar
-    Top = 376
+    Top = 374
     Width = 536
   end
   object InfoPanel: TPanel [1]
@@ -88,7 +87,7 @@ inherited fmTreatmentSummary: TfmTreatmentSummary
     Left = 0
     Top = 154
     Width = 536
-    Height = 222
+    Height = 220
     Align = alClient
     AutoSize = True
     BevelOuter = bvNone
@@ -189,7 +188,7 @@ inherited fmTreatmentSummary: TfmTreatmentSummary
     end
     object lNoDryCowTreatHeader: TcxLabel
       Left = 16
-      Top = 167
+      Top = 165
       Anchors = [akLeft, akBottom]
       Caption = ' Number of dry cow'#13#10' treatments over last year'
       Properties.Alignment.Horz = taLeftJustify
@@ -198,7 +197,7 @@ inherited fmTreatmentSummary: TfmTreatmentSummary
     end
     object lNoDryCowTreats: TcxLabel
       Left = 201
-      Top = 174
+      Top = 172
       Anchors = [akLeft, akBottom]
       AutoSize = False
       Caption = 'NoDryCowTreats'
@@ -209,6 +208,26 @@ inherited fmTreatmentSummary: TfmTreatmentSummary
       Style.TextStyle = []
       Height = 22
       Width = 50
+    end
+    object lHerdIdentity: TcxLabel
+      Left = 276
+      Top = 165
+      Anchors = [akLeft, akBottom]
+      Caption = 'Herd Identity :'
+      Properties.Alignment.Horz = taLeftJustify
+      Properties.Alignment.Vert = taVCenter
+      Style.TextStyle = [fsBold]
+    end
+    object lHerdIdentityTxt: TcxLabel
+      Left = 377
+      Top = 165
+      Anchors = [akLeft, akBottom]
+      Caption = 'lHerdIdentityTxt'
+      ParentColor = False
+      Properties.Alignment.Horz = taCenter
+      Properties.Alignment.Vert = taVCenter
+      Style.Color = clInfoBk
+      Style.TextStyle = []
     end
   end
   inherited ActionList: TActionList

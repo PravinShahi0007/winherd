@@ -25,7 +25,8 @@ uses
   StdCtrls, cxButtons, cxGridCustomTableView, cxGridTableView,
   cxGridDBTableView, cxGridLevel, cxClasses, cxControls, cxGridCustomView,
   cxGrid, LMDWebBase, LMDMapi, db, dbTables, uDeptMarts, ActnList,
-  GenTypesConst, uHerdLookup, cxTextEdit, cxContainer, cxEdit, cxLabel, cxFilter;
+  GenTypesConst, uHerdLookup, cxTextEdit, cxContainer, cxEdit, cxLabel, cxFilter,
+  dxPSCore, dxPScxCommon, dxPScxGridLnk;
 
 type
   TfmMartEmailRequest = class(TForm)

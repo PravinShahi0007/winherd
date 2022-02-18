@@ -1,21 +1,51 @@
 [Closed Files]
-File_0=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uSalesDeaths.pas',0,1,1,7,15,1,0
-File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uAWReviewEvents.pas',0,1,381,28,401,1,0
-File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,1595,83,1620,0,0
-File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,3937,76,3957,0,0
-File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uRemittanceMarts.pas',0,1,85,56,27,1,0
-File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartEmailRequest.pas',0,1,384,1,384,1,0
-File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFile.pas',0,1,207,15,227,0,0
-File_7=SourceModule,'C:\Kingswood\Delphi Development\Common\uDeptMarts.pas',0,1,1,69,31,0,0
-File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uWeighingFilt.pas',0,1,1,12,11,1,0
-File_9=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uLiveStockInvent.pas',0,1,1,1,1,1,0
+File_0=SourceModule,'c:\program files (x86)\borland\delphi5\Source\Vcl\ExtCtrls.pas',0,1,1265,1,1285,0,0
+File_1=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',0,1,1495,1,1521,0,0
+File_2=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Changes.txt',0,1,67,112,98,0,0
+File_3=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uFilters.pas',0,1,1,1,1,1,0
+File_4=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uSalesDeaths.pas',0,1,1,7,15,1,0
+File_5=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uAWReviewEvents.pas',0,1,381,28,401,1,0
+File_6=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uRemittanceMarts.pas',0,1,85,56,27,1,0
+File_7=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartEmailRequest.pas',0,1,384,1,384,1,0
+File_8=SourceModule,'C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMartImportByFile.pas',0,1,207,15,227,0,0
+File_9=SourceModule,'C:\Kingswood\Delphi Development\Common\uDeptMarts.pas',0,1,1,69,31,0,0
 
 [Modules]
-Module0=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
-Count=1
+Module0=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas
+Module1=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMovementDataHelper.pas
+Module2=C:\Kingswood\Delphi Development\Common\uSQLFilters.pas
+Module3=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\MenuUnit.pas
+Module4=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
+Module5=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas
+Count=6
 EditWindowCount=1
 
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas]
+ModuleType=SourceModule
+FormState=1
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMovementDataHelper.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Common\uSQLFilters.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\MenuUnit.pas]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
 [C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr]
+ModuleType=SourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas]
 ModuleType=SourceModule
 FormState=0
 FormOnTop=0
@@ -28,25 +58,26 @@ FormOnTop=0
 FormState=0
 FormOnTop=0
 
-[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas]
-FormState=0
-FormOnTop=0
-
-[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdLookup.pas]
+[C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uImageStore.pas]
 FormState=0
 FormOnTop=0
 
 [EditWindow0]
-ViewCount=1
-CurrentView=0
+ViewCount=6
+CurrentView=1
 View0=0
+View1=1
+View2=2
+View3=3
+View4=4
+View5=5
 CodeExplorer=CodeExplorer@EditWindow0
 MessageView=MessageView@EditWindow0
 Create=1
 Visible=1
 State=0
-Left=187
-Top=106
+Left=192
+Top=107
 Width=1733
 Height=944
 MaxLeft=-1
@@ -63,9 +94,44 @@ BottomPanelData=0000040000000000BD06000000000000028C000000000000000100000000BD06
 
 [View0]
 Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\WinHerd.dpr
-CursorX=28
-CursorY=11
+CursorX=20
+CursorY=7
 TopLine=1
+LeftCol=1
+
+[View1]
+Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas
+CursorX=1
+CursorY=24350
+TopLine=24321
+LeftCol=1
+
+[View2]
+Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMovementDataHelper.pas
+CursorX=1
+CursorY=57
+TopLine=29
+LeftCol=1
+
+[View3]
+Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\Reports\uSalesReport.pas
+CursorX=40
+CursorY=683
+TopLine=659
+LeftCol=1
+
+[View4]
+Module=C:\Kingswood\Delphi Development\Common\uSQLFilters.pas
+CursorX=1
+CursorY=500
+TopLine=480
+LeftCol=1
+
+[View5]
+Module=C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\MenuUnit.pas
+CursorX=1
+CursorY=5553
+TopLine=5533
 LeftCol=1
 
 [Watches]
@@ -74,9 +140,11 @@ Watch0='CalfTag',256,0,18,1,0
 Watch1='qCalves.FieldByName(''NatIdNum'').AsString',256,0,18,1,0
 
 [Breakpoints]
-Count=2
+Count=4
 Breakpoint0='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',1700,'HerdSync.FSyncDataQuery.FieldByName(''EventId'').AsInteger = 136',0,1,'',1,0,0,'',1,'','',''
-Breakpoint1='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uHerdSync.pas',1521,'',0,1,'',1,0,0,'',1,'','',''
+Breakpoint1='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',24355,'',0,1,'',1,0,0,'',1,'','',''
+Breakpoint2='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\uMovementDataHelper.pas',49,'',0,1,'',1,0,0,'',1,'','',''
+Breakpoint3='C:\Kingswood\Delphi Development\Delphi 5\Herd\Source\winherd\DairyData.pas',24350,'',0,1,'',1,0,0,'',1,'','',''
 
 [AddressBreakpoints]
 Count=0
@@ -89,8 +157,8 @@ Left=0
 Top=0
 Width=1920
 Height=115
-MaxLeft=-4
-MaxTop=-4
+MaxLeft=-1
+MaxTop=-1
 MaxWidth=1928
 MaxHeight=115
 ClientWidth=1920
@@ -309,7 +377,7 @@ Dockable=1
 
 [MessageView@EditWindow0]
 Create=1
-Visible=1
+Visible=0
 State=0
 Left=0
 Top=0
@@ -343,7 +411,7 @@ TBDockHeight=140
 LRDockWidth=1027
 Dockable=1
 TabPosition=0
-ActiveTab=Messages
+ActiveTab=Call Stack
 TabDockClients=BreakpointWindow,WatchWindow,DebugLogView,LocalVarsWindow,ModuleWindow,CallStackWindow,MessageView@EditWindow0
 
 [DockSite1]
@@ -363,6 +431,6 @@ TBDockHeight=926
 LRDockWidth=219
 Dockable=1
 TabPosition=0
-ActiveTab=Object Inspector
+ActiveTab=Project Manager
 TabDockClients=PropertyInspector,ProjectManager
 

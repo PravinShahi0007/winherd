@@ -1053,6 +1053,9 @@ unit DairyData;
  14/12/21 [V6.0 R3.3] /MK Change - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.
 
  20/12/21 [V6.0 R3.5] /MK Additional Feature - GetEventLookupData - Use the MovementDataHelper to speed up the get of movement data for the grid - Una Carter.
+
+ 18/02/22 [V6.0 R3.8] /MK Bug Fix - GetEventLookupData - uSQLFilters has its own copy of MovementDataHelper which is free'd and the tables are removed.
+                                                         Use this check to see whether to create these tables again before we get data from them.
 }
 
 interface
@@ -24324,7 +24327,10 @@ var
    JohnesResult : Integer;
 
    i : Integer;
+
+   bCreateMovementTable : Boolean;
 begin
+   bCreateMovementTable := False;
    if GlobalSettings.DisplayMovementFeedColsInGridView then
       begin
          if AOpen then
@@ -24344,7 +24350,14 @@ begin
                else
                   MDGridGrossMarginData.Close;
 
-               MovementDataHelper.CreateTempMovementEventTables;
+               //   18/02/22 [V6.0 R3.8] /MK Bug Fix - uSQLFilters has its own copy of MovementDataHelper which is free'd and the tables are removed.
+               //                                      Use this check to see whether to create these tables again before we get data from them.
+               bCreateMovementTable := ( WinData.MovementDataHelper = nil );
+               if ( not(bCreateMovementTable) ) then
+                  bCreateMovementTable := ( (not(WinData.MovementDataHelper.TempSaleEvents.Exists)) or (not(WinData.MovementDataHelper.TempPurchEvents.Exists)) );
+               if ( bCreateMovementTable ) then
+                  WinData.MovementDataHelper.Create;
+               WinData.MovementDataHelper.CreateTempMovementEventTables;
 
                QGridPurchData := TQuery.Create(nil);
                QGridPurchData.DatabaseName := AliasName;

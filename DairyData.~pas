@@ -1053,6 +1053,9 @@ unit DairyData;
  14/12/21 [V6.0 R3.3] /MK Change - CheckFiles - Default the no of years of health history to sync to 2 years - GL/TOK request.
 
  20/12/21 [V6.0 R3.5] /MK Additional Feature - GetEventLookupData - Use the MovementDataHelper to speed up the get of movement data for the grid - Una Carter.
+
+ 18/02/22 [V6.0 R3.8] /MK Bug Fix - GetEventLookupData - uSQLFilters has its own copy of MovementDataHelper which is free'd and the tables are removed.
+                                                         Use this check to see whether to create these tables again before we get data from them.
 }
 
 interface
@@ -20088,7 +20091,7 @@ begin
             if Reg.ValueExists(cGSRenumberAnimalNo) then
                GlobalSettings.RenumAnimalNo := Reg.ReadBool(cGSRenumberAnimalNo)
             else
-               GlobalSettings.RenumAnimalNo := False;
+               GlobalSettings.RenumAnimalNo := True;
 
             if Reg.ValueExists(cGSMandatoryBreedingEvents) then
                GlobalSettings.MandatoryBreedingEvents := Reg.ReadBool(cGSMandatoryBreedingEvents)
@@ -20487,7 +20490,7 @@ begin
                   //   18/05/21 [V6.0 R1.1] /MK Change - Gerry said to default the NatIdToAnimalNo to True.
                   Reg.WriteBool(cGSNatIDToAnimalNo, True);
                   Reg.WriteBool(cGSBladeRegistered, FALSE);
-                  Reg.WriteBool(cGSRenumberAnimalNo, FALSE);
+                  Reg.WriteBool(cGSRenumberAnimalNo, TRUE);
                   Reg.WriteBool(cGSMandatoryBreedingEvents, FALSE);
                   Reg.WriteString(cGSReNumFormat, '');
                   // enforce all dryoff events before calving animal if Milk Recording

@@ -158,6 +158,8 @@ unit StockInHerdFilt;
  14/05/20 [V5.9 R4.6] /MK Change - LoadOtherData - Made changes to use the BreedingDataHelper & MovementDataHelper TempTables instead of the Events table to try fix issues with the Stock on Hand Report.
 
  07/09/20 [V5.9 R5.9] /MK Bug Fix - Moved the delete table of my table to after the object is created. When deleting this table on FormDestroy sometimes it would show table is busy error - Mary Garvey.
+
+ 22/02/22 [V6.0 R3.8] /MK Bug Fix - ViewBtnClick - Get the dead animals into an array and if array is empty don't run query to delete because an error appears.
 }
 
 interface
@@ -1323,6 +1325,7 @@ var
   IHMAnimals : String;
   IHMMovements : Boolean;
   slDebugFile : TStringList;
+  paDeadAnimals : PIntegerArray;
 
   //   05/10/15 [V5.4 R9.4] /MK Bug Fix - This function was using the Sale date components not the Purchase date components.
   function AddPurchDateFilter : String;
@@ -2325,12 +2328,15 @@ begin
                     ShowMessage(e.Message);
               end;
 
-              //   13/11/14 [V5.3 R8.9] /MK Additional Feature - If Purchased AND Sold then delete animals that died
-              if ( rgInclude.ItemIndex = 4 ) then
+              //   13/11/14 [V5.3 R8.9] /MK Additional Feature - If Purchased AND Sold then delete animals that died.
+              //   22/02/22 [V6.0 R3.8] /MK Bug Fix - Get the dead animals into an array and if array is empty don't run query to delete because an error appears.
+              SetLength(paDeadAnimals,0);
+              paDeadAnimals := GetDeadAnimals;
+              if ( rgInclude.ItemIndex = 4 ) and ( Length(paDeadAnimals) > 0 ) then
                  begin
                     qPurchSales.SQL.Clear;
                     qPurchSales.SQL.Add('DELETE FROM PurchSales');
-                    qPurchSales.SQL.Add('WHERE AnimalID IN '+IntArrayToSQLInString(GetDeadAnimals)+'');
+                    qPurchSales.SQL.Add('WHERE AnimalID IN '+IntArrayToSQLInString(paDeadAnimals)+'');
                     try
                        qPurchSales.ExecSQL;
                     except

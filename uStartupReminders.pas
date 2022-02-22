@@ -17,6 +17,8 @@
    16/10/18 [V5.8 R3.1] /MK Additional Feature - A new reminder created to sync with AIM after 30 days based on HerdRecLastSyncDate field in Owners table
 
    08/07/21 [V6.0 R1.6] /MK Additional Feature - Allow ICBF Reg Reminder and AIM Herd Sync reminders to be removed - John Joe Murphy.   
+
+   22/02/22 [V6.0 R3.8] /MK Change - ShowReminder - Don't check for sire breed issue here as CTS Birth Reg doesn't check for this.
 }
 
 unit uStartupReminders;
@@ -277,10 +279,8 @@ begin
                          end;
                end
              else if ( WinData.SystemRegisteredCountry = England ) then
-                begin
-                   if ( TfmCalvesNoSires.GetCalvesWithNoSires = 0 ) then
-                      TfmCTSWSBirthReg.Execute;
-                end;
+                 //   22/02/22 [V6.0 R3.8] /MK Change - Don't check for sire breed issue here as CTS Birth Reg doesn't check for this.
+                 TfmCTSWSBirthReg.Execute;
          end
       else if ( AReminderType = cICBFRegReminder ) then
          uICBFEventExport.ShowTheForm

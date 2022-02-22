@@ -155,7 +155,9 @@ unit StockInHerdFilt;
 
  16/08/19 [V5.9 R0.0] /MK Change - LoadPurchSaleDeathData - As we already have the sale date locate TempSaleEvents by sale date to remove pre-sale events also.
 
- 14/05/20 [V5.9 R4.6] /MK Change - LoadOtherData Made changes to use the BreedingDataHelper & MovementDataHelper TempTables instead of the Events table to try fix issues with the Stock on Hand Report.
+ 14/05/20 [V5.9 R4.6] /MK Change - LoadOtherData - Made changes to use the BreedingDataHelper & MovementDataHelper TempTables instead of the Events table to try fix issues with the Stock on Hand Report.
+
+ 07/09/20 [V5.9 R5.9] /MK Bug Fix - Moved the delete table of my table to after the object is created. When deleting this table on FormDestroy sometimes it would show table is busy error - Mary Garvey.
 }
 
 interface
@@ -452,26 +454,6 @@ begin
    finally
       with StockInHerdFilter do
          begin
-            if ( WhichReport = StockOnHand ) then
-               begin
-                  MyTable.Close;
-                  MyTable.DeleteTable;
-                  MyTable.Free;
-               end
-            else if ( WhichReport = PurchSales ) then
-               begin
-                  MyTable.Close;
-                  MyTable.DeleteTable;
-                  MyTable.Free;
-               end
-            else if ( WhichReport = Premiums ) then
-               begin
-                  SuckTable.Close;
-                  SuckTable.DeleteTable;
-                  SuckTable.Free;
-               end;
-            if ( not(FFromBordBia) ) then
-               SaveScreenDefaults(WhichReport);
             Free;
          end;
    end;
@@ -491,6 +473,8 @@ begin
         begin
            DatabaseName := WinData.KingData.DatabaseName;
            TableName := 'PurchSales';
+           if Exists then
+              DeleteTable;
            FieldDefs.Add('ID',ftAutoInc);
            FieldDefs.Add('AnimalNo',ftString,20,FALSE);
            FieldDefs.Add('SortAnimalNo',ftString,20,FALSE);
@@ -532,6 +516,8 @@ begin
         begin
            DatabaseName := WinData.KingData.DatabaseName;
            TableName := 'StockOnHand';
+           if Exists then
+              DeleteTable;
 
            FieldDefs.Add('AnimalNo',ftString,20,FALSE);
            FieldDefs.Add('SortAnimalNo',ftString,20,FALSE);
@@ -574,7 +560,8 @@ begin
       begin
          DatabaseName := WinData.KingData.DatabaseName;
          TableName := 'TempSws';
-
+         if Exists then
+            DeleteTable;
          FieldDefs.Add('HerdIdentity',ftString,15,FALSE); // Added for SWS files
          FieldDefs.Add('NatID',ftString,20,FALSE);
          FieldDefs.Add('SortNatID',ftString,20,FALSE);
@@ -609,6 +596,8 @@ begin
            // This Table Structure MUST be the same as in uApplications PremTable !!!!
            TableType := ttParadox;
            TableName := 'TempPrm';
+           if Exists then
+              DeleteTable;
            DatabaseName := WinData.KingData.DatabaseName;
            FieldDefs.Add('AID',ftInteger,0,False);        // Animal ID
            FieldDefs.Add('PremiumType',ftString,1,False);
@@ -1334,6 +1323,7 @@ var
   IHMAnimals : String;
   IHMMovements : Boolean;
   slDebugFile : TStringList;
+  paDeadAnimals : PIntegerArray;
 
   //   05/10/15 [V5.4 R9.4] /MK Bug Fix - This function was using the Sale date components not the Purchase date components.
   function AddPurchDateFilter : String;
@@ -2083,6 +2073,7 @@ begin
 
             fmPurchSalesReport := TfmPurchSalesReport.Create(nil);
             fmPurchSalesReport.PrintHerdField := ComboHerd.Value = '0';
+            fmPurchSalesReport.qrlHerdIdentity.Caption := ComboHerd.Text;
             sbView.Enabled := False;
             sbPrint.Enabled := False;
             fmPurchSalesReport.PurchSalesVerLabel.Caption := 'Herd Management ' + HerdVerNo; // Added 11/12/98 - FK
@@ -2335,12 +2326,15 @@ begin
                     ShowMessage(e.Message);
               end;
 
-              //   13/11/14 [V5.3 R8.9] /MK Additional Feature - If Purchased AND Sold then delete animals that died
-              if ( rgInclude.ItemIndex = 4 ) then
+              //   13/11/14 [V5.3 R8.9] /MK Additional Feature - If Purchased AND Sold then delete animals that died.
+              //   22/02/22 [V6.0 R3.8] /MK Bug Fix - Get the dead animals into an array and if array is empty don't run query to delete because an error appears.
+              SetLength(paDeadAnimals,0);
+              paDeadAnimals := GetDeadAnimals;
+              if ( rgInclude.ItemIndex = 4 ) and ( Length(paDeadAnimals) > 0 ) then
                  begin
                     qPurchSales.SQL.Clear;
                     qPurchSales.SQL.Add('DELETE FROM PurchSales');
-                    qPurchSales.SQL.Add('WHERE AnimalID IN '+IntArrayToSQLInString(GetDeadAnimals)+'');
+                    qPurchSales.SQL.Add('WHERE AnimalID IN '+IntArrayToSQLInString(paDeadAnimals)+'');
                     try
                        qPurchSales.ExecSQL;
                     except
@@ -3524,6 +3518,21 @@ end;
 
 procedure TStockInHerdFilter.FormDestroy(Sender: TObject);
 begin
+   if ( FReportType = StockOnHand ) then
+      begin
+         MyTable.Close;
+         MyTable.Free;
+      end
+   else if ( FReportType = PurchSales ) then
+      begin
+         MyTable.Close;
+         MyTable.DeleteTable;
+      end
+   else if ( FReportType = Premiums ) then
+      begin
+         SuckTable.Close;
+         SuckTable.DeleteTable;
+      end;
    if ( not(FFromBordBia) ) then
       SaveScreenDefaults(FReportType);
 end;

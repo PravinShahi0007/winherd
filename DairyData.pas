@@ -1056,6 +1056,8 @@ unit DairyData;
 
  18/02/22 [V6.0 R3.8] /MK Bug Fix - GetEventLookupData - uSQLFilters has its own copy of MovementDataHelper which is free'd and the tables are removed.
                                                          Use this check to see whether to create these tables again before we get data from them.
+
+ 22/02/22 [V6.0 R3.8] /MK Change - Default the Renumber Animal Number For Sold Animals on for new installs.                                                         
 }
 
 interface
@@ -20091,7 +20093,7 @@ begin
             if Reg.ValueExists(cGSRenumberAnimalNo) then
                GlobalSettings.RenumAnimalNo := Reg.ReadBool(cGSRenumberAnimalNo)
             else
-               GlobalSettings.RenumAnimalNo := False;
+               GlobalSettings.RenumAnimalNo := True;
 
             if Reg.ValueExists(cGSMandatoryBreedingEvents) then
                GlobalSettings.MandatoryBreedingEvents := Reg.ReadBool(cGSMandatoryBreedingEvents)
@@ -20490,7 +20492,7 @@ begin
                   //   18/05/21 [V6.0 R1.1] /MK Change - Gerry said to default the NatIdToAnimalNo to True.
                   Reg.WriteBool(cGSNatIDToAnimalNo, True);
                   Reg.WriteBool(cGSBladeRegistered, FALSE);
-                  Reg.WriteBool(cGSRenumberAnimalNo, FALSE);
+                  Reg.WriteBool(cGSRenumberAnimalNo, TRUE);
                   Reg.WriteBool(cGSMandatoryBreedingEvents, FALSE);
                   Reg.WriteString(cGSReNumFormat, '');
                   // enforce all dryoff events before calving animal if Milk Recording

@@ -6,6 +6,9 @@ Version V6.0 R3.8
                                                           and don't add them to the calving node if this is the case.
 18/02/22 /MK Bug Fix - DairyData - GetEventLookupData - uSQLFilters has its own copy of MovementDataHelper which is free'd and the tables are removed.
                                                         Use this check to see whether to create these tables again before we get data from them.
+22/02/22 /MK Additional Feature - uGroupReport - Added Supplier Name - Grace Dobson.
+             Bug Fix - StockInHerdFilt - ViewBtnClick - Get the dead animals into an array and if array is empty don't run query to delete because an error appears.
+             Change - DairyData - Default the Renumber Animal Number For Sold Animals on for new installs.
 
 Version V6.0 R3.7
 

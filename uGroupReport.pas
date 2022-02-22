@@ -1,5 +1,7 @@
 {
    01/08/12 [V5.0 R8.3] /MK Change - LoadAnimals - GetWeighingEventDetails - Purchase Weight should always be the last weighing event found.
+
+   22/02/22 [V6.0 R3.8] /MK Additional Feature - Added Supplier Name - Grace Dobson.
 }
 unit uGroupReport;
 
@@ -71,6 +73,8 @@ type
     QRLabel13: TQRLabel;
     QRDBText2: TQRDBText;
     QRExpr1: TQRExpr;
+    QRLabel14: TQRLabel;
+    QRDBText7: TQRDBText;
     procedure FormCreate(Sender: TObject);
     procedure sbViewClick(Sender: TObject);
     procedure QRDateLabelHandler(sender: TObject; var Value: String);
@@ -223,7 +227,7 @@ begin
                               begin
                                  OnDate := PurchRec^.Date;
                                  GroupTable.FieldByName('PurchDate').AsDateTime := PurchRec^.Date;
-                                 //GroupTable.FieldByName('PurchSupplier').AsString := PurchRec^.sSupplier;
+                                 GroupTable.FieldByName('Supplier').AsString := PurchRec^.sSupplier;
                                  //GroupTable.FieldByName('PurchBuyer').AsString := PurchRec^.sBuyer;
                                  if ( PurchRec^.Price ) > 0 then
                                     GroupTable.FieldByName('PurchPrice').AsFloat  := PurchRec^.Price;
@@ -452,7 +456,7 @@ begin
               FieldDefs.Add('DOB', ftDate);
               { Purch Info }
               FieldDefs.Add('PurchDate', ftDate);
-              //FieldDefs.Add('PurchSupplier', ftstring,30);
+              FieldDefs.Add('Supplier', ftstring,30);
               //FieldDefs.Add('PurchBuyer', ftstring,30);
               FieldDefs.Add('PurchPrice', ftFloat);
               FieldDefs.Add('PurchWeight', ftFloat);
@@ -481,7 +485,7 @@ begin
               IndexDefs.Add('iBreedCode', 'BreedCode', [ixCaseInsensitive]);
               IndexDefs.Add('iDOB', 'DOB', [ixCaseInsensitive]);
               IndexDefs.Add('iPurchDate', 'PurchDate', [ixCaseInsensitive]);
-              //IndexDefs.Add('iPurchSupplier', 'PurchSupplier', [ixCaseInsensitive]);
+              IndexDefs.Add('iSupplier', 'Supplier', [ixCaseInsensitive]);
              // IndexDefs.Add('iPurchBuyer', 'PurchBuyer', [ixCaseInsensitive]);
               IndexDefs.Add('iPurchPrice', 'PurchPrice', [ixCaseInsensitive]);
               IndexDefs.Add('iPurchWeight', 'PurchWeight', [ixCaseInsensitive]);
@@ -496,7 +500,7 @@ begin
               IndexDefs.Add('idBreedCode', 'BreedCode', [ixCaseInsensitive, ixDescending]);
               IndexDefs.Add('idDOB', 'DOB', [ixCaseInsensitive, ixDescending]);
               IndexDefs.Add('idPurchDate', 'PurchDate', [ixCaseInsensitive, ixDescending]);
-              //IndexDefs.Add('idPurchSupplier', 'PurchSupplier', [ixCaseInsensitive, ixDescending]);
+              IndexDefs.Add('idSupplier', 'Supplier', [ixCaseInsensitive, ixDescending]);
               //IndexDefs.Add('idPurchBuyer', 'PurchBuyer', [ixCaseInsensitive, ixDescending]);
               IndexDefs.Add('idPurchPrice', 'PurchPrice', [ixCaseInsensitive, ixDescending]);
               IndexDefs.Add('idPurchWeight', 'PurchWeight', [ixCaseInsensitive, ixDescending]);

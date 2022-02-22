@@ -311,7 +311,7 @@ inherited GroupReport: TGroupReport
       object QRShape4: TQRShape
         Left = 510
         Top = 97
-        Width = 152
+        Width = 235
         Height = 9
         Frame.Color = clBlack
         Frame.DrawTop = False
@@ -322,12 +322,12 @@ inherited GroupReport: TGroupReport
           23.8125
           1349.375
           256.645833333333
-          402.166666666667)
+          621.770833333333)
         Shape = qrsHorLine
         VertAdjust = 0
       end
       object QRLabel24: TQRLabel
-        Left = 564
+        Left = 646
         Top = 110
         Width = 51
         Height = 30
@@ -338,7 +338,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          1492.25
+          1709.20833333333
           291.041666666667
           134.9375)
         Alignment = taRightJustify
@@ -358,7 +358,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRLabel25: TQRLabel
-        Left = 618
+        Left = 700
         Top = 110
         Width = 44
         Height = 30
@@ -369,7 +369,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          1635.125
+          1852.08333333333
           291.041666666667
           116.416666666667)
         Alignment = taRightJustify
@@ -389,7 +389,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRLabel26: TQRLabel
-        Left = 696
+        Left = 779
         Top = 84
         Width = 115
         Height = 17
@@ -400,7 +400,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          1841.5
+          2061.10416666667
           222.25
           304.270833333333)
         Alignment = taLeftJustify
@@ -420,9 +420,9 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRShape5: TQRShape
-        Left = 668
+        Left = 751
         Top = 97
-        Width = 358
+        Width = 290
         Height = 9
         Frame.Color = clBlack
         Frame.DrawTop = False
@@ -431,14 +431,14 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           23.8125
-          1767.41666666667
+          1987.02083333333
           256.645833333333
-          947.208333333333)
+          767.291666666667)
         Shape = qrsHorLine
         VertAdjust = 0
       end
       object QRLabel27: TQRLabel
-        Left = 713
+        Left = 796
         Top = 110
         Width = 51
         Height = 30
@@ -449,7 +449,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          1886.47916666667
+          2106.08333333333
           291.041666666667
           134.9375)
         Alignment = taCenter
@@ -469,7 +469,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRLabel29: TQRLabel
-        Left = 766
+        Left = 849
         Top = 110
         Width = 49
         Height = 30
@@ -480,7 +480,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          2026.70833333333
+          2246.3125
           291.041666666667
           129.645833333333)
         Alignment = taCenter
@@ -500,7 +500,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRLabel30: TQRLabel
-        Left = 816
+        Left = 899
         Top = 110
         Width = 46
         Height = 30
@@ -511,7 +511,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          2159
+          2378.60416666667
           291.041666666667
           121.708333333333)
         Alignment = taLeftJustify
@@ -592,7 +592,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          867.833333333334
+          867.833333333333
           21.1666666666667
           127)
         Alignment = taLeftJustify
@@ -705,7 +705,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object lFQAStatus: TQRLabel
-        Left = 668
+        Left = 751
         Top = 110
         Width = 43
         Height = 30
@@ -716,7 +716,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          1767.41666666667
+          1987.02083333333
           291.041666666667
           113.770833333333)
         Alignment = taLeftJustify
@@ -1031,7 +1031,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          867.833333333334
+          867.833333333333
           68.7916666666667
           156.104166666667)
         Alignment = taLeftJustify
@@ -1062,7 +1062,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          867.833333333334
+          867.833333333333
           116.416666666667
           148.166666666667)
         Alignment = taLeftJustify
@@ -1113,7 +1113,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRLabel13: TQRLabel
-        Left = 866
+        Left = 949
         Top = 110
         Width = 60
         Height = 30
@@ -1124,7 +1124,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           79.375
-          2291.29166666667
+          2510.89583333333
           291.041666666667
           158.75)
         Alignment = taLeftJustify
@@ -1132,6 +1132,37 @@ inherited GroupReport: TGroupReport
         AutoSize = False
         AutoStretch = False
         Caption = 'Comments'
+        Color = clWhite
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Arial'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRLabel14: TQRLabel
+        Left = 566
+        Top = 110
+        Width = 75
+        Height = 30
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          79.375
+          1497.54166666667
+          291.041666666667
+          198.4375)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Caption = 'Supplier'
         Color = clWhite
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -1262,7 +1293,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRDBText15: TQRDBText
-        Left = 563
+        Left = 645
         Top = 2
         Width = 51
         Height = 15
@@ -1273,7 +1304,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          1489.60416666667
+          1706.5625
           5.29166666666667
           134.9375)
         Alignment = taRightJustify
@@ -1288,7 +1319,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRDBText16: TQRDBText
-        Left = 617
+        Left = 699
         Top = 2
         Width = 44
         Height = 15
@@ -1299,7 +1330,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          1632.47916666667
+          1849.4375
           5.29166666666667
           116.416666666667)
         Alignment = taRightJustify
@@ -1314,7 +1345,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRDBText17: TQRDBText
-        Left = 723
+        Left = 803
         Top = 2
         Width = 35
         Height = 15
@@ -1325,7 +1356,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          1912.9375
+          2124.60416666667
           5.29166666666667
           92.6041666666667)
         Alignment = taRightJustify
@@ -1340,7 +1371,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRDBText18: TQRDBText
-        Left = 814
+        Left = 894
         Top = 2
         Width = 50
         Height = 15
@@ -1351,7 +1382,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          2153.70833333333
+          2365.375
           5.29166666666667
           132.291666666667)
         Alignment = taLeftJustify
@@ -1368,7 +1399,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRDBText19: TQRDBText
-        Left = 764
+        Left = 844
         Top = 2
         Width = 45
         Height = 15
@@ -1379,7 +1410,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          2021.41666666667
+          2233.08333333333
           5.29166666666667
           119.0625)
         Alignment = taRightJustify
@@ -1449,7 +1480,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object qrdbFQAS: TQRDBText
-        Left = 669
+        Left = 749
         Top = 2
         Width = 34
         Height = 15
@@ -1460,7 +1491,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          1770.0625
+          1981.72916666667
           5.29166666666667
           89.9583333333333)
         Alignment = taLeftJustify
@@ -1586,9 +1617,9 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRDBText2: TQRDBText
-        Left = 866
+        Left = 946
         Top = 2
-        Width = 179
+        Width = 91
         Height = 15
         Frame.Color = clBlack
         Frame.DrawTop = False
@@ -1597,9 +1628,9 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          2291.29166666667
+          2502.95833333333
           5.29166666666667
-          473.604166666667)
+          240.770833333333)
         Alignment = taLeftJustify
         AlignToBand = False
         AutoSize = False
@@ -1608,6 +1639,33 @@ inherited GroupReport: TGroupReport
         DataSet = GroupTable
         DataField = 'AnimalComments'
         Mask = 'dd/mm/yy'
+        OnPrint = QRDateLabelHandler
+        Transparent = False
+        WordWrap = True
+        FontSize = 8
+      end
+      object QRDBText7: TQRDBText
+        Left = 566
+        Top = 2
+        Width = 75
+        Height = 15
+        Frame.Color = clBlack
+        Frame.DrawTop = False
+        Frame.DrawBottom = False
+        Frame.DrawLeft = False
+        Frame.DrawRight = False
+        Size.Values = (
+          39.6875
+          1497.54166666667
+          5.29166666666667
+          198.4375)
+        Alignment = taLeftJustify
+        AlignToBand = False
+        AutoSize = False
+        AutoStretch = False
+        Color = clWhite
+        DataSet = GroupTable
+        DataField = 'Supplier'
         OnPrint = QRDateLabelHandler
         Transparent = False
         WordWrap = True
@@ -1682,7 +1740,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr8: TQRExpr
-        Left = 563
+        Left = 644
         Top = 6
         Width = 51
         Height = 17
@@ -1693,7 +1751,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          1489.60416666667
+          1703.91666666667
           15.875
           134.9375)
         Alignment = taRightJustify
@@ -1716,7 +1774,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr9: TQRExpr
-        Left = 617
+        Left = 698
         Top = 6
         Width = 44
         Height = 15
@@ -1727,7 +1785,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           39.6875
-          1632.47916666667
+          1846.79166666667
           15.875
           116.416666666667)
         Alignment = taRightJustify
@@ -1750,7 +1808,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr10: TQRExpr
-        Left = 723
+        Left = 803
         Top = 6
         Width = 35
         Height = 17
@@ -1761,7 +1819,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          1912.9375
+          2124.60416666667
           15.875
           92.6041666666667)
         Alignment = taRightJustify
@@ -1784,7 +1842,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr11: TQRExpr
-        Left = 814
+        Left = 894
         Top = 6
         Width = 50
         Height = 17
@@ -1795,7 +1853,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          2153.70833333333
+          2365.375
           15.875
           132.291666666667)
         Alignment = taRightJustify
@@ -1818,7 +1876,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr12: TQRExpr
-        Left = 762
+        Left = 842
         Top = 25
         Width = 102
         Height = 17
@@ -1829,7 +1887,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          2016.125
+          2227.79166666667
           66.1458333333333
           269.875)
         Alignment = taRightJustify
@@ -1852,7 +1910,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr13: TQRExpr
-        Left = 578
+        Left = 659
         Top = 41
         Width = 83
         Height = 17
@@ -1863,7 +1921,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          1529.29166666667
+          1743.60416666667
           108.479166666667
           219.604166666667)
         Alignment = taRightJustify
@@ -1886,7 +1944,7 @@ inherited GroupReport: TGroupReport
         FontSize = 8
       end
       object QRExpr1: TQRExpr
-        Left = 522
+        Left = 603
         Top = 25
         Width = 92
         Height = 17
@@ -1897,7 +1955,7 @@ inherited GroupReport: TGroupReport
         Frame.DrawRight = False
         Size.Values = (
           44.9791666666667
-          1381.125
+          1595.4375
           66.1458333333333
           243.416666666667)
         Alignment = taRightJustify

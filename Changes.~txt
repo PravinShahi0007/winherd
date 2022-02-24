@@ -9,6 +9,7 @@ Version V6.0 R3.8
 22/02/22 /MK Additional Feature - uGroupReport - Added Supplier Name - Grace Dobson.
              Bug Fix - StockInHerdFilt - ViewBtnClick - Get the dead animals into an array and if array is empty don't run query to delete because an error appears.
              Change - DairyData - Default the Renumber Animal Number For Sold Animals on for new installs.
+                    - uStartupReminders - ShowReminder - Don't check for sire breed issue here as CTS Birth Reg doesn't check for this.
 
 Version V6.0 R3.7
 

@@ -51,6 +51,14 @@
   17/10/18 [V5.8 R4.0] /MK Bug Fix - CustomersChange - Only set the comment to the customer name if (adding or (editing and customer name has changed)).
 
   06/11/18 [V5.8 R3.5] /MK Bug Fix - SaleDeathNavBeforeAction - Only remove animal from group if its in a feed group.
+
+  26/03/19 [V5.8 R8.3] /MK Additional Feature - If editing a sale/death event then open then change Customers.LookupSource to new WinData.dsQueryAllCustomers and
+                                                also close/open new WinData.QueryAllCustomers when user clicks the Add button in the Customers drop-down-list - Una Carter.
+
+  09/07/21 [V6.0 R1.6] /MK Change - bDeleteClick - When deleting the sale event check if there is already an animal in the herd
+                                                   with this tag number and don't allow the event to be deleted.
+
+  24/02/22 [V6.0 R4.0] /MK Change - SaleDeathNavBeforeAction, Give warning message when NI user is trying to record a death to use www.kingswoodfarm.ie.
 }
 
 unit uSalesDeaths;
@@ -381,6 +389,13 @@ var
 begin
    if ( Button = kwnbPost ) then
       begin
+         //   24/02/22 [V6.0 R4.0] /MK Change - Give warning message when NI user is trying to record a death to use www.kingswoodfarm.ie.
+         if ( AnimalStatus.ItemIndex = 1 ) and ( FCountry = NIreland ) then
+            begin
+               MessageDlg('In order to notify aphis of animal death, you should use www.kingswoodfarm.ie to record the death.',mtInformation,[mbOK],0);
+               Abort;
+            end;
+            
          SearchForAnimalExit(SearchForAnimal);
          SaleDeathSaved := True;
          If ( WinData.AnimalFileByIDNatIDNum.IsNull ) then
@@ -423,14 +438,13 @@ begin
                            else
                               WinData.FeedManager.EndFeedEventsForAnimal(WinData.AnimalFileByIDID.AsVariant,StrToDateTime(DateOfSaleDeath.EditText));
                         //   06/11/18 [V5.8 R3.5] /MK Bug Fix - Only remove animal from group if its in a feed group. 
-                        WinData.GroupManager.RemoveAnimalFromGrp(WinData.AnimalFileByIDID.AsVariant,iaAnimalExistGroupIDs[i]);
+                        WinData.GroupManager.RemoveAnimalFromGrp(WinData.AnimalFileByIDID.AsVariant,iaAnimalExistGroupIDs[i],True);
                      end;
                end;
 
       end
    else if Button = kwnbCancel then
       Close;
-
 end;
 
 procedure TfSalesDeaths.SearchForAnimalButtonClick(Sender: TObject);
@@ -862,6 +876,35 @@ End;
 
 procedure TfSalesDeaths.bDeleteClick(Sender: TObject);
 begin
+   //   09/07/21 [V6.0 R1.6] /MK Change - When deleting the sale event check if there is already an animal in the herd
+   //                                     with this tag number and don't allow the event to be deleted.
+   with TQuery.Create(nil) do
+      try
+         DatabaseName := AliasName;
+         SQL.Clear;
+         SQL.Add('SELECT *');
+         SQL.Add('FROM Animals');
+         SQL.Add('WHERE NatIDNum = :NatIdNo');
+         SQL.Add('AND (InHerd = True)');
+         SQL.Add('AND (AnimalDeleted = False)');
+         SQL.Add('AND (HerdId In (SELECT DefaultHerdId FROM Defaults))');
+         Params[0].AsString := WinData.AnimalFileByIDNatIDNum.AsString;
+         try
+            Open;
+            if ( RecordCount > 0 ) then
+               begin
+                  MessageDlg('There is already an animal in the herd with this tag number.'+cCRLF+
+                             'The sale event cannot be deleted for this animal.',mtError,[mbOK],0);
+                  Exit;
+               end;
+         except
+            on e : Exception do
+               ShowDebugMessage(e.Message);
+         end;
+      finally
+         Free;
+      end;
+
    // User want to delete the Sales Record for this animal check they are sure
    uSalePurchDelete.ShowSalePurchaseDeleteScreen ( SaleDelete );
    SaleDeathSaved := True;
@@ -1112,6 +1155,8 @@ end;
 
 procedure TfSalesDeaths.AnimalStatusClick(Sender: TObject);
 begin
+   if ( AnimalStatus.ItemIndex = 1 ) and ( FCountry = NIreland ) then
+      MessageDlg('In order to notify aphis of animal death, you should use www.kingswoodfarm.ie to record the death.',mtInformation,[mbOK],0);
    SetupScreen(WinData.DefCountry(WinData.AnimalFileByIDHerdID.AsInteger));
 end;
 

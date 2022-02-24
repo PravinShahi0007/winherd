@@ -1,3 +1,8 @@
+Version V6.0 R4.0
+
+24/02/22 /MK Change - MenuUnit - ShowCalfReg - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
+                    - uSalesDeaths - SaleDeathNavBeforeAction/AnimalStatusClick - Give warning message when NI user is trying to record a death to use www.kingswoodfarm.ie.
+
 Version V6.0 R3.6
 
 11/01/22 /MK Bug Fix - uMedicineSetup - When appending Medicine from another screen i.e. MediPurc, set the FAddedMedicine boolean to true - Hugh Collender.

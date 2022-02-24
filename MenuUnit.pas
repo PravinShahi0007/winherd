@@ -1043,6 +1043,8 @@ unit MenuUnit;
                                   - New ACI column was showing for all herd types and countries, should only be showing for Dairy/Suckler and AHDB countries.
 
    28/10/21 [V6.0 R2.7] /MK Additional Feature - actQueryAimAnimalDetailsExecute - Pass in the ShowAllAnimals ActiveFilterType if Show All Animals is on to show AIM Details for selected animal - GL request.
+
+   24/02/22 [V6.0 R4.0] /MK Change - ShowCalfReg - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
 }
 
 interface
@@ -7361,8 +7363,13 @@ end;
 procedure TMenuForm.sbRegistrationClick(Sender: TObject);
 begin
    CheckSelectedHerd;
+   //   24/02/22 [V6.0 R4.0] /MK Change - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
    if FCountry = NIreland then
-      uAPHISRegistration.ShowForm(APHISBirths)
+      //uAPHISRegistration.ShowForm(APHISBirths)
+      MessageDlg('Calf registration from within Kingswood Herd has been disabled by APHIS.'+cCRLF+
+                 'Please exit Kingswood Herd and then log onto the website www.kingswoodfarm.ie to register your calves.'+cCRLF+
+                 'If you are not yet set up with the cloud services of www.kingswoodfarm.ie,'+cCRLF+
+                 'please contact Kingswood Computing or TGM Software Solutions',mtInformation,[mbOK],0)
    else if FCountry = England then
       TfmCTSWSBirthReg.Execute
    else
@@ -12730,8 +12737,13 @@ begin
          Exit;
       end;
 
+   //   24/02/22 [V6.0 R4.0] /MK Change - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
    if FCountry = NIreland then
-      uAPHISRegistration.ShowForm(APHISBirths)
+      //uAPHISRegistration.ShowForm(APHISBirths)
+      MessageDlg('Calf registration from within Kingswood Herd has been disabled by APHIS.'+cCRLF+
+                 'Please exit Kingswood Herd and then log onto the website www.kingswoodfarm.ie to register your calves.'+cCRLF+
+                 'If you are not yet set up with the cloud services of www.kingswoodfarm.ie,'+cCRLF+
+                 'please contact Kingswood Computing or TGM Software Solutions',mtInformation,[mbOK],0)
    else if FCountry = England then
       TfmCTSWSBirthReg.Execute
    else

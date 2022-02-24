@@ -57,6 +57,8 @@
 
   09/07/21 [V6.0 R1.6] /MK Change - bDeleteClick - When deleting the sale event check if there is already an animal in the herd
                                                    with this tag number and don't allow the event to be deleted.
+
+  24/02/22 [V6.0 R4.0] /MK Change - SaleDeathNavBeforeAction/AnimalStatusClick - Give warning message when NI user is trying to record a death to use www.kingswoodfarm.ie.
 }
 
 unit uSalesDeaths;
@@ -387,6 +389,13 @@ var
 begin
    if ( Button = kwnbPost ) then
       begin
+         //   24/02/22 [V6.0 R4.0] /MK Change - Give warning message when NI user is trying to record a death to use www.kingswoodfarm.ie.
+         if ( AnimalStatus.ItemIndex = 1 ) and ( FCountry = NIreland ) then
+            begin
+               MessageDlg('In order to notify aphis of animal death, you should use www.kingswoodfarm.ie to record the death.',mtInformation,[mbOK],0);
+               Abort;
+            end;
+            
          SearchForAnimalExit(SearchForAnimal);
          SaleDeathSaved := True;
          If ( WinData.AnimalFileByIDNatIDNum.IsNull ) then
@@ -1146,6 +1155,8 @@ end;
 
 procedure TfSalesDeaths.AnimalStatusClick(Sender: TObject);
 begin
+   if ( AnimalStatus.ItemIndex = 1 ) and ( FCountry = NIreland ) then
+      MessageDlg('In order to notify aphis of animal death, you should use www.kingswoodfarm.ie to record the death.',mtInformation,[mbOK],0);
    SetupScreen(WinData.DefCountry(WinData.AnimalFileByIDHerdID.AsInteger));
 end;
 

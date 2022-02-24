@@ -7,7 +7,7 @@ unit MenuUnit;
  // ***********************************************************************************************
 
  // TO DO : Grid Columns Damanimalno, DamNatID, SireAnimalNo must create sort click!!!!!!!!!!!!!!!
-
+             
  // ***********************************************************************************************
 
  ------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ unit MenuUnit;
 
 
  06/01/09 [V3.9 R5.6] /SP Additional Feature - Default cmboSearchColumns.ItemIndex to WinData.SearchField Value.
-                                             eg. WinData.SearchField = 'AnimalNo' ... cmboSearchColumns.Text = 'Animal No.'
+                                               eg. WinData.SearchField = 'AnimalNo' ... cmboSearchColumns.Text = 'Animal No.'
 
  08/01/2009 [V3.9 R5.7] /SP Additional Feature - Introduction of New Reports Screen Layout
 
@@ -993,6 +993,56 @@ unit MenuUnit;
  21/12/20 [V5.9 R7.9] /MK Change - DoFilter - If the filter is Bulls In Use and some bulls don't have breeds, show information message and sort by breed code.
                                  - ClearAnimalSelection - If the sort was changed by the filter of Bulls In Use then set sort back to original sorted column.
 
+ 26/02/21 [V5.9 R8.7] /MK Change - Removed filter on the A1A2 column as it wasn't working.
+
+ 02/03/21 [V5.9 R9.1] /MK Additional Feature - Added changes to allow filter for A1A2Result from Filter screen - Padraic Harnan.
+
+ 04/03/21 [V5.9 R9.4] /MK Bug Fix - StockBullsInUseFilter - Only show bulls that are In Use ignore the InHerd flag - GL/Cantwells Court.
+
+ 31/03/21 [V5.9 R9.7] /MK Change - Changed Modify Grid to Change Grid - GL request.
+                                 - Changed "Sire Breed Only" to "Other Sires" - GL request.
+
+ 01/04/21 [V5.9 R9.7] /MK Change - Add Sub Menu to Stock Sires.
+                                 - Add menu items to new sub menu for List Stock Sires and Purchase Stock Bull.
+
+ 30/04/21 [V6.0 R1.0] /MK Additional Feature - Added the PricePerKg column.                                 
+
+ 05/05/21 [V6.0 R1.0] /MK Additional Feature - Added the Sale Dead Weight column.
+                                             - Added summary for new Sale Price, Sale Dead Weight, Purchase Weight, Purchase Price,
+                                               Days on Farm and Price Per Kg.
+
+ 12/05/21 [V6.0 R1.1] /MK Change - SetUpForm - Moved btnRefreshAnimals button above the grid of animals - no need to disable it as all herds will use it eventually.
+
+ 14/05/21 [V6.0 R1.1] /MK Additional Feature - actRefreshAnimals - Added calculation of Gross Margin from WinData.MDGridPurchData and WinData.MDGridSaleData.
+
+ 21/05/21 [V6.0 R1.2] /MK Bug Fix - I found that moving across the grid was very slow with Simon McDermots data which has 11,000 animals and 27,000 events.
+                                    I created a new private variable FPrintGrid that is set to False on FormCreate, its set to True on PrintGrid and then False after PrintGrid.
+                                    This will stop the new DBTableSummaryItem.GetText from running until the user clicks print which is the only time the footer is showing.
+
+ 17/06/21 [V6.0 R1.4] /MK Change - cxAnimalGridViewOverallGainPerDayGetDisplayText - If the OverAllGainPerDay is 0.00 then display text should be blank - GL request.
+
+ 02/07/21 [V6.0 R1.5] /MK Change - Added Pen Name column to grid from animals table - Kepak.
+
+ 05/07/21 [V6.0 R1.5] /MK Change - Only show the Pen Name column for beef herds.
+
+ 08/07/21 [V6.0 R1.6] /MK Change - Changed Average SCC back to Latest SCC from last individual recording - GL request.
+
+ 10/08/21 [V6.0 R1.8] /MK Additional Feature - Added BVD Result column - Alec (Flecthers) request.
+
+ 30/08/21 [V6.0 R2.1] /MK Additional Feature - Added Expected Calving Date and Expected Bull Code - Pat Ryan (Captal).
+                                             - actRefreshAnimalsExecute - If Expected Calving Date in selected then show Due To Calve Report with message.
+
+ 06/09/21 [V6.0 R2.1] /MK Change - Changed Expected Calving and Bull Code to Projected Calving and Bull Code - GL request.
+
+ 07/09/21 [V6.0 R2.2] /MK Change - pmiAHDBFile - Changed caption to AHDB SCI/ACI Data as the AHDB import now includes the ACI data.
+
+ 09/09/21 [V6.0 R2.2] /MK Additional Feature - Added ACI column to grid that is vis
+                          Change - ColumnHeaderClick - Added procedure to reset the font on the column like other previous columns.
+                                 - Added ColumnHeaderClick as the OnHeaderClick for new columns that I add recently where this procedure was never added.
+                          Bug Fix - If EBI column is hidden the user has no way of getting it back.
+                                  - New ACI column was showing for all herd types and countries, should only be showing for Dairy/Suckler and AHDB countries.
+
+   28/10/21 [V6.0 R2.7] /MK Additional Feature - actQueryAimAnimalDetailsExecute - Pass in the ShowAllAnimals ActiveFilterType if Show All Animals is on to show AIM Details for selected animal - GL request.
 }
 
 interface
@@ -1026,7 +1076,7 @@ uses
   uModuleDefUpdate, uHerdNewFeatures, uClearDiseaseTestDate, uGroupsNotUsed,
   uConditionScoreReport, uSPParser, uImportFileMemo, uAddSire, uAHDBImport,
   uTestGridWithDataSet, uTestForm, uPopupAnimalEdit, uAIMHeifTempTransfers,
-  uMessageScr, uModifyGridCols, KRoutines, uRemittanceConvert;
+  uMessageScr, uModifyGridCols, KRoutines, uRemittanceConvert, uCalculateGridColSelect;
 
 type
   TDraftGroupType = ( dgtAddToDraftGroup, dgtClearDraftGroup, dgtClearAddToDraftGroup );
@@ -1916,7 +1966,6 @@ type
     actGoToCC31BFilter: TAction;
     cxAnimalGridViewOverallGainPerDay: TcxGridDBColumn;
     actRefreshAnimals: TAction;
-    btnRefreshAnimals: TcxButton;
     btnImport: TcxButton;
     btnExport: TcxButton;
     RemoveSyncingFromThisMachine1: TMenuItem;
@@ -1988,6 +2037,23 @@ type
     pmSuckCalvingHelp: TPopupMenu;
     pmiSuckCalvingHelp: TMenuItem;
     cxStyleBullNoBreed: TcxStyle;
+    pmNatIdSort: TPopupMenu;
+    pmiNatIdSort: TMenuItem;
+    pmiNatIdLast4Digits: TMenuItem;
+    pmiNatIdCheckDigit: TMenuItem;
+    pmiStockSires: TMenuItem;
+    pmiListStockBulls: TMenuItem;
+    pmiPurchaseStockBull: TMenuItem;
+    cxAnimalGridViewPricePerKg: TcxGridDBColumn;
+    cxAnimalGridViewColdDeadWt: TcxGridDBColumn;
+    btnRefreshAnimals: TRxSpeedButton;
+    cxAnimalGridViewGrossMargin: TcxGridDBColumn;
+    cxAnimalGridViewSalesGrade: TcxGridDBColumn;
+    cxAnimalGridViewPenName: TcxGridDBColumn;
+    cxAnimalGridViewBVDResult: TcxGridDBColumn;
+    cxAnimalGridViewProjectedCalvingDate: TcxGridDBColumn;
+    cxAnimalGridViewProjectedBullCode: TcxGridDBColumn;
+    cxAnimalGridViewACI: TcxGridDBColumn;
    //--------------------------------------//
 
     procedure ExitButtonClick(Sender: TObject);
@@ -2560,9 +2626,6 @@ type
     procedure actGoToCC31BCartExecute(Sender: TObject);
     procedure actGoToCC31AFilterExecute(Sender: TObject);
     procedure actGoToCC31BFilterExecute(Sender: TObject);
-    procedure cxAnimalGridViewTcxGridDBDataControllerTcxDataSummaryFooterSummaryItems1GetText(
-      Sender: TcxDataSummaryItem; const AValue: Variant;
-      AIsFooter: Boolean; var AText: String);
     procedure actRefreshAnimalsExecute(Sender: TObject);
     procedure btnImportClick(Sender: TObject);
     procedure btnExportClick(Sender: TObject);
@@ -2595,6 +2658,44 @@ type
     procedure pmiA1A2ResultFileClick(Sender: TObject);
     procedure actModifyGridExecute(Sender: TObject);
     procedure actCalvingHelpExecute(Sender: TObject);
+    procedure pmiNatIdSortClick(Sender: TObject);
+    procedure pmiNatIdCheckDigitClick(Sender: TObject);
+    procedure pmiNatIdLast4DigitsClick(Sender: TObject);
+    procedure pmiListStockBullsClick(Sender: TObject);
+    procedure pmiPurchaseStockBullClick(Sender: TObject);
+    procedure cxAnimalGridViewPrintTotalAmountCount(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgPricePerKg(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintSummaryText(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgSalePrice(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgColdDeadWt(Sender: TcxDataSummaryItem;
+      const AValue: Variant; AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgPurchWeight(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgPurchPrice(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgDaysOnFarm(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgGrossMargin(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewPrintAvgOverallGainPerDay(
+      Sender: TcxDataSummaryItem; const AValue: Variant;
+      AIsFooter: Boolean; var AText: String);
+    procedure cxAnimalGridViewOverallGainPerDayGetDisplayText(
+      Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
+      var AText: String);
+    procedure ColumnHeaderClick(Sender : TObject);
   private
     { Private declarations }
     Reg : TRegistry;
@@ -2675,6 +2776,7 @@ type
 
     FFilterWarning : Boolean;
     FFormShowing : Boolean;
+    FPrintGrid : Boolean;
 
     FAnimalSearching : Boolean;
 
@@ -2698,6 +2800,8 @@ type
     FHintStyleController : TcxHintStyleController;
 
     FSortedColumn : TcxGridColumn;
+
+    FSelectedCalcGridCols : PStringArray;
 
     procedure SetUpForm;
     procedure HideModules;
@@ -2839,7 +2943,7 @@ type
     procedure ProcessAIMCompCertNewCustomer;
 
     procedure RefreshAnimalGrid;
-
+    procedure StockBullsInUseFilter;
    public
     { Public declarations }
     pbBar : TProgressbar;
@@ -3149,11 +3253,18 @@ begin
             end;
 
          //   12/01/18 [V5.7 R7.4] /MK Additional Feature - Refresh Animal Grid if >2 Weighings Report was ran to show OverAllGainPerDay value.
-         if ( WinData.RefreshOverGainPerDay ) then
+         //   30/08/21 [V6.0 R2.1] /MK Additional Feature - Refresh Animal Grid if Due To Calve Report was ran to show ExpectedCalvingDate/ExpectedBullCode values.
+         if ( WinData.RefreshOverGainPerDay ) or ( WinData.DueCalvingUpdated ) then
             begin
-               WinData.AnimalFileByID.Close;
-               WinData.AnimalFileByID.Open;
+               try
+                  Screen.Cursor := crHourGlass;
+                  WinData.AnimalFileByID.Close;
+                  WinData.AnimalFileByID.Open;
+               finally
+                  Screen.Cursor := crDefault;
+               end;
                WinData.RefreshOverGainPerDay := False;
+               WinData.DueCalvingUpdated := False;
             end;
       end;
 
@@ -4060,6 +4171,61 @@ begin
                      cxAnimalGridViewOverallGainPerDay.Hidden := True;
                   end;
 
+               if ( cxAnimalGridViewPenName.Visible ) then
+                  begin
+                     cxAnimalGridViewPenName.Visible := False;
+                     cxAnimalGridViewPenName.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewPenName.Visible := False;
+                     cxAnimalGridViewPenName.Hidden := True;
+                  end;
+
+               if ( cxAnimalGridViewProjectedCalvingDate.Visible ) then
+                  begin
+                     cxAnimalGridViewProjectedCalvingDate.Visible := True;
+                     cxAnimalGridViewProjectedCalvingDate.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewProjectedCalvingDate.Visible := False;
+                     cxAnimalGridViewProjectedCalvingDate.Hidden := False;
+                  end;
+
+               if ( cxAnimalGridViewProjectedBullCode.Visible ) then
+                  begin
+                     cxAnimalGridViewProjectedBullCode.Visible := True;
+                     cxAnimalGridViewProjectedBullCode.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewProjectedBullCode.Visible := False;
+                     cxAnimalGridViewProjectedBullCode.Hidden := False;
+                  end;
+
+               if ( cxAnimalGridViewEBI.Visible ) and ( SystemRegCountry <> NIreland ) then
+                  begin
+                     cxAnimalGridViewEBI.Visible := True;
+                     cxAnimalGridViewEBI.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewEBI.Visible := False;
+                     cxAnimalGridViewEBI.Hidden := ( SystemRegCountry = NIreland );
+                  end;
+
+               if ( cxAnimalGridViewACI.Visible ) and ( SystemRegCountry in [England, Scotland, Wales] ) then
+                  begin
+                     cxAnimalGridViewACI.Visible := True;
+                     cxAnimalGridViewACI.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewACI.Visible := False;
+                     cxAnimalGridViewACI.Hidden := ( not(SystemRegCountry in [England, Scotland, Wales]) );
+                  end;
+
                actDryOff.Caption := 'Drying Off';
                pBreedingContainter.Visible := True;
                CheckMods;
@@ -4289,6 +4455,61 @@ begin
                      cxAnimalGridViewOverallGainPerDay.Hidden := False;
                   end;
 
+               if ( cxAnimalGridViewPenName.Visible ) then
+                  begin
+                     cxAnimalGridViewPenName.Visible := False;
+                     cxAnimalGridViewPenName.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewPenName.Visible := False;
+                     cxAnimalGridViewPenName.Hidden := True;
+                  end;
+
+               if ( cxAnimalGridViewProjectedCalvingDate.Visible ) then
+                  begin
+                     cxAnimalGridViewProjectedCalvingDate.Visible := True;
+                     cxAnimalGridViewProjectedCalvingDate.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewProjectedCalvingDate.Visible := False;
+                     cxAnimalGridViewProjectedCalvingDate.Hidden := False;
+                  end;
+
+               if ( cxAnimalGridViewProjectedBullCode.Visible ) then
+                  begin
+                     cxAnimalGridViewProjectedBullCode.Visible := True;
+                     cxAnimalGridViewProjectedBullCode.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewProjectedBullCode.Visible := False;
+                     cxAnimalGridViewProjectedBullCode.Hidden := False;
+                  end;
+
+               if ( cxAnimalGridViewEBI.Visible ) and ( SystemRegCountry <> NIreland ) then
+                  begin
+                     cxAnimalGridViewEBI.Visible := True;
+                     cxAnimalGridViewEBI.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewEBI.Visible := False;
+                     cxAnimalGridViewEBI.Hidden := ( SystemRegCountry = NIreland );
+                  end;
+
+               if ( cxAnimalGridViewACI.Visible ) and ( SystemRegCountry in [England, Scotland, Wales] ) then
+                  begin
+                     cxAnimalGridViewACI.Visible := True;
+                     cxAnimalGridViewACI.Hidden := False;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewACI.Visible := False;
+                     cxAnimalGridViewACI.Hidden := ( not(SystemRegCountry in [England, Scotland, Wales]) );
+                  end;
+
                actDryOff.Caption := 'Weaning';
 
                btnDryOff.Visible := True;
@@ -4495,6 +4716,61 @@ begin
                      cxAnimalGridViewOverallGainPerDay.Hidden := False;
                   end;
 
+               if ( cxAnimalGridViewPenName.Visible ) then
+                  begin
+                     cxAnimalGridViewPenName.Visible := False;
+                     cxAnimalGridViewPenName.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewPenName.Visible := True;
+                     cxAnimalGridViewPenName.Hidden := False;
+                  end;
+
+               if ( cxAnimalGridViewProjectedCalvingDate.Visible ) then
+                  begin
+                     cxAnimalGridViewProjectedCalvingDate.Visible := False;
+                     cxAnimalGridViewProjectedCalvingDate.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewProjectedCalvingDate.Visible := False;
+                     cxAnimalGridViewProjectedCalvingDate.Hidden := True;
+                  end;
+
+               if ( cxAnimalGridViewProjectedBullCode.Visible ) then
+                  begin
+                     cxAnimalGridViewProjectedBullCode.Visible := False;
+                     cxAnimalGridViewProjectedBullCode.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewProjectedBullCode.Visible := False;
+                     cxAnimalGridViewProjectedBullCode.Hidden := True;
+                  end;
+
+               if ( cxAnimalGridViewEBI.Visible ) then
+                  begin
+                     cxAnimalGridViewEBI.Visible := False;
+                     cxAnimalGridViewEBI.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewEBI.Visible := False;
+                     cxAnimalGridViewEBI.Hidden := True;
+                  end;
+
+               if ( cxAnimalGridViewACI.Visible ) then
+                  begin
+                     cxAnimalGridViewACI.Visible := False;
+                     cxAnimalGridViewACI.Hidden := True;
+                  end
+               else
+                  begin
+                     cxAnimalGridViewACI.Visible := False;
+                     cxAnimalGridViewACI.Hidden := True;
+                  end;
+
                if (Def.Definition.dUseQuotaMan) then
                   begin
                      btnBulkTank.Visible := False;
@@ -4622,6 +4898,8 @@ begin
    btnImport.Visible := btnExport.Visible;
 
    //   12/03/18 [V5.7 R8.2] /MK Change - Show the Calc Gain/Day button greyed out where type is not Suckler - GL request.
+   //   12/05/21 [V6.0 R1.1] /MK Change - Moved btnRefreshAnimals button above the grid of animals - no need to disable it as all herds will use it eventually.
+   {
    btnRefreshAnimals.Enabled := ( FSelectedHerdType = htSuckler );
    btnRefreshAnimals.LookAndFeel.Kind := lfFlat;
    btnRefreshAnimals.Colors.Default := $0069CCFC;
@@ -4638,6 +4916,7 @@ begin
          btnRefreshAnimals.Colors.Normal := $20000000;
          btnRefreshAnimals.Colors.Pressed := $20000000;
       end;
+   }
 
    btnFeedDiary.Enabled := ( (Def.Definition.dUseManCal) or (Def.Definition.dUseBeefMan) ) and ( WinData.UsingFeedAllocation );
 
@@ -4653,18 +4932,13 @@ begin
    else
       DefaultHealthEventsAPHISMovementsIn1.Caption := 'Default &Health Events (APHIS Movements In)';
 
-   cxAnimalGridViewEBI.Visible := ( SystemRegCountry <> NIreland ) and ( FSelectedHerdType in [htSuckler, htDairy] );
-   cxAnimalGridViewEBI.Hidden := ( not(cxAnimalGridViewEBI.Visible) );
    //   02/12/15 [V5.5 R1.4] /MK Change - Change caption of EBI column to Mat. Index ( short for maternal index ) for suckler herds.
-   if ( cxAnimalGridViewEBI.Visible ) then
-      begin
-         if ( FSelectedHerdType = htSuckler ) then
-            cxAnimalGridViewEBI.Caption := 'Mat. Index'
-         else if ( not(SystemRegCountry in [Ireland, NIreland]) ) then
-            cxAnimalGridViewEBI.Caption := 'SCI'
-         else
-            cxAnimalGridViewEBI.Caption := 'EBI';
-      end;
+   if ( FSelectedHerdType = htSuckler ) then
+      cxAnimalGridViewEBI.Caption := 'Mat. Index'
+   else if ( not(SystemRegCountry in [Ireland, NIreland]) ) then
+      cxAnimalGridViewEBI.Caption := 'SCI'
+   else
+      cxAnimalGridViewEBI.Caption := 'EBI';
 
    //   17/05/13 [V5.1 R7.1] /MK Additional Feature - Added Transponder field to main grid.
    //   08/08/18 [V5.8 R2.2] /MK Change - Show Transponder Column if Dairy herd and Parlour or Ration calc modules are using transponder numbers - UCD.
@@ -4790,6 +5064,18 @@ begin
 
                cxAnimalGridViewPurchTransport.Hidden := False;
                cxAnimalGridViewPurchTransport.Visible := True;
+
+               cxAnimalGridViewPricePerKg.Hidden := False;
+               cxAnimalGridViewPricePerKg.Visible := True;
+
+               cxAnimalGridViewColdDeadWt.Hidden := False;
+               cxAnimalGridViewColdDeadWt.Visible := True;
+
+               cxAnimalGridViewSalesGrade.Hidden := False;
+               cxAnimalGridViewSalesGrade.Visible := True;
+
+               cxAnimalGridViewGrossMargin.Hidden := False;
+               cxAnimalGridViewGrossMargin.Visible := True;
             end;
       end
    else
@@ -4841,6 +5127,18 @@ begin
 
          cxAnimalGridViewPurchTransport.Hidden := True;
          cxAnimalGridViewPurchTransport.Visible := False;
+
+         cxAnimalGridViewPricePerKg.Hidden := True;
+         cxAnimalGridViewPricePerKg.Visible := False;
+
+         cxAnimalGridViewColdDeadWt.Hidden := True;
+         cxAnimalGridViewColdDeadWt.Visible := False;
+
+         cxAnimalGridViewSalesGrade.Hidden := True;
+         cxAnimalGridViewSalesGrade.Visible := False;
+
+         cxAnimalGridViewGrossMargin.Hidden := True;
+         cxAnimalGridViewGrossMargin.Visible := False;
       end;
 
    //   03/10/11 [V5.0 R1.0] /MK Change - Check If ConditionScore In Grid Cols Is Visible
@@ -4986,6 +5284,27 @@ begin
       btnCalving.DropDownMenu := mGroup
    else
       btnCalving.DropDownMenu := pmSuckCalvingHelp;
+
+   if ( FSelectedHerdType = htBeef ) then
+      begin
+         SetLength(FSelectedCalcGridCols,2);
+         if ( InArray(cxAnimalGridViewOverallGainPerDay.Caption,cDefaultMainGridCalcColumns) ) then
+            FSelectedCalcGridCols[0] := cxAnimalGridViewOverallGainPerDay.Caption;
+         if ( InArray(cxAnimalGridViewGrossMargin.Caption,cDefaultMainGridCalcColumns) ) then
+            FSelectedCalcGridCols[1] := cxAnimalGridViewGrossMargin.Caption;
+      end
+   else if ( FSelectedHerdType = htSuckler ) then
+      begin
+         SetLength(FSelectedCalcGridCols,1);
+         if ( InArray(cxAnimalGridViewOverallGainPerDay.Caption,cDefaultMainGridCalcColumns) ) then
+            FSelectedCalcGridCols[0] := cxAnimalGridViewOverallGainPerDay.Caption;
+      end
+   else if ( FSelectedHerdType = htDairy ) then
+      begin
+         SetLength(FSelectedCalcGridCols,1);
+         if ( InArray(cxAnimalGridViewProjectedCalvingDate.Caption,cDefaultMainGridCalcColumns) ) then
+            FSelectedCalcGridCols[0] := cxAnimalGridViewProjectedCalvingDate.Caption;
+      end;
 end;
 
 procedure TMenuForm.SetThePanelWidths;
@@ -5174,6 +5493,9 @@ var
                   else
                      Add('AND A.ID IN (0)')
                end;
+
+            if fFilters.FilterByA1A2Result then
+               FilterString := fFilters.A1A2ResultSQL;
          end;
    end;
 
@@ -5479,6 +5801,9 @@ begin
                                     WinData.AnimalFileByID.SQL.Add('AND A.ID NOT IN (SELECT AnimalID FROM '+WinData.GroupLinks.TableName+') ');
                                  end;
 
+                              if ( fFilters.FilterByA1A2Result ) then
+                                 WinData.AnimalFileByID.SQL.Add(fFilters.A1A2ResultSQL);
+
                               ApplySortToAnimalFileByIdAndOpenQuery();
 
                            end;
@@ -5519,8 +5844,13 @@ begin
          cxAnimalGridView.DataController.EndFullUpdate;
          Windata.AnimalFileByID.EnableControls;
       except
-         ResetAnimalGridColumns;
-         RestoreAnimalGridView;
+         {
+         on e : Exception do
+            begin
+               ResetAnimalGridColumns;
+               RestoreAnimalGridView;
+            end;
+         }
       end;
 
       FocusAnimalOnMainGrid(CurrAnimal);
@@ -5717,6 +6047,7 @@ begin
 
    Update;
    FFormShowing := True;
+   FPrintGrid := False;
 end;
 
 procedure TMenuForm.SalesButton1Click(Sender: TObject);
@@ -6276,10 +6607,11 @@ const
 var
    EmailClient : string;
    ItemIndex : Integer;
+   i : Integer;
 begin
    Width := Screen.Width;
    Height := Screen.Height;
-   
+
    FShutdownInProgress := True;
 
    cxAnimalGridView.DataController.DataSource := WinData.AnimalSourceByID;
@@ -6625,6 +6957,8 @@ begin
    //                                                 with Martin's Serial Number but this can be extended to an array if any else needs it.
    //                                                 The AutoArchive program needs to be installed manually by TeamViewer.
    pmiAutoArchive.Visible := ( Def.Definition.dSerialNo = aAutoArchiveSerialNos ) and ( FileExists(ApplicationPath+'AutoArchive.exe') );
+
+   WinData.ShowMainGridGridDueToCalvCalcMsg := False;
 end;
 
 procedure TMenuForm.FormDestroy(Sender: TObject);
@@ -7027,8 +7361,13 @@ end;
 procedure TMenuForm.sbRegistrationClick(Sender: TObject);
 begin
    CheckSelectedHerd;
+   //   24/02/22 [V6.0 R4.0] /MK Change - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
    if FCountry = NIreland then
-      uAPHISRegistration.ShowForm(APHISBirths)
+      //uAPHISRegistration.ShowForm(APHISBirths)
+      MessageDlg('Calf registration from within Kingswood Herd has been disabled by APHIS.'+cCRLF+
+                 'Please exit Kingswood Herd and then log onto the website www.kingswoodfarm.ie to register your calves.'+cCRLF+
+                 'If you are not yet set up with the cloud services of www.kingswoodfarm.ie,'+cCRLF+
+                 'please contact Kingswood Computing or TGM Software Solutions',mtInformation,[mbOK],0)
    else if FCountry = England then
       TfmCTSWSBirthReg.Execute
    else
@@ -7450,8 +7789,11 @@ begin
       WinData.ActiveFilter := bSaleDeaths;
       btnClearSelect.Visible := bSaleDeaths;
    finally
-      WinData.AnimalFileByID.EnableControls;
-      cxAnimalGridView.DataController.EndFullUpdate;
+      try
+         WinData.AnimalFileByID.EnableControls;
+         cxAnimalGridView.DataController.EndFullUpdate;
+      except
+      end;
    end;
 end;
 
@@ -8661,10 +9003,12 @@ end;
 
 procedure TMenuForm.actPrintGridExecute(Sender: TObject);
 begin
+   FPrintGrid := True;
    if Length(ComponentPrinter.PrintTitle) = 0 then
       ComponentPrinter.PrintTitle := 'Kingswood Grid Print';
    if not AnimalGridPrinterLink.PreviewExists then
       AnimalGridPrinterLink.Preview;
+   FPrintGrid := False;
 end;
 
 procedure TMenuForm.actEventHistoryExecute(Sender: TObject);
@@ -11111,6 +11455,10 @@ begin
             BullsInUseFilter;
             btnShowAnimalsOptions.Caption := ACaption;
          end
+      else if AFilter = qfStockBullInUse then
+         begin
+            StockBullsInUseFilter;
+         end
       else if AFilter = qfDeletedAnimals then
          begin
             DeletedAnimalsFilter;
@@ -11359,22 +11707,22 @@ begin
   try
       Update;
       begin
-       cxAnimalGridView.DataController.BeginFullUpdate;
-       WinData.AnimalFileByID.DisableControls;
-          try
-             WinData.AnimalFileByID.Active := False;
-             WinData.AnimalFileByID.SQL.Clear;
-             WinData.AnimalFileByID.SQL.Add('SELECT DISTINCT (A.ID), A.* FROM Animals A');
-             WinData.AnimalFileByID.SQL.Add('WHERE A.ID IN (SELECT E.AnimalID FROM Events E WHERE E.EventType = '+IntToStr(CSaleDeathEvent)+ ')');
-             WinData.AnimalFileByID.SQL.Add('AND (A.HerdID = ' + IntToStr(WinData.UserDefaultHerdID) + ')');
-             WinData.AnimalFileByID.SQL.Add('AND (A.AnimalDeleted=FALSE)');
-             ApplySortToAnimalFileByIdAndOpenQuery();
-             // Add query to fFilters.LeftHerdSQL so Filter can be applied on top of Animal Select filter.
-             fFilters.LeftHerdSQL := WinData.AnimalFileByID.SQL.Text;
-          finally
-             WinData.AnimalFileByID.EnableControls;
-             cxAnimalGridView.DataController.EndFullUpdate;
-          end;
+         cxAnimalGridView.DataController.BeginFullUpdate;
+         WinData.AnimalFileByID.DisableControls;
+         try
+            WinData.AnimalFileByID.Active := False;
+            WinData.AnimalFileByID.SQL.Clear;
+            WinData.AnimalFileByID.SQL.Add('SELECT DISTINCT (A.ID), A.* FROM Animals A');
+            WinData.AnimalFileByID.SQL.Add('WHERE A.ID IN (SELECT E.AnimalID FROM Events E WHERE E.EventType = '+IntToStr(CSaleDeathEvent)+ ')');
+            WinData.AnimalFileByID.SQL.Add('AND (A.HerdID = ' + IntToStr(WinData.UserDefaultHerdID) + ')');
+            WinData.AnimalFileByID.SQL.Add('AND (A.AnimalDeleted=FALSE)');
+            ApplySortToAnimalFileByIdAndOpenQuery();
+            // Add query to fFilters.LeftHerdSQL so Filter can be applied on top of Animal Select filter.
+            fFilters.LeftHerdSQL := WinData.AnimalFileByID.SQL.Text;
+         finally
+            WinData.AnimalFileByID.EnableControls;
+            cxAnimalGridView.DataController.EndFullUpdate;
+         end;
       end;
    finally
       Screen.Cursor := crDefault;
@@ -12387,8 +12735,13 @@ begin
          Exit;
       end;
 
+   //   24/02/22 [V6.0 R4.0] /MK Change - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
    if FCountry = NIreland then
-      uAPHISRegistration.ShowForm(APHISBirths)
+      //uAPHISRegistration.ShowForm(APHISBirths)
+      MessageDlg('Calf registration from within Kingswood Herd has been disabled by APHIS.'+cCRLF+
+                 'Please exit Kingswood Herd and then log onto the website www.kingswoodfarm.ie to register your calves.'+cCRLF+
+                 'If you are not yet set up with the cloud services of www.kingswoodfarm.ie,'+cCRLF+
+                 'please contact Kingswood Computing or TGM Software Solutions',mtInformation,[mbOK],0)
    else if FCountry = England then
       TfmCTSWSBirthReg.Execute
    else
@@ -13686,7 +14039,8 @@ begin
              ( FFilters.DOBSQL <> '' ) or ( FFilters.SexSQL <> '' ) or ( FFilters.RetagSQL <> '' ) or ( FFilters.AIBullSQL <> '' ) or
              ( FFilters.AncestorsSQL <> '' ) or ( FFilters.BreedingSQL <> '' ) or ( FFilters.NonBreedingSQL <> '' ) or
              ( FFilters.DairySQL <> '' ) or ( FFilters.BeefSQL <> '' ) or ( FFilters.LeftHerdSQL <> '' ) or
-             ( FFilters.NoneHerdSQL <> '' ) or ( FSQLFilter.SQLOp <> sqlNone ) or ( FFilters.DaysOnFarmSQL <> '' );
+             ( FFilters.NoneHerdSQL <> '' ) or ( FSQLFilter.SQLOp <> sqlNone ) or ( FFilters.DaysOnFarmSQL <> '' ) or
+             ( FFilters.A1A2ResultSQL <> '' );
 end;
 
 procedure TMenuForm.actImportICBFDataExecute(Sender: TObject);
@@ -14351,7 +14705,11 @@ end;
 
 procedure TMenuForm.actQueryAimAnimalDetailsExecute(Sender: TObject);
 begin
-   WinData.GoToAimAnimalDetails(WinData.UserDefaultHerdID,afNone, WinData.AnimalFileByIDID.AsInteger);
+   //   28/10/21 [V6.0 R2.7] /MK Additional Feature - Pass in the ShowAllAnimals ActiveFilterType if Show All Animals is on to show AIM Details for selected animal - GL request.
+   if ( WinData.ShowAllAnimals ) then
+      WinData.GoToAimAnimalDetails(WinData.UserDefaultHerdID, afShowAllAnimals, WinData.AnimalFileByIDID.AsInteger)
+   else
+      WinData.GoToAimAnimalDetails(WinData.UserDefaultHerdID, afNone, WinData.AnimalFileByIDID.AsInteger);
 end;
 
 procedure TMenuForm.actQueryAimAnimalDetailByBatchExecute(Sender: TObject);
@@ -15669,178 +16027,261 @@ begin
    WinData.GoToAimComplianceCert(WinData.UserDefaultHerdID,afCustom, CC31B);
 end;
 
-procedure TMenuForm.cxAnimalGridViewTcxGridDBDataControllerTcxDataSummaryFooterSummaryItems1GetText(
-   Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
-   var AText: String);
-
-   function GetAvgOverallGainPerDay : Double;
-   begin
-      with TQuery.Create(nil) do
-         try
-            DatabaseName := AliasName;
-            SQL.Clear;
-            SQL.Add('SELECT AVG(OverallWeightGain)');
-            SQL.Add('FROM Animals');
-            SQL.Add('WHERE ID IN (SELECT AID FROM AFilters)');
-            SQL.Add('AND OverallWeightGain > 0');
-            try
-               Open;
-               if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
-                  Result := Fields[0].AsFloat;
-            except
-               on e : Exception do
-                  ShowMessage(e.Message);
-            end;
-         finally
-            Free;
-         end;
-   end;
-
-begin
-   //   12/01/18 [V5.7 R7.4] /MK Additional Feature - AvgOverallGainPerDay should be based on animals with a gain NOT animals with zero gain per day - GL.
-   AText := FormatFloat('0.00',GetAvgOverallGainPerDay);
-end;
-
 procedure TMenuForm.actRefreshAnimalsExecute(Sender: TObject);
 var
-   PBar : TProgressBar;
    iCalcYear : Integer;
    WeighedAnimals : TTable;
    QueryAnimals : TQuery;
    fOverallGain : Double;
+   bHasSoldAnimals,
+   bCalcCancelled : Boolean;
 begin
+   bCalcCancelled := False;
+   TfmCalculateGridColSelect.ShowTheForm(FSelectedCalcGridCols,FSelectedHerdType,bCalcCancelled);
+   if ( bCalcCancelled ) then Exit;
+   if ( Length(FSelectedCalcGridCols) = 0 ) then
+      begin
+         MessageDlg('No grid columns selected to calculate.',mtInformation,[mbOK],0);
+         Exit;
+      end;
+
+   QueryAnimals := TQuery.Create(nil);
    try
       Screen.Cursor := crHourGlass;
 
-      WinData.RefreshOverGainPerDay := False;
-
-      //   25/01/18 [V5.7 R7.5] /MK Change - Bring up prompt to run the check for all animals both in herd or after the selected year.
-      iCalcYear := TfmUpdateAnimalGainPerDayMsg.GetWeightGainCalcYear;
-      if ( iCalcYear = 0 ) then Exit;
-
-      if ( not(WinData.EventDataHelper.CanCalcOverallGainPerDay) ) then
-         begin
-            MessageDlg('To calculate lifetime weight gain/day, you need to have'+cCRLF+
-                       'entered at least two sets of weighings.',mtInformation,[mbOK],0);
-            Exit;
-         end;
-
-      QueryAnimals := TQuery.Create(nil);
       QueryAnimals.DatabaseName := AliasName;
-      QueryAnimals.SQL.Clear;
-      QueryAnimals.SQL.Add('UPDATE Animals');
-      QueryAnimals.SQL.Add('SET OverallWeightGain = 0');
-      QueryAnimals.ExecSQL;
 
-      WinData.AnimalFileByID.Close;
-      WinData.AnimalFileByID.Open;
-
-      WeighedAnimals := TTable.Create(nil);
-      WeighedAnimals.DatabaseName := AliasName;
-      WeighedAnimals.TableName := 'tWeighedAnimals';
-      WeighedAnimals.FieldDefs.Add('ID',ftAutoInc);
-      WeighedAnimals.FieldDefs.Add('AnimalID',ftInteger);
-      if WeighedAnimals.Exists then Exit;
-
-      WeighedAnimals.FieldDefs.Clear;
-      WeighedAnimals.IndexDefs.Clear;
-
-      WeighedAnimals.FieldDefs.Add('Id',ftAutoInc);
-      WeighedAnimals.FieldDefs.Add('AnimalID',ftInteger);
-
-      WeighedAnimals.IndexDefs.Add('iId','Id',[ixPrimary, ixUnique]);
-      WeighedAnimals.IndexDefs.Add('iAnimalID','AnimalID',[ixUnique, ixCaseInsensitive]);
-      WeighedAnimals.CreateTable;
-      WeighedAnimals.Open;
-
-      // Get all animals in the currently in the herd first.
-      QueryAnimals.SQL.Clear;
-      QueryAnimals.SQL.Add('INSERT INTO '+WeighedAnimals.TableName+' (AnimalID)');
-      QueryAnimals.SQL.Add('SELECT ID');
-      QueryAnimals.SQL.Add('FROM Animals');
-      QueryAnimals.SQL.Add('WHERE InHerd = True');
-      QueryAnimals.SQL.Add('AND   AnimalDeleted = False');
-      QueryAnimals.SQL.Add('AND   HerdID = '+IntToStr(WinData.UserDefaultHerdID)+'');
-      try
-         QueryAnimals.ExecSQL;
-      except
-         MessageDlg('Cannot get In Herd animals',mtError,[mbOK],0);
-         Exit;
-      end;
-
-      // Get all animals that were sold since the date period selected.
-      QueryAnimals.Close;
-      QueryAnimals.SQL.Clear;
-      QueryAnimals.SQL.Add('INSERT INTO '+WeighedAnimals.TableName+' (AnimalID)');
-      QueryAnimals.SQL.Add('SELECT A.ID');
-      QueryAnimals.SQL.Add('FROM Animals A');
-      QueryAnimals.SQL.Add('LEFT JOIN Events E ON (E.AnimalID = A.ID)');
-      QueryAnimals.SQL.Add('WHERE A.InHerd = False');
-      QueryAnimals.SQL.Add('AND   A.HerdID = '+IntToStr(WinData.UserDefaultHerdID)+'');
-      QueryAnimals.SQL.Add('AND   E.EventType = '+IntToStr(CSaleDeathEvent)+'');
-      QueryAnimals.SQL.Add('AND   E.EventDate >= "01/01/'+IntToStr(iCalcYear)+'"');
-      try
-         QueryAnimals.ExecSQL;
-      except
-         MessageDlg('Cannot get sold animals',mtError,[mbOK],0);
-         Exit;
-      end;
-
-      // Delete animals from WeighedAnimals table that have never been weighed to update of Animals table quicker.
-      QueryAnimals.Close;
-      QueryAnimals.SQL.Clear;
-      QueryAnimals.SQL.Add('DELETE FROM '+WeighedAnimals.TableName);
-      QueryAnimals.SQL.Add('WHERE AnimalID NOT IN (SELECT AnimalID');
-      QueryAnimals.SQL.Add('                       FROM Events');
-      QueryAnimals.SQL.Add('                       WHERE EventType = :CWeighingEvent)');
-      QueryAnimals.Params[0].AsInteger := CWeightEvent;
-      QueryAnimals.ExecSQL;
-
-      WeighedAnimals.Close;
-      WeighedAnimals.Open;
-
-      ShowProgressIndicator('Processing Lifetime Weight Gain/Day',0,WeighedAnimals.RecordCount,1);
-      ProgressIndicator.Max := WeighedAnimals.RecordCount;
-      Application.ProcessMessages;
-      Update;
-
-      //   27/06/18 [V5.8 R0.6] /MK Change - Update animals table of animals in WeighedAnimals table who have an OverAllGainPerDay value. 
-      WeighedAnimals.First;
-      while ( not(WeighedAnimals.Eof) ) do
+      if ( InArray(cxAnimalGridViewGrossMargin.Caption,FSelectedCalcGridCols) ) then
          begin
-            fOverallGain := WinData.FEventDataHelper.GetAnimalOverallGainPerDay(WeighedAnimals.FieldByName('AnimalID').AsInteger);
-            if ( fOverallGain > 0 ) then
+            //   14/05/21 [V6.0 R1.1] /MK Additional Feature - Added calculation of Gross Margin from WinData.MDGridPurchData and WinData.MDGridSaleData.
+            // Get the count of animals on the main grid that are sold. If none then no point running through procedure.
+            bHasSoldAnimals := False;
+            QueryAnimals.Close;
+            QueryAnimals.SQL.Clear;
+            QueryAnimals.SQL.Add('SELECT AF.AId');
+            QueryAnimals.SQL.Add('FROM AFilters AF');
+            QueryAnimals.SQL.Add('INNER JOIN Animals A ON (AF.AId = A.Id)');
+            QueryAnimals.SQL.Add('WHERE (A.InHerd = False)');
+            QueryAnimals.SQL.Add('AND   (A.AnimalDeleted = False)');
+            QueryAnimals.SQL.Add('AND   (A.HerdId In (SELECT DefaultHerdID FROM Defaults))');
+            QueryAnimals.Open;
+            bHasSoldAnimals := ( QueryAnimals.RecordCount > 0 );
+            if ( not(bHasSoldAnimals) ) then
                begin
-                  QueryAnimals.Close;
-                  QueryAnimals.SQL.Clear;
-                  QueryAnimals.SQL.Add('UPDATE Animals');
-                  QueryAnimals.SQL.Add('SET OverallWeightGain = :Gain');
-                  QueryAnimals.SQL.Add('WHERE ID = :AnimalID');
-                  QueryAnimals.Params[0].AsFloat := fOverallGain;
-                  QueryAnimals.Params[1].AsInteger := WeighedAnimals.FieldByName('AnimalID').AsInteger;
-                  QueryAnimals.ExecSQL;
+                  MessageDlg('Unable to calculate Gross Margin, no sold animals found on animal grid.'+cCRLF+
+                             'Apply a Sales Filter or tick Show All Animals.',mtInformation,[mbOK],0);
+                  Exit;
                end;
-            ProgressIndicator.Position := ProgressIndicator.Position + 1;
-            WeighedAnimals.Next;
+            try
+               cxAnimalGridView.DataController.BeginFullUpdate;
+               WinData.AnimalFileByID.DisableControls;
+
+               WinData.MDGridGrossMarginData.Close;
+               WinData.MDGridGrossMarginData.Open;
+
+               if ( not(WinData.MDGridPurchData.Active) ) or ( (WinData.MDGridPurchData.Active) and (WinData.MDGridPurchData.RecordCount = 0) ) then Exit;
+
+               ShowProgressIndicator('Processing Gross Margin Data',0,QueryAnimals.RecordCount,1);
+               ProgressIndicator.Max := QueryAnimals.RecordCount;
+               Application.ProcessMessages;
+               Update;
+
+               QueryAnimals.First;
+               while ( not(QueryAnimals.Eof) ) do
+                  begin
+                     if ( WinData.MDGridPurchData.Locate('AnimalId',QueryAnimals.FieldByName('AId').AsInteger,[]) ) and
+                        ( WinData.MDGridSaleData.Locate('AnimalId',QueryAnimals.FieldByName('AId').AsInteger,[]) ) then
+                        if ( WinData.MDGridPurchData.FieldByName('PurchPrice').AsFloat > 0 ) and ( WinData.MDGridSaleData.FieldByName('SalePrice').AsFloat > 0 ) then
+                           try
+                              WinData.MDGridGrossMarginData.Append;
+                              WinData.MDGridGrossMarginData.FieldByName('AnimalId').AsInteger := QueryAnimals.FieldByName('AId').AsInteger;
+                              WinData.MDGridGrossMarginData.FieldByName('GrossMargin').AsFloat := (WinData.MDGridSaleData.FieldByName('SalePrice').AsFloat -
+                                                                                                    WinData.MDGridPurchData.FieldByName('PurchPrice').AsFloat);
+                              WinData.MDGridGrossMarginData.Post;
+                           except
+                              on e : Exception do
+                                 begin
+                                    ShowDebugMessage(e.Message);
+                                    ApplicationLog.LogException(e);
+                                    ApplicationLog.LogError(Format('WinData.MDGridGrossMarginData : Error posting for AnimalId :d.',
+                                                                   [QueryAnimals.FieldByName('AId').AsInteger]));
+                                 end;
+                           end;
+                     ProgressIndicator.Position := ProgressIndicator.Position + 1;
+                     QueryAnimals.Next;
+                  end;
+               ProgressIndicator.Close;
+               Application.ProcessMessages;
+               Update;
+               WinData.MDGridGrossMarginData.Open;
+            finally
+               try
+                  cxAnimalGridView.DataController.EndFullUpdate;
+                  Windata.AnimalFileByID.EnableControls;
+               except
+               end;
+            end;
          end;
-      ProgressIndicator.Close;
-      Application.ProcessMessages;
-      Update;
 
-      WinData.AnimalFileByID.Close;
-      WinData.AnimalFileByID.Open;
-
-      WinData.RefreshOverGainPerDay := False;
-   finally
-      FreeAndNil(PBar);
-
-      if ( WeighedAnimals <> nil ) then
+      if ( InArray(cxAnimalGridViewOverallGainPerDay.Caption,FSelectedCalcGridCols) ) then
          begin
-            WeighedAnimals.Close;
-            WeighedAnimals.DeleteTable;
-            FreeAndNil(WeighedAnimals);
+            WinData.RefreshOverGainPerDay := False;
+            WeighedAnimals := TTable.Create(nil);
+            try
+               //   25/01/18 [V5.7 R7.5] /MK Change - Bring up prompt to run the check for all animals both in herd or after the selected year.
+               iCalcYear := TfmUpdateAnimalGainPerDayMsg.GetWeightGainCalcYear;
+               if ( iCalcYear = 0 ) then Exit;
+
+               if ( not(WinData.EventDataHelper.CanCalcOverallGainPerDay) ) then
+                  begin
+                     MessageDlg('To calculate lifetime weight gain/day, you need to have'+cCRLF+
+                                'entered at least two sets of weighings.',mtInformation,[mbOK],0);
+                     Exit;
+                  end;
+
+               QueryAnimals.SQL.Clear;
+               QueryAnimals.SQL.Add('UPDATE Animals');
+               QueryAnimals.SQL.Add('SET OverallWeightGain = 0');
+               QueryAnimals.ExecSQL;
+
+               WeighedAnimals.DatabaseName := AliasName;
+               WeighedAnimals.TableName := 'tWeighedAnimals';
+               WeighedAnimals.FieldDefs.Add('ID',ftAutoInc);
+               WeighedAnimals.FieldDefs.Add('AnimalID',ftInteger);
+               if WeighedAnimals.Exists then Exit;
+
+               WeighedAnimals.FieldDefs.Clear;
+               WeighedAnimals.IndexDefs.Clear;
+
+               WeighedAnimals.FieldDefs.Add('Id',ftAutoInc);
+               WeighedAnimals.FieldDefs.Add('AnimalID',ftInteger);
+
+               WeighedAnimals.IndexDefs.Add('iId','Id',[ixPrimary, ixUnique]);
+               WeighedAnimals.IndexDefs.Add('iAnimalID','AnimalID',[ixUnique, ixCaseInsensitive]);
+               WeighedAnimals.CreateTable;
+               WeighedAnimals.Open;
+
+               // Get all animals in the currently in the herd first.
+               QueryAnimals.SQL.Clear;
+               QueryAnimals.SQL.Add('INSERT INTO '+WeighedAnimals.TableName+' (AnimalID)');
+               QueryAnimals.SQL.Add('SELECT ID');
+               QueryAnimals.SQL.Add('FROM Animals');
+               QueryAnimals.SQL.Add('WHERE InHerd = True');
+               QueryAnimals.SQL.Add('AND   AnimalDeleted = False');
+               QueryAnimals.SQL.Add('AND   HerdID = '+IntToStr(WinData.UserDefaultHerdID)+'');
+               try
+                  QueryAnimals.ExecSQL;
+               except
+                  MessageDlg('Cannot get In Herd animals',mtError,[mbOK],0);
+                  Exit;
+               end;
+
+               // Get all animals that were sold since the date period selected.
+               QueryAnimals.Close;
+               QueryAnimals.SQL.Clear;
+               QueryAnimals.SQL.Add('INSERT INTO '+WeighedAnimals.TableName+' (AnimalID)');
+               QueryAnimals.SQL.Add('SELECT A.ID');
+               QueryAnimals.SQL.Add('FROM Animals A');
+               QueryAnimals.SQL.Add('LEFT JOIN Events E ON (E.AnimalID = A.ID)');
+               QueryAnimals.SQL.Add('WHERE A.InHerd = False');
+               QueryAnimals.SQL.Add('AND   A.HerdID = '+IntToStr(WinData.UserDefaultHerdID)+'');
+               QueryAnimals.SQL.Add('AND   E.EventType = '+IntToStr(CSaleDeathEvent)+'');
+               QueryAnimals.SQL.Add('AND   E.EventDate >= "01/01/'+IntToStr(iCalcYear)+'"');
+               try
+                  QueryAnimals.ExecSQL;
+               except
+                  MessageDlg('Cannot get sold animals',mtError,[mbOK],0);
+                  Exit;
+               end;
+
+               // Delete animals from WeighedAnimals table that have never been weighed to update of Animals table quicker.
+               QueryAnimals.Close;
+               QueryAnimals.SQL.Clear;
+               QueryAnimals.SQL.Add('DELETE FROM '+WeighedAnimals.TableName);
+               QueryAnimals.SQL.Add('WHERE AnimalID NOT IN (SELECT AnimalID');
+               QueryAnimals.SQL.Add('                       FROM Events');
+               QueryAnimals.SQL.Add('                       WHERE EventType = :CWeighingEvent)');
+               QueryAnimals.Params[0].AsInteger := CWeightEvent;
+               QueryAnimals.ExecSQL;
+
+               WeighedAnimals.Close;
+               WeighedAnimals.Open;
+
+               ShowProgressIndicator('Processing Lifetime Weight Gain/Day',0,WeighedAnimals.RecordCount,1);
+               ProgressIndicator.Max := WeighedAnimals.RecordCount;
+               Application.ProcessMessages;
+               Update;
+
+               //   27/06/18 [V5.8 R0.6] /MK Change - Update animals table of animals in WeighedAnimals table who have an OverAllGainPerDay value.
+               WeighedAnimals.First;
+               while ( not(WeighedAnimals.Eof) ) do
+                  begin
+                     fOverallGain := WinData.FEventDataHelper.GetAnimalOverallGainPerDay(WeighedAnimals.FieldByName('AnimalID').AsInteger);
+                     if ( fOverallGain > 0 ) then
+                        begin
+                           QueryAnimals.Close;
+                           QueryAnimals.SQL.Clear;
+                           QueryAnimals.SQL.Add('UPDATE Animals');
+                           QueryAnimals.SQL.Add('SET OverallWeightGain = :Gain');
+                           QueryAnimals.SQL.Add('WHERE ID = :AnimalID');
+                           QueryAnimals.Params[0].AsFloat := fOverallGain;
+                           QueryAnimals.Params[1].AsInteger := WeighedAnimals.FieldByName('AnimalID').AsInteger;
+                           QueryAnimals.ExecSQL;
+                        end;
+                     ProgressIndicator.Position := ProgressIndicator.Position + 1;
+                     WeighedAnimals.Next;
+                  end;
+               ProgressIndicator.Close;
+               Application.ProcessMessages;
+               Update;
+
+               WinData.RefreshOverGainPerDay := False;
+
+               cxAnimalGridView.DataController.BeginFullUpdate;
+               WinData.AnimalFileByID.DisableControls;
+               try
+                  WinData.AnimalFileByID.Close;
+                  WinData.AnimalFileByID.Open;
+               finally
+                  try
+                     cxAnimalGridView.DataController.EndFullUpdate;
+                     Windata.AnimalFileByID.EnableControls;
+                  except
+                  end;
+               end;
+
+            finally
+               if ( WeighedAnimals <> nil ) then
+                  begin
+                     WeighedAnimals.Close;
+                     if ( WeighedAnimals.Exists ) then
+                        WeighedAnimals.DeleteTable;
+                     FreeAndNil(WeighedAnimals);
+                  end;
+            end;
          end;
 
+      //   30/08/21 [V6.0 R2.1] /MK Additional Feature - If Expected Calving Date in selected then show Due To Calve Report with message.
+      if ( InArray(cxAnimalGridViewProjectedCalvingDate.Caption,FSelectedCalcGridCols)) then
+         begin
+            WinData.ShowMainGridGridDueToCalvCalcMsg := True;
+            DueToCalve2Click(Sender);
+            cxAnimalGridView.DataController.BeginFullUpdate;
+            WinData.AnimalFileByID.DisableControls;
+            try
+               WinData.AnimalFileByID.Close;
+               WinData.AnimalFileByID.Open;
+            finally
+               try
+                  cxAnimalGridView.DataController.EndFullUpdate;
+                  Windata.AnimalFileByID.EnableControls;
+               except
+               end;
+            end;
+            WinData.ShowMainGridGridDueToCalvCalcMsg := False;
+         end;
+
+   finally
       if ( QueryAnimals <> nil ) then
          begin
             QueryAnimals.Close;
@@ -16302,15 +16743,21 @@ end;
 procedure TMenuForm.pmiAHDBFileClick(Sender: TObject);
 begin
    TfmAHDBImport.ShowTheForm;
-   RefreshAllExternalData;
+   try
+      Screen.Cursor := crHourGlass;
+      WinData.AnimalFileByID.Close;
+      WinData.AnimalFileByID.Open;
+   finally
+      Screen.Cursor := crDefault;
+   end;
 end;
 
 procedure TMenuForm.miTestFacilityClick(Sender: TObject);
 begin
-   //ProcessAimMovements;
-   //ProcessAIMHerdReconcile();
-   //TfmAIMHeifTempTransfers.SaveTempTransfers;
-   TfmRemittanceConvert.ShowConverter;
+   if ( WinData.MDGridGrossMarginData.Locate('AnimalId',WinData.AnimalFileByIDID.AsInteger,[]) ) then
+      ShowMessage(WinData.AnimalFileByIDNatIDNum.AsString + ' Gross Margin = '+FloatToStr(WinData.MDGridGrossMarginData.FieldByName('GrossMargin').AsFloat))
+   else
+      ShowMessage('Animal No Found in mdGridGrossMarginData');
 end;
 
 procedure TMenuForm.actAddA1A2ResultExecute(Sender: TObject);
@@ -16499,6 +16946,7 @@ begin
       for j := 0 to cxAnimalGridView.ColumnCount-1 do
          if ( cxAnimalGridView.Columns[j].Name = CurrGridView.Columns[i].Name ) then
             cxAnimalGridView.Columns[j].Visible := CurrGridView.Columns[i].Visible;
+   StoreAnimalGridView;         
 end;
 
 procedure TMenuForm.actCalvingHelpExecute(Sender: TObject);
@@ -16508,6 +16956,396 @@ begin
    else
       MessageDlg('Unable to open calving online help.'+cCRLF+
                  'Please make sure your connected to the internet.',mtError,[mbOK],0);
+end;
+
+procedure TMenuForm.StockBullsInUseFilter;
+begin
+   try
+      Update;
+      cxAnimalGridView.DataController.BeginFullUpdate;
+      WinData.AnimalFileByID.DisableControls;
+      WinData.AnimalFileByID.Active := False;
+      with WinData.AnimalFileByID.SQL do
+         try
+            Clear;
+            Add('SELECT DISTINCT (A.ID), A.* FROM Animals A');
+            Add('INNER JOIN BullSemenStk B ON (B.AnimalID=A.ID)');
+            Add('WHERE (A.AnimalDeleted=FALSE)');
+            Add('AND   (A.Sex="'+cSex_Bull+'")');
+            Add('AND   (A.AnimalNo <> "")');
+            Add('AND   (B.InUse = True)');
+            Add('AND   (A.Breeding = True)');
+            Add('AND   (A.HerdID IN (SELECT DefaultHerdID FROM Defaults))');
+            ApplySortToAnimalFileByIdAndOpenQuery();
+            fFilters.AIBullSQL := '';
+            fFilters.AIBullSQL := WinData.AnimalFileByID.SQL.Text;
+         finally
+            WinData.AnimalFileByID.EnableControls;
+            cxAnimalGridView.DataController.EndFullUpdate;
+         end;
+   finally
+      Screen.Cursor := crDefault;
+   end;
+end;
+
+procedure TMenuForm.pmiNatIdSortClick(Sender: TObject);
+begin
+// General NatIdNum Sort.
+end;
+
+procedure TMenuForm.pmiNatIdCheckDigitClick(Sender: TObject);
+begin
+// NatIdNum Sort Check Digit.
+end;
+
+procedure TMenuForm.pmiNatIdLast4DigitsClick(Sender: TObject);
+begin
+// NatIdNum Last 4 Digit Sort.
+end;
+
+procedure TMenuForm.pmiListStockBullsClick(Sender: TObject);
+begin
+   DoFilter(qfStockBullInUse,'Stock Bulls');
+end;
+
+procedure TMenuForm.pmiPurchaseStockBullClick(Sender: TObject);
+begin
+   actPurchase.Execute;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintTotalAmountCount(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and ( WinData.AnimalFileByID.RecordCount > 0 ) then
+         AText := IntToStr(WinData.AnimalFileByID.RecordCount);
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgPricePerKg(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewPricePerKg.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(S.Price), AVG(S.ColdDeadWt)');
+               SQL.Add('FROM SalesDeaths S');
+               SQL.Add('WHERE ((S.Price > 0) AND (S.ColdDeadWt > 0))');
+               SQL.Add('AND S.EventId IN (SELECT ID');
+               SQL.Add('                  FROM Events');
+               SQL.Add('                  WHERE EventType = 11');
+               SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) then
+                     begin
+                        if ( Fields[0].AsFloat > 0 ) and ( Fields[1].AsFloat > 0 ) then
+                           AText := FormatFloat('#.00',Fields[0].AsFloat/Fields[1].AsFloat);
+                     end;
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintSummaryText(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   if ( AText = '0.00' ) then
+      AText := '';
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgSalePrice(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewSalePrice.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(S.Price)');
+               SQL.Add('FROM SalesDeaths S');
+               SQL.Add('WHERE S.Price > 0');
+               SQL.Add('AND S.EventId IN (SELECT ID');
+               SQL.Add('                  FROM Events');
+               SQL.Add('                  WHERE EventType = 11');
+               SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     AText := FormatFloat('0.00',Fields[0].AsFloat);
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgColdDeadWt(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewColdDeadWt.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(S.ColdDeadWt)');
+               SQL.Add('FROM SalesDeaths S');
+               SQL.Add('WHERE S.ColdDeadWt > 0');
+               SQL.Add('AND S.EventId IN (SELECT ID');
+               SQL.Add('                  FROM Events');
+               SQL.Add('                  WHERE EventType = 11');
+               SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     AText := FormatFloat('0.00',Fields[0].AsFloat);
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgPurchWeight(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewPurchWeight.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(P.Weight)');
+               SQL.Add('FROM Purchases P');
+               SQL.Add('WHERE P.Weight > 0');
+               SQL.Add('AND P.EventId IN (SELECT ID');
+               SQL.Add('                  FROM Events');
+               SQL.Add('                  WHERE EventType = 12');
+               SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     AText := FormatFloat('0.00',Fields[0].AsFloat);
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgPurchPrice(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewPurchPrice.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(P.Price)');
+               SQL.Add('FROM Purchases P');
+               SQL.Add('WHERE P.Price > 0');
+               SQL.Add('AND P.EventId IN (SELECT ID');
+               SQL.Add('                  FROM Events');
+               SQL.Add('                  WHERE EventType = 12');
+               SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     AText := FormatFloat('0.00',Fields[0].AsFloat);
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgDaysOnFarm(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+var
+   dEntryDate,
+   dDateOfBirth,
+   dPurchDate,
+   dSaleDate : TDateTime;
+   iAnimalCount,
+   iTotDaysOnFarm,
+   iDaysBetween : Integer;
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewDaysOnFarm.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AF.AId, A.DateOfBirth ,PE.EventDate PurchDate, SE.EventDate SaleDate');
+               SQL.Add('FROM AFilters AF');
+               SQL.Add('LEFT JOIN Events PE ON ((PE.AnimalId = AF.AId) AND (PE.EventType = 12))');
+               SQL.Add('LEFT JOIN Events SE ON ((SE.AnimalId = AF.AId) AND (SE.EventType = 11))');
+               SQL.Add('INNER JOIN Animals A ON (A.Id = AF.AId)');
+               try
+                  Open;
+                  First;
+                  iAnimalCount := 0;
+                  iTotDaysOnFarm := 0;
+                  while ( not(Eof) ) do
+                     begin
+                        dEntryDate := 0;
+                        dDateOfBirth := 0;
+                        dPurchDate := 0;
+                        dSaleDate := 0;
+                        dDateOfBirth := FieldByName('DateOfBirth').AsDateTime;
+                        dPurchDate := FieldByName('PurchDate').AsDateTime;
+                        dSaleDate := FieldByName('SaleDate').AsDateTime;
+                        if ( dPurchDate > 0 ) then
+                           dEntryDate := dPurchDate
+                        else
+                           dEntryDate := dDateOfBirth;
+                        if ( dSaleDate > 0 ) and ( dSaleDate > dEntryDate ) then
+                           iTotDaysOnFarm := iTotDaysOnFarm + Trunc(dSaleDate - dEntryDate)
+                        else if ( dSaleDate = 0 ) and ( Date > dEntryDate ) then
+                           iTotDaysOnFarm := iTotDaysOnFarm + Trunc(Date - dEntryDate);
+                        Inc(iAnimalCount);
+                        Next;
+                     end;
+                  if ( iTotDaysOnFarm > 0 ) and ( iAnimalCount > 0 ) then
+                     AText := FormatFloat('0',(iTotDaysOnFarm/iAnimalCount));
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgGrossMargin(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+var
+   fAvgPurchPrice,
+   fAvgSalePrice : Double;
+begin
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+         ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewGrossMargin.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(S.Price)');
+               SQL.Add('FROM SalesDeaths S');
+               SQL.Add('WHERE S.Price > 0');
+               SQL.Add('AND S.EventId IN (SELECT ID');
+               SQL.Add('                  FROM Events');
+               SQL.Add('                  WHERE EventType = 11');
+               SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     fAvgSalePrice := Fields[0].AsFloat;
+                  Close;
+                  SQL.Clear;
+                  SQL.Add('SELECT AVG(P.Price)');
+                  SQL.Add('FROM Purchases P');
+                  SQL.Add('WHERE P.Price > 0');
+                  SQL.Add('AND P.EventId IN (SELECT ID');
+                  SQL.Add('                  FROM Events');
+                  SQL.Add('                  WHERE EventType = 12');
+                  SQL.Add('                  AND AnimalID IN (SELECT AID FROM AFilters))');
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     fAvgPurchPrice := Fields[0].AsFloat;
+                  if ( fAvgSalePrice > 0 ) and ( fAvgPurchPrice > 0 ) then
+                     AText := FormatFloat('0.00',(fAvgSalePrice - fAvgPurchPrice));
+               except
+                  on e : Exception do
+                     ShowDebugMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewPrintAvgOverallGainPerDay(
+  Sender: TcxDataSummaryItem; const AValue: Variant; AIsFooter: Boolean;
+  var AText: String);
+begin
+   //   12/01/18 [V5.7 R7.4] /MK Additional Feature - AvgOverallGainPerDay should be based on animals with a gain NOT animals with zero gain per day - GL.
+   AText := '';
+   if ( FFormShowing ) and ( FPrintGrid ) then
+      if  ( WinData.AnimalFileByID <> nil ) and ( WinData.AnimalFileByID.Active ) and
+          ( WinData.AnimalFileByID.RecordCount > 0 ) and ( cxAnimalGridViewOverallGainPerDay.Visible ) then
+         with TQuery.Create(nil) do
+            try
+               DatabaseName := AliasName;
+               SQL.Clear;
+               SQL.Add('SELECT AVG(OverallWeightGain)');
+               SQL.Add('FROM Animals');
+               SQL.Add('WHERE ID IN (SELECT AID FROM AFilters)');
+               SQL.Add('AND OverallWeightGain > 0');
+               try
+                  Open;
+                  if ( RecordCount > 0 ) and ( Fields[0].AsFloat > 0 ) then
+                     AText := FormatFloat('0.00',Fields[0].AsFloat);
+               except
+                  on e : Exception do
+                     ShowMessage(e.Message);
+               end;
+            finally
+               Free;
+            end;
+end;
+
+procedure TMenuForm.cxAnimalGridViewOverallGainPerDayGetDisplayText(
+  Sender: TcxCustomGridTableItem; ARecord: TcxCustomGridRecord;
+  var AText: String);
+begin
+   if ( AText = '0.00' ) then
+      AText := '';
+end;
+
+procedure TMenuForm.ColumnHeaderClick(Sender: TObject);
+begin
+   if ( Sender is TcxGridDBColumn ) then
+      ResetColumnHeader((Sender as TcxGridDBColumn).Index);
 end;
 
 initialization

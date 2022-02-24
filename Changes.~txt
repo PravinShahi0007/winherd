@@ -1,3 +1,11 @@
+Version V6.0 R4.0
+
+24/02/22 /MK Change - MenuUnit - ShowCalfReg - Don't show APHIS Birth Reg screen anymore, give information message about www.kingswoodfarm.ie - George (TGM).
+
+Version V6.0 R3.6
+
+11/01/22 /MK Bug Fix - uMedicineSetup - When appending Medicine from another screen i.e. MediPurc, set the FAddedMedicine boolean to true - Hugh Collender.
+
 Version V6.0 R3.4
 
 22/12/21 /MK Change - uDrugFinder - Search - If the user clicks the X to manually search then search the who string for the text entered instead of the first 3 characters.
